@@ -39,7 +39,7 @@ function Client.GetService(service)
 		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Client.GetService()", "string", typeof(service))
 	)
 
-	assert(servicesFolder:FindFirstChild(service), ("%s Service [%s] not found!"):format(tostring(Client), service))
+	assert(servicesFolder:FindFirstChild(service), ("%s Service [%s] not found!"):format(SharedConstants.Comet, service))
 
 	return Client._servicesBuilt[service] or Client._buildService(service)
 end
@@ -57,7 +57,7 @@ function Client.GetController(controllerName)
 
 	assert(
 		Client.Controllers[controllerName],
-		("%s Controller [%s] not found!"):format(tostring(Client), controllerName)
+		("%s Controller [%s] not found!"):format(SharedConstants.Comet, controllerName)
 	)
 
 	return Client.Controllers[controllerName]
