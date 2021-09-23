@@ -60,10 +60,7 @@ function Client.GetController(controllerName)
 		)
 	)
 
-	assert(
-		Client.Controllers[controllerName],
-		("%s Controller [%s] not found!"):format(SharedConstants.Comet, controllerName)
-	)
+	assert(Client.Controllers[controllerName], ("Controller [%s] not found!"):format(controllerName))
 
 	return Client.Controllers[controllerName]
 end

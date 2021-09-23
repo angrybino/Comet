@@ -149,7 +149,7 @@ function Server.GetService(serviceName)
 		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Comet.GetService()", "string", typeof(serviceName))
 	)
 
-	assert(Server.Services[serviceName], ("%s Service [%s] not found!"):format(SharedConstants.Comet, serviceName))
+	assert(Server.Services[serviceName], ("Service [%s] not found!"):format(serviceName))
 
 	return Server.Services[serviceName]
 end
