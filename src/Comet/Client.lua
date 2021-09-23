@@ -5,6 +5,7 @@
 --[[
 	Client.Util : Folder
 	Client.Controllers : table
+	Client.Version : string
 	
 	Client.SetControllersFolder(controllersFolder : Folder) --> void []
 	Client.Start() --> Promise []
@@ -28,9 +29,10 @@ local ClientRemoteSignal = require(Client.Util.Remote.ClientRemoteSignal)
 local ClientRemoteProperty = require(Client.Util.Remote.ClientRemoteProperty)
 local SharedConstants = require(script.Parent.SharedConstants)
 local SafeWaitForChild = require(Client.Util.SafeWaitForChild)
- 
+
 local servicesFolder = SafeWaitForChild(script, "ClientExposedServices")
 
+Client.Version = SharedConstants.Version
 Client.LocalPlayer = Players.LocalPlayer
 
 function Client.GetService(service)
@@ -39,7 +41,10 @@ function Client.GetService(service)
 		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Client.GetService()", "string", typeof(service))
 	)
 
-	assert(servicesFolder:FindFirstChild(service), ("%s Service [%s] not found!"):format(SharedConstants.Comet, service))
+	assert(
+		servicesFolder:FindFirstChild(service),
+		("%s Service [%s] not found!"):format(SharedConstants.Comet, service)
+	)
 
 	return Client._servicesBuilt[service] or Client._buildService(service)
 end

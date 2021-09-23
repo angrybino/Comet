@@ -5,6 +5,7 @@
 --[[
 	Server.Util : Folder
 	Server.Services : table
+	Server.Version : string
 
 	Server.SetServicesFolder(servicesFolder : Folder) --> void []
 	Server.GetService(serviceName : string) --> table | nil [Service]
@@ -24,6 +25,8 @@ local RemoteSignal = require(Server.Util.Remote.RemoteSignal)
 local SharedConstants = require(script.Parent.SharedConstants)
 local Signal = require(Server.Util.Signal)
 local RemoteProperty = require(Server.Util.Remote.RemoteProperty)
+
+Server.Version = SharedConstants.Version
 
 function Server.SetServicesFolder(servicesFolder)
 	assert(
