@@ -87,34 +87,36 @@ function Client.Start()
 	Client._controllersSet = Client._controllersSet or {}
 	Client._isStarted = true
 
-	return Promise.async(function(resolve, reject)
-		local success, errorMessage = pcall(function()
-			-- Init all controllers first and inject the framework reference:
-			for _, controller in ipairs(Client._controllersSet) do
-				local requiredController = require(controller)
-				requiredController.Comet = Client
+	return Promise.async(function(resolve)
+		local promises = {}
 
-				if typeof(requiredController.Init) == "function" then
-					requiredController.Init()
-				end
+		-- Init all controllers first and inject the framework reference:
+		for _, controller in ipairs(Client._controllersSet) do
+			local requiredController = require(controller)
+			requiredController.Comet = Client
+
+			if typeof(requiredController.Init) == "function" then
+				table.insert(
+					promises,
+					Promise.async(function(resolve)
+						requiredController.Init()
+						resolve()
+					end)
+				)
+			end
+		end
+
+		resolve(Promise.All(promises))
+	end):andThen(function()
+		-- Start all controllers now as we know it is safe:
+		for _, controller in ipairs(Client._controllersSet) do
+			local requiredController = require(controller)
+
+			if typeof(requiredController.Start) == "function" then
+				task.spawn(requiredController.Start)
 			end
 
-			-- Start all controllers now as we know it is safe:
-			for _, controller in ipairs(Client._controllersSet) do
-				local requiredController = require(controller)
-
-				if typeof(requiredController.Start) == "function" then
-					task.spawn(requiredController.Start)
-				end
-
-				Client.Controllers[controller.Name] = requiredController
-			end
-		end)
-
-		if success then
-			resolve()
-		else
-			reject(errorMessage)
+			Client.Controllers[controller.Name] = requiredController
 		end
 	end)
 end

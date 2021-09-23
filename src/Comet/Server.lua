@@ -108,38 +108,40 @@ function Server.Start()
 		end
 	end
 
-	return Promise.async(function(resolve, reject)
-		local success, errorMessage = pcall(function()
-			-- Init all services first, setup client exposed properties and inject the framework reference:
-			for _, service in ipairs(Server._servicesSet) do
-				local requiredService = require(service)
-				SetupServiceClientExposedStuff(service)
-				requiredService.Comet = Server
+	return Promise.async(function(resolve)
+		local promises = {}
 
-				if typeof(requiredService.Init) == "function" then
-					requiredService.Init()
-				end
+		-- Init all services first, setup client exposed properties and inject the framework reference:
+		for _, service in ipairs(Server._servicesSet) do
+			local requiredService = require(service)
+			SetupServiceClientExposedStuff(service)
+			requiredService.Comet = Server
+
+			if typeof(requiredService.Init) == "function" then
+				table.insert(
+					promises,
+					Promise.async(function(resolve)
+						requiredService.Init()
+						resolve()
+					end)
+				)
 			end
-
-			-- Start all services now as we know it is safe:
-			for _, service in ipairs(Server._servicesSet) do
-				local requiredService = require(service)
-
-				if typeof(requiredService.Start) == "function" then
-					task.spawn(requiredService.Start)
-				end
-
-				Server.Services[service.Name] = requiredService
-			end
-
-			clientExposedServicesFolder.Parent = script.Parent.Client
-		end)
-
-		if success then
-			resolve()
-		else
-			reject(errorMessage)
 		end
+
+		resolve(Promise.All(promises))
+	end):andThen(function()
+		-- Start all services now as we know it is safe:
+		for _, service in ipairs(Server._servicesSet) do
+			local requiredService = require(service)
+
+			if typeof(requiredService.Start) == "function" then
+				task.spawn(requiredService.Start)
+			end
+
+			Server.Services[service.Name] = requiredService
+		end
+
+		clientExposedServicesFolder.Parent = script.Parent.Client
 	end)
 end
 
