@@ -1,4 +1,3 @@
-local ServerScriptService = game:GetService("ServerScriptService")
 -- SilentsReplacement
 -- ClientRemoteProperty
 -- September 23, 2021
