@@ -39,7 +39,29 @@ function Server.SetServicesFolder(servicesFolder)
 		)
 	)
 
-	Server._servicesFolder = servicesFolder
+	local serviceNames = {}
+
+	local function AddServices(folder)
+		for _, service in ipairs(folder:GetChildren()) do
+			if not service:IsA("ModuleScript") then
+				if service:IsA("Folder") then
+					AddServices(service)
+				end
+
+				continue
+			end
+
+			if serviceNames[service.Name] then
+				warn(("Service with duplicate name [%s] found: %s"):format(service.Name, service:GetFullName()))
+			end
+
+			local requiredService = require(service)
+			serviceNames[service.Name] = true
+			Server.Services[service.Name] = requiredService
+		end
+	end
+
+	AddServices(servicesFolder)
 end
 
 function Server.Start()
@@ -50,11 +72,11 @@ function Server.Start()
 	Server._isStarted = true
 
 	return Promise.async(function(resolve)
-		local promises = Server._initServices(Server._servicesFolder)
+		local promises = Server._initServices()
 		resolve(Promise.All(promises))
 	end):andThen(function()
 		-- Start all services now as we know it is safe:
-		Server._startServices(Server._servicesFolder)
+		Server._startServices()
 		Server._clientExposedServicesFolder.Name = "ClientExposedServices"
 		Server._clientExposedServicesFolder.Parent = script.Parent.Client
 	end)
@@ -66,39 +88,26 @@ function Server.GetService(serviceName)
 		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Comet.GetService()", "string", typeof(serviceName))
 	)
 
-	assert(Server.Services[serviceName], ("Service [%s] not found!"):format(serviceName))
+	local service = Server.Services[serviceName]
+	assert(service, ("Service [%s] not found!"):format(serviceName))
 
-	return Server.Services[serviceName]
+	return service
 end
 
-function Server._startServices(folder)
-	if not folder then
-		return
-	end
-
+function Server._startServices()
 	-- Start all services:
-	for _, service in ipairs(folder:GetChildren()) do
-		if not service:IsA("ModuleScript") then
-			if service:IsA("Folder") then
-				Server._startServices(service)
-			end
-
-			continue
-		end
-
-		local requiredService = require(service)
-
+	for _, requiredService in pairs(Server.Services) do
 		if typeof(requiredService.Start) == "function" then
 			task.spawn(requiredService.Start)
 		end
 	end
 end
 
-function Server._initServices(folder)
-	local function SetupServiceClientExposedStuff(service, folder)
+function Server._initServices(services)
+	local function SetupServiceClientExposedStuff(requiredService, serviceName)
 		local serviceRemotesFolder = Instance.new("Folder")
-		serviceRemotesFolder.Name = service.Name
-		serviceRemotesFolder.Parent = folder
+		serviceRemotesFolder.Name = serviceName
+		serviceRemotesFolder.Parent = Server._clientExposedServicesFolder
 
 		local clientExposedMethodsFolder = Instance.new("Folder")
 		clientExposedMethodsFolder.Name = "ClientExposedMethods"
@@ -115,8 +124,6 @@ function Server._initServices(folder)
 		local clientExposedMembersFolder = Instance.new("Folder")
 		clientExposedMembersFolder.Name = "ClientExposedMembers"
 		clientExposedMembersFolder.Parent = serviceRemotesFolder
-
-		local requiredService = require(service)
 
 		if typeof(requiredService.Client) ~= "table" then
 			return
@@ -139,9 +146,9 @@ function Server._initServices(folder)
 				)
 			elseif Signal.IsSignal(value) then
 				warn(
-					("%s Service [%s] attempted to expose a signal to the client which isn't possible!"):format(
+					("%s Service [%s] attempted to expose a signal to the client rather than a RemoteSignal"):format(
 						SharedConstants.Comet,
-						service.Name
+						serviceName
 					)
 				)
 			else
@@ -153,31 +160,19 @@ function Server._initServices(folder)
 	local promises = {}
 
 	-- Init all services:
-	if folder then
-		for _, service in ipairs(folder:GetChildren()) do
-			if not service:IsA("ModuleScript") then
-				if service:IsA("Folder") then
-					Server._initServices(service)
-				end
+	for serviceName, requiredService in pairs(Server.Services) do
+		SetupServiceClientExposedStuff(requiredService, serviceName)
+		requiredService.Comet = Server
 
-				continue
-			end
-
-			local requiredService = require(service)
-			SetupServiceClientExposedStuff(service, Server._clientExposedServicesFolder)
-			requiredService.Comet = Server
-
-			if typeof(requiredService.Init) == "function" then
-				table.insert(
-					promises,
-					Promise.async(function(resolve)
-						requiredService.Init()
-						resolve()
-					end)
-				)
-			end
-
-			Server.Services[service.Name] = requiredService
+		if typeof(requiredService.Init) == "function" then
+			-- We want to make sure to capture any errors during the initialization of the service:
+			table.insert(
+				promises,
+				Promise.async(function(resolve)
+					requiredService.Init()
+					resolve()
+				end)
+			)
 		end
 	end
 

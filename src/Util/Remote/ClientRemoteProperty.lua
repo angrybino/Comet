@@ -8,10 +8,11 @@
 
 	 -- Only when accessed from a object returned by ClientRemoteProperty.new():
 	 
-    ClientRemoteProperty.OnUpdate : Signal (newValue : any)
+    ClientRemoteProperty.OnValueUpdate : Signal (newValue : any)
+
     ClientRemoteProperty:Destroy() --> void []
-    RemoteProperty:Set() --> void []
-    RemoteProperty:Get() --> any [value]
+    ClientRemoteProperty:Set() --> void []
+    ClientRemoteProperty:Get() --> any [value]
 ]]
 
 local ClientRemoteProperty = {}
@@ -30,7 +31,7 @@ function ClientRemoteProperty.new(currentValue)
 	assert(RunService:IsClient(), "ClientRemoteProperty can only be created on the client")
 
 	return setmetatable({
-		OnUpdate = Signal.new(),
+		OnValueUpdate = Signal.new(),
 		_currentValue = currentValue,
 
 		_callBacks = {},
@@ -39,30 +40,29 @@ end
 
 function ClientRemoteProperty:InitRemoteFunction(remoteFunction)
 	self._remoteFunction = remoteFunction
-	self._remoteFunction.OnClientInvoke = function(newValue)
-		self.OnUpdate:Fire(newValue)
+	function self._remoteFunction.OnClientInvoke(newValue)
+		self.OnValueUpdate:Fire(newValue)
 	end
 end
 
 function ClientRemoteProperty:Destroy()
-	self.OnUpdate:Destroy()
+	self.OnValueUpdate:Destroy()
 
-	if not self._remoteFunction then
-		return
+	if self._remoteFunction then
+		self._remoteFunction:Destroy()
+		self._remoteFunction = nil
 	end
-
-	self._remoteFunction:Destroy()
 end
 
 function ClientRemoteProperty:Set(newValue)
 	assert(
 		not self._remoteFunction,
-		"Can't call ClientRemoteProperty:Set() on client as ClientRemoteProperty is bound by the Server"
+		"Can't call ClientRemoteProperty:Set() on client as the current remote property is bound by the Server"
 	)
 
 	if self._currentValue ~= newValue then
 		self._currentValue = newValue
-		self.OnUpdate:Fire(newValue)
+		self.OnValueUpdate:Fire(newValue)
 	end
 end
 

@@ -57,9 +57,10 @@ function Client.GetController(controllerName)
 		)
 	)
 
-	assert(Client.Controllers[controllerName], ("Controller [%s] not found!"):format(controllerName))
+	local controller = Client.Controllers[controllerName]
+	assert(controller, ("Controller [%s] not found!"):format(controllerName))
 
-	return Client.Controllers[controllerName]
+	return controller
 end
 
 function Client.SetControllersFolder(controllersFolder)
@@ -73,7 +74,31 @@ function Client.SetControllersFolder(controllersFolder)
 		)
 	)
 
-	Client._controllersFolder = controllersFolder
+	local controllerNames = {}
+
+	local function AddControllers(folder)
+		for _, controller in ipairs(folder:GetChildren()) do
+			if not controller:IsA("ModuleScript") then
+				if controller:IsA("Folder") then
+					AddControllers(controller)
+				end
+
+				continue
+			end
+
+			if controllerNames[controller.Name] then
+				warn(
+					("Controller with duplicate name [%s] found: %s"):format(controller.Name, controller:GetFullName())
+				)
+			end
+
+			local requiredController = require(controller)
+			controllerNames[controller.Name] = true
+			Client.Controllers[controller.Name] = requiredController
+		end
+	end
+
+	AddControllers(controllersFolder)
 end
 
 function Client.Start()
@@ -89,61 +114,34 @@ function Client.Start()
 	end):andThen(function()
 		-- Start all controllers now as we know it is safe:
 		Client._startControllers()
+		servicesFolder.Parent = nil
 	end)
 end
 
 function Client._startControllers(folder)
-	if not folder then
-		return
-	end
-
 	-- Init all controllers:
-	for _, controller in ipairs(folder:GetChildren()) do
-		if not controller:IsA("ModuleScript") then
-			if controller:IsA("Folder") then
-				Client._startControllers(folder)
-			end
-
-			continue
-		end
-
-		local requiredController = require(controller)
-
+	for _, requiredController in pairs(Client.Controllers) do
 		if typeof(requiredController.Start) == "function" then
 			task.spawn(requiredController.Start)
-			Client.Controllers[controller.Name] = requiredController
 		end
 	end
 end
 
-function Client._initControllers(folder)
+function Client._initControllers()
 	local promises = {}
 
-	if folder then
-		-- Init all controllers:
-		for _, controller in ipairs(folder:GetChildren()) do
-			if not controller:IsA("ModuleScript") then
-				if controller:IsA("Folder") then
-					Client._initControllers(controller)
-				end
+	-- Init all controllers:
+	for _, requiredController in pairs(Client.Controllers) do
+		requiredController.Comet = Client
 
-				continue
-			end
-
-			local requiredController = require(controller)
-			requiredController.Comet = Client
-
-			if typeof(requiredController.Init) == "function" then
-				table.insert(
-					promises,
-					Promise.async(function(resolve)
-						requiredController.Init()
-						resolve()
-					end)
-				)
-			end
-
-			Client.Controllers[controller.Name] = requiredController
+		if typeof(requiredController.Init) == "function" then
+			table.insert(
+				promises,
+				Promise.async(function(resolve)
+					requiredController.Init()
+					resolve()
+				end)
+			)
 		end
 	end
 
@@ -152,6 +150,7 @@ end
 
 function Client._buildService(serviceName)
 	local service = servicesFolder[serviceName]
+
 	local clientExposedMethods = service.ClientExposedMethods:GetChildren()
 	local clientExposedRemoteSignals = service.ClientExposedRemoteSignals:GetChildren()
 	local clientExposedRemoteProperties = service.ClientExposedRemoteProperties:GetChildren()
@@ -164,7 +163,7 @@ function Client._buildService(serviceName)
 			return method:InvokeServer(...)
 		end
 	end
-
+  
 	-- Expose members to the client:
 	for _, member in ipairs(clientExposedMembers) do
 		builtService[member.Name] = member:InvokeServer()
