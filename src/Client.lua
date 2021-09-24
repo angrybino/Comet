@@ -76,22 +76,63 @@ function Client.SetControllersFolder(controllersFolder)
 		)
 	)
 
-	Client._controllersSet = controllersFolder:GetChildren()
+	Client._controllersFolder = controllersFolder:GetChildren()
 end
 
 function Client.Start()
 	if Client._isStarted then
-		return Promise.reject(("%s Already started"):format(SharedConstants.Comet))
+		return Promise.reject("Can't start Comet as it is already started")
 	end
 
-	Client._controllersSet = Client._controllersSet or {}
 	Client._isStarted = true
 
 	return Promise.async(function(resolve)
-		local promises = {}
+		local promises = Client._initControllers(Client._controllersFolder)
+		resolve(Promise.All(promises))
+	end):andThen(function()
+		-- Start all controllers now as we know it is safe:
+		Client._startControllers()
+	end)
+end
 
-		-- Init all controllers first and inject the framework reference:
-		for _, controller in ipairs(Client._controllersSet) do
+function Client._startControllers(folder)
+	if not folder then
+		return
+	end
+
+	-- Init all controllers:
+	for _, controller in ipairs(folder:GetChildren()) do
+		if not controller:IsA("ModuleScript") then
+			if controller:IsA("Folder") then
+				Client._startControllers(folder)
+			end
+
+			continue
+		end
+
+		local requiredController = require(controller)
+
+		if typeof(requiredController.Start) == "function" then
+			task.spawn(requiredController.Start)
+			Client.Controllers[controller.Name] = requiredController
+		end
+	end
+end
+
+function Client._initControllers(folder)
+	local promises = {}
+
+	if folder then
+		-- Init all controllers:
+		for _, controller in ipairs(folder:GetChildren()) do
+			if not controller:IsA("ModuleScript") then
+				if controller:IsA("Folder") then
+					Client._initControllers(folder)
+				end
+
+				continue
+			end
+
 			local requiredController = require(controller)
 			requiredController.Comet = Client
 
@@ -105,20 +146,9 @@ function Client.Start()
 				)
 			end
 		end
+	end
 
-		resolve(Promise.All(promises))
-	end):andThen(function()
-		-- Start all controllers now as we know it is safe:
-		for _, controller in ipairs(Client._controllersSet) do
-			local requiredController = require(controller)
-
-			if typeof(requiredController.Start) == "function" then
-				task.spawn(requiredController.Start)
-			end
-
-			Client.Controllers[controller.Name] = requiredController
-		end
-	end)
+	return promises
 end
 
 function Client._buildService(serviceName)

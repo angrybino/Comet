@@ -2,10 +2,12 @@
   "name": "Comet",
   "tree": {
     "$className": "DataModel",
-
+ 
     "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      
       "Comet": {
-        "$path": "src/Comet"
+        "$path": "src"
       }
     }
   }

@@ -4,9 +4,6 @@
 
 --[[
 	UserInput.OnInputTypeChange : Signal (newInputType : string)
-	UserInput.InputType.Keyboard : string
-	UserInput.InputType.Gamepad : string
-	UserInput.InputType.Touch : string
 
 	UserInput.GetCurrentInputType() --> string | nil [CurrentInputType]
 	UserInput.Get(moduleName : string) --> table | nil [RequiredModule]
@@ -21,8 +18,6 @@ local UserInput = {
 
 	_modulesInit = {},
 	_isInit = false,
-
-	_currentInputType = nil,
 }
 
 local UserInputService = game:GetService("UserInputService")

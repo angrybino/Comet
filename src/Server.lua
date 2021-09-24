@@ -16,7 +16,6 @@ local Server = {
 	Util = script.Parent.Util,
 	Services = {},
 
-	_servicesSet = {},
 	_isStarted = false,
 }
 
@@ -39,24 +38,65 @@ function Server.SetServicesFolder(servicesFolder)
 		)
 	)
 
-	Server._servicesSet = servicesFolder:GetChildren()
+	Server._servicesFolder = servicesFolder
 end
 
 function Server.Start()
 	if Server._isStarted then
-		return Promise.reject(("%s Already started"):format(SharedConstants.Comet))
+		return Promise.reject("Can't start Comet as it is already started")
 	end
 
-	Server._servicesSet = Server._servicesSet or {}
 	Server._isStarted = true
 
-	local clientExposedServicesFolder = Instance.new("Folder")
-	clientExposedServicesFolder.Name = "ClientExposedServices"
+	return Promise.async(function(resolve)
+		local promises = Server._initServices(Server._servicesFolder)
+		resolve(Promise.All(promises))
+	end):andThen(function()
+		-- Start all services now as we know it is safe:
+		Server._startServices(Server._servicesFolder)
+		Server._clientExposedServicesFolder.Parent = script.Parent.Client
+	end)
+end
 
-	local function SetupServiceClientExposedStuff(service)
+function Server.GetService(serviceName)
+	assert(
+		typeof(serviceName) == "string",
+		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Comet.GetService()", "string", typeof(serviceName))
+	)
+
+	assert(Server.Services[serviceName], ("Service [%s] not found!"):format(serviceName))
+
+	return Server.Services[serviceName]
+end
+
+function Server._startServices(folder)
+	if not folder then
+		return
+	end
+
+	-- Start all services:
+	for _, service in ipairs(folder:GetChildren()) do
+		if not service:IsA("ModuleScript") then
+			if service:IsA("Folder") then
+				Server._startServices(service)
+			end
+
+			continue
+		end
+
+		local requiredService = require(service)
+
+		if typeof(requiredService.Start) == "function" then
+			requiredService.Start()
+		end
+	end
+end
+
+function Server._initServices(folder)
+	local function SetupServiceClientExposedStuff(service, folder)
 		local serviceRemotesFolder = Instance.new("Folder")
 		serviceRemotesFolder.Name = service.Name
-		serviceRemotesFolder.Parent = clientExposedServicesFolder
+		serviceRemotesFolder.Parent = folder
 
 		local clientExposedMethodsFolder = Instance.new("Folder")
 		clientExposedMethodsFolder.Name = "ClientExposedMethods"
@@ -108,13 +148,24 @@ function Server.Start()
 		end
 	end
 
-	return Promise.async(function(resolve)
-		local promises = {}
+	local promises = {}
+	local clientExposedServicesFolder = Instance.new("Folder")
+	clientExposedServicesFolder.Name = "ClientExposedServices"
+	Server._clientExposedServicesFolder = clientExposedServicesFolder
 
-		-- Init all services first, setup client exposed properties and inject the framework reference:
-		for _, service in ipairs(Server._servicesSet) do
+	-- Init all services:
+	if folder then
+		for _, service in ipairs(folder:GetChildren()) do
+			if not service:IsA("ModuleScript") then
+				if service:IsA("Folder") then
+					Server._initServices(service)
+				end
+
+				continue
+			end
+
 			local requiredService = require(service)
-			SetupServiceClientExposedStuff(service)
+			SetupServiceClientExposedStuff(service, clientExposedServicesFolder)
 			requiredService.Comet = Server
 
 			if typeof(requiredService.Init) == "function" then
@@ -127,33 +178,9 @@ function Server.Start()
 				)
 			end
 		end
+	end
 
-		resolve(Promise.All(promises))
-	end):andThen(function()
-		-- Start all services now as we know it is safe:
-		for _, service in ipairs(Server._servicesSet) do
-			local requiredService = require(service)
-
-			if typeof(requiredService.Start) == "function" then
-				task.spawn(requiredService.Start)
-			end
-
-			Server.Services[service.Name] = requiredService
-		end
-
-		clientExposedServicesFolder.Parent = script.Parent.Client
-	end)
-end
-
-function Server.GetService(serviceName)
-	assert(
-		typeof(serviceName) == "string",
-		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Comet.GetService()", "string", typeof(serviceName))
-	)
-
-	assert(Server.Services[serviceName], ("Service [%s] not found!"):format(serviceName))
-
-	return Server.Services[serviceName]
+	return promises
 end
 
 function Server._bindRemoteFunctionToClientExposedMethod(clientTable, methodName, parent)
