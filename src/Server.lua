@@ -89,7 +89,7 @@ function Server._startServices(folder)
 		local requiredService = require(service)
 
 		if typeof(requiredService.Start) == "function" then
-			requiredService.Start()
+			task.spawn(requiredService.Start)
 		end
 	end
 end
