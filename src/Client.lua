@@ -117,7 +117,7 @@ function Client.Start()
 	end)
 end
 
-function Client._startControllers(folder)
+function Client._startControllers()
 	-- Init all controllers:
 	for _, requiredController in pairs(Client.Controllers) do
 		if typeof(requiredController.Start) == "function" then

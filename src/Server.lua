@@ -103,7 +103,7 @@ function Server._startServices()
 	end
 end
 
-function Server._initServices(services)
+function Server._initServices()
 	local function SetupServiceClientExposedStuff(requiredService, serviceName)
 		local serviceRemotesFolder = Instance.new("Folder")
 		serviceRemotesFolder.Name = serviceName
