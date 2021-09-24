@@ -47,7 +47,7 @@ end
 function ClientRemoteProperty:Destroy()
 	self.OnUpdate:Destroy()
 
-	if self._remoteFunction then
+	if not self._remoteFunction then
 		return
 	end
 
