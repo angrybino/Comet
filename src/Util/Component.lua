@@ -5,7 +5,7 @@
 --[[
 	Component.SetComponentsFolder(componentsFolder : Folder) --> void []
 	Component.GetFromInstance(instance : Instance) --> table | nil [ComponentObject]
-	Component.GetAll() --> table | nil [ComponentObjects]
+	Component.GetAll(instance : Instance ?) --> table | nil [ComponentObjects]
 	Component.Start() --> void []
 ]]
 
@@ -50,11 +50,26 @@ function Component.GetFromInstance(instance)
 	return nil
 end
 
-function Component.GetAll()
+function Component.GetAll(instance)
+	if instance then
+		assert(
+			typeof(instance) == "Instance",
+			SharedConstants.ErrorMessages.InvalidArgument:format(1, "Component.GetAll()", "Instance", typeof(instance))
+		)
+	end
+
 	local componentObjects = {}
 
 	for _, component in ipairs(Component._components) do
-		table.insert(componentObjects, component._objects)
+		local componentObject
+
+		if instance then
+			table.insert(componentObjects, component._objects[instance])
+		else
+			for _, object in pairs(component._objects) do
+				table.insert(componentObjects, object)
+			end
+		end
 	end
 
 	return componentObjects
@@ -86,6 +101,7 @@ function Component.Start()
 				continue
 			elseif component:IsA("ModuleScript") then
 				local requiredComponent = require(component)
+
 				assert(
 					(typeof(requiredComponent.RequiredTags) == "table" and not requiredComponent.OptionalTags)
 						or (typeof(requiredComponent.OptionalTags) == "table" and not requiredComponent.RequiredTags),
@@ -138,15 +154,15 @@ function Component._new(requiredComponent)
 		_hasInitMethod = typeof(requiredComponent.Init) == "function",
 		_hasDeinitMethod = typeof(requiredComponent.Deinit) == "function",
 		_hasRenderUpdateMethod = typeof(requiredComponent.RenderUpdate) == "function",
-		_heartbeatUpdateMethod = typeof(requiredComponent.HeartbeatUpdate) == "function",
-		_lifeCycleStarted = false,
+		_hasHeartbeatUpdateMethod = typeof(requiredComponent.HeartbeatUpdate) == "function",
+		_isLifeCycleStarted = false,
 	}
 
 	setmetatable(self, Component)
 	self._memoryId = tostring(self)
 
 	self._componentObjectAdded:Connect(function()
-		if self._lifeCycleStarted then
+		if self._isLifeCycleStarted then
 			return
 		end
 
@@ -154,7 +170,7 @@ function Component._new(requiredComponent)
 	end)
 
 	self._componentObjectDestroyed:Connect(function()
-		if self._lifeCycleStarted and not next(self._objects) then
+		if self._isLifeCycleStarted and not next(self._objects) then
 			self:_stopLifeCycle()
 		end
 	end)
@@ -202,13 +218,13 @@ function Component._new(requiredComponent)
 end
 
 function Component:_startLifeCycle()
-	self._lifeCycleStarted = true
+	self._isLifeCycleStarted = true
 
 	if self._hasPhysicsUpdateMethod then
 		self:_startPhysicsUpdate()
 	end
 
-	if self._heartbeatUpdateMethod then
+	if self._hasHeartbeatUpdateMethod then
 		self:_startHeartbeatUpdate()
 	end
 
@@ -218,7 +234,7 @@ function Component:_startLifeCycle()
 end
 
 function Component:_stopLifeCycle()
-	self._lifeCycleStarted = false
+	self._isLifeCycleStarted = false
 	self._maid:Cleanup()
 end
 
@@ -252,12 +268,12 @@ function Component:_createAndSetupComponentObject(instance)
 	end
 
 	local componentObject = self._requiredComponent.new(instance)
-	self._objects[instance] = componentObject
 
 	if self._hasInitMethod then
 		componentObject:Init()
 	end
 
+	self._objects[instance] = componentObject
 	self._componentObjectAdded:Fire(componentObject)
 
 	local instanceParentChangedConnection
