@@ -114,7 +114,6 @@ function Client.Start()
 	end):andThen(function()
 		-- Start all controllers now as we know it is safe:
 		Client._startControllers()
-		servicesFolder.Parent = nil
 	end)
 end
 
