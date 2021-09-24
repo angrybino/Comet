@@ -16,6 +16,7 @@ local Server = {
 	Util = script.Parent.Util,
 	Services = {},
 
+	_clientExposedServicesFolder = Instance.new("Folder"),
 	_isStarted = false,
 }
 
@@ -54,6 +55,7 @@ function Server.Start()
 	end):andThen(function()
 		-- Start all services now as we know it is safe:
 		Server._startServices(Server._servicesFolder)
+		Server._clientExposedServicesFolder.Name = "ClientExposedServices"
 		Server._clientExposedServicesFolder.Parent = script.Parent.Client
 	end)
 end
@@ -149,9 +151,6 @@ function Server._initServices(folder)
 	end
 
 	local promises = {}
-	local clientExposedServicesFolder = Instance.new("Folder")
-	clientExposedServicesFolder.Name = "ClientExposedServices"
-	Server._clientExposedServicesFolder = clientExposedServicesFolder
 
 	-- Init all services:
 	if folder then
@@ -165,7 +164,7 @@ function Server._initServices(folder)
 			end
 
 			local requiredService = require(service)
-			SetupServiceClientExposedStuff(service, clientExposedServicesFolder)
+			SetupServiceClientExposedStuff(service, Server._clientExposedServicesFolder)
 			requiredService.Comet = Server
 
 			if typeof(requiredService.Init) == "function" then

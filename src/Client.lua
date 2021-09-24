@@ -42,7 +42,7 @@ function Client.GetService(service)
 	)
 
 	assert(servicesFolder:FindFirstChild(service), ("Service [%s] not found!"):format(service))
-  
+
 	return Client._servicesBuilt[service] or Client._buildService(service)
 end
 
@@ -172,12 +172,14 @@ function Client._buildService(serviceName)
 
 	-- Expose remote signals to the client:
 	for _, remoteSignal in ipairs(clientExposedRemoteSignals) do
-		builtService[remoteSignal.Name] = ClientRemoteSignal.new(remoteSignal)
+		builtService[remoteSignal.Name] = ClientRemoteSignal.new()
+		builtService[remoteSignal.Name]:InitRemoteEvent(remoteSignal)
 	end
 
 	-- Expose remote properties to the client:
 	for _, remoteProperty in ipairs(clientExposedRemoteProperties) do
-		builtService[remoteProperty.Name] = ClientRemoteProperty.new(remoteProperty)
+		builtService[remoteProperty.Name] = ClientRemoteProperty.new()
+		builtService[remoteProperty.Name]:InitRemoteFunction(remoteProperty)
 	end
 
 	Client._servicesBuilt[service] = builtService

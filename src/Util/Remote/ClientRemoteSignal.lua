@@ -20,25 +20,27 @@ local RunService = game:GetService("RunService")
 
 local comet = script:FindFirstAncestor("Comet")
 local Signal = require(comet.Util.Signal)
-local SharedConstants = require(comet.SharedConstants)
 
 function ClientRemoteSignal.IsClientRemoteSignal(self)
 	return getmetatable(self) == ClientRemoteSignal
 end
 
-function ClientRemoteSignal.new(remote)
+function ClientRemoteSignal.new()
 	assert(RunService:IsClient(), "ClientRemoteSignal can only be created on the client")
 
 	local self = setmetatable({
 		_signal = Signal.new(),
-		_remote = remote,
 	}, ClientRemoteSignal)
 
-	self._remote.OnClientEvent:Connect(function(...)
+	return self
+end
+
+function ClientRemoteSignal:InitRemoteEvent(remoteEvent)
+	self._remoteEvent = remoteEvent
+
+	self._remoteEvent.OnClientEvent:Connect(function(...)
 		self._signal:Fire(...)
 	end)
-
-	return self
 end
 
 function ClientRemoteSignal:Connect(callBack)
@@ -50,7 +52,7 @@ function ClientRemoteSignal:DisconnectAllConnections()
 end
 
 function ClientRemoteSignal:Destroy()
-	self._remote:Destroy()
+	self._remoteEvent:Destroy()
 	self._signal:Destroy()
 end
 

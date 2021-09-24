@@ -26,23 +26,22 @@ function ClientRemoteProperty.IsClientRemoteProperty(self)
 	return getmetatable(self) == ClientRemoteProperty
 end
 
-function ClientRemoteProperty.new(remoteFunction)
+function ClientRemoteProperty.new(currentValue)
 	assert(RunService:IsClient(), "ClientRemoteProperty can only be created on the client")
 
-	local self = setmetatable({
+	return setmetatable({
 		OnUpdate = Signal.new(),
+		_currentValue = currentValue,
 
-		_remoteFunction = remoteFunction,
 		_callBacks = {},
 	}, ClientRemoteProperty)
+end
 
-	if remoteFunction then
-		remoteFunction.OnClientInvoke = function(newValue)
-			self.OnUpdate:Fire(newValue)
-		end
+function ClientRemoteProperty:InitRemoteFunction(remoteFunction)
+	self._remoteFunction = remoteFunction
+	self._remoteFunction.OnClientInvoke = function(newValue)
+		self.OnUpdate:Fire(newValue)
 	end
-
-	return self
 end
 
 function ClientRemoteProperty:Destroy()

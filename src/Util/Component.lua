@@ -16,7 +16,6 @@ Component.__index = Component
 
 local RunService = game:GetService("RunService")
 local CollectionService = game:GetService("CollectionService")
-local DataStoreService = game:GetService("DataStoreService")
 local Workspace = game:GetService("Workspace")
 
 local comet = script:FindFirstAncestor("Comet")
@@ -76,47 +75,53 @@ function Component.SetComponentsFolder(componentsFolder)
 end
 
 function Component.Start()
-	local componentsFolder = Component._componentsFolder
-
-	if not componentsFolder then
-		return
-	end
-
-	for _, component in ipairs(componentsFolder:GetChildren()) do
-		local requiredComponent = require(component)
-
-		assert(
-			(typeof(requiredComponent.RequiredTags) == "table" and not requiredComponent.OptionalTags)
-				or (typeof(requiredComponent.OptionalTags) == "table" and not requiredComponent.RequiredTags),
-			("Component [%s] must only have one RequiredTags or OptionalTags table"):format(component.Name)
-		)
-		assert(
-			typeof(requiredComponent.new) == "function",
-			("Component [%s] must have a .new constructor method!"):format(component.Name)
-		)
-		assert(
-			typeof(requiredComponent.Destroy) == "function",
-			("Component [%s] must have a Destroy method!"):format(component.Name)
-		)
-
-		if LocalConstants.IsClient and requiredComponent.RenderUpdatePriority then
-			assert(
-				typeof(requiredComponent.RenderUpdatePriority) == "number",
-				("RenderUpdatePriority in Component [%s] must be a number!"):format(component.Name)
-			)
+	local function SetupComponents(folder)
+		if not folder then
+			return
 		end
 
-		if not LocalConstants.IsClient then
-			assert(
-				typeof(requiredComponent.RenderUpdate) ~= "function",
-				("Component [%s] must not have a RenderUpdate method as it is bound by the server"):format(
-					component.Name
+		for _, component in ipairs(folder:GetChildren()) do
+			if component:IsA("Folder") then
+				SetupComponents(component)
+				continue
+			elseif component:IsA("ModuleScript") then
+				local requiredComponent = require(component)
+				assert(
+					(typeof(requiredComponent.RequiredTags) == "table" and not requiredComponent.OptionalTags)
+						or (typeof(requiredComponent.OptionalTags) == "table" and not requiredComponent.RequiredTags),
+					("Component [%s] must only have one RequiredTags or OptionalTags table"):format(component.Name)
 				)
-			)
-		end
+				assert(
+					typeof(requiredComponent.new) == "function",
+					("Component [%s] must have a .new constructor method!"):format(component.Name)
+				)
+				assert(
+					typeof(requiredComponent.Destroy) == "function",
+					("Component [%s] must have a Destroy method!"):format(component.Name)
+				)
 
-		table.insert(Component._components, Component._new(requiredComponent))
+				if LocalConstants.IsClient and requiredComponent.RenderUpdatePriority then
+					assert(
+						typeof(requiredComponent.RenderUpdatePriority) == "number",
+						("RenderUpdatePriority in Component [%s] must be a number!"):format(component.Name)
+					)
+				end
+
+				if not LocalConstants.IsClient then
+					assert(
+						typeof(requiredComponent.RenderUpdate) ~= "function",
+						("Component [%s] must not have a RenderUpdate method as it is bound by the server"):format(
+							component.Name
+						)
+					)
+				end
+
+				table.insert(Component._components, Component._new(requiredComponent))
+			end
+		end
 	end
+
+	SetupComponents(Component._componentsFolder)
 end
 
 function Component._new(requiredComponent)
@@ -186,8 +191,7 @@ function Component._new(requiredComponent)
 		for _, instance in ipairs(CollectionService:GetTagged(tag)) do
 			if
 				self._areTagsRequired and Component._doesInstanceHaveRequiredTags(instance, self._tags)
-				or not self._areTagsRequired
-					and Component._doesInstanceHaveAnyOptionalTags(instance, self._tags)
+				or not self._areTagsRequired and Component._doesInstanceHaveAnyOptionalTags(instance, self._tags)
 			then
 				self:_createAndSetupComponentObject(instance)
 			end
@@ -235,9 +239,9 @@ function Component:_startRenderUpdate()
 end
 
 function Component:_startPhysicsUpdate()
-	self._maid:AddTask(RunService.Stepped:Connect(function(deltaTime)
+	self._maid:AddTask(RunService.Stepped:Connect(function(t, deltaTime)
 		for _, component in pairs(self._objects) do
-			component:PhysicsUpdate(deltaTime)
+			component:PhysicsUpdate(t, deltaTime)
 		end
 	end))
 end
