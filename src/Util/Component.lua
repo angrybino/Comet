@@ -61,8 +61,6 @@ function Component.GetAll(instance)
 	local componentObjects = {}
 
 	for _, component in ipairs(Component._components) do
-		local componentObject
-
 		if instance then
 			table.insert(componentObjects, component._objects[instance])
 		else
@@ -228,7 +226,7 @@ function Component:_startLifeCycle()
 		self:_startHeartbeatUpdate()
 	end
 
-	if self._hasRenderUpdateMethod and LocalConstants.IsClient then
+	if self._hasRenderUpdateMethod then
 		self:_startRenderUpdate()
 	end
 end
