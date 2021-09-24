@@ -12,6 +12,7 @@
     RemoteProperty:Destroy() --> void []
     RemoteProperty:Set(value : any, specificPlayers : table ?) --> void []
     RemoteProperty:Get() --> any [value]
+	RemoteProperty:GetForPlayer(player : Player) --> any [PlayerSpecificValue]
 ]]
 
 local RemoteProperty = {}
@@ -30,10 +31,11 @@ end
 
 function RemoteProperty.new(currentValue)
 	assert(RunService:IsServer(), "RemoteProperty can only be created on the server")
-	
+
 	return setmetatable({
 		OnUpdate = Signal.new(),
 		_currentValue = currentValue,
+		_playerSpecificValues = {},
 		_callBacks = {},
 	}, RemoteProperty)
 end
@@ -41,8 +43,8 @@ end
 function RemoteProperty:InitRemoteFunction(remoteFunction)
 	self._remoteFunction = remoteFunction
 
-	remoteFunction.OnServerInvoke = function()
-		return self._currentValue
+	remoteFunction.OnServerInvoke = function(player)
+		return self._playerSpecificValues[player.UserId]
 	end
 end
 
@@ -54,6 +56,21 @@ function RemoteProperty:Destroy()
 	end
 
 	self._remoteFunction:Destroy()
+end
+
+function RemoteProperty:GetForPlayer(player)
+	assert(RunService:IsServer(), "RemoteProperty:GetForPlayer() can only be called on the server")
+	assert(
+		typeof(player) == "Instance" and player:IsA("Player"),
+		SharedConstants.ErrorMessages.InvalidArgument:format(
+			1,
+			"RemoteProperty:GetForPlayer()",
+			"Player",
+			typeof(player)
+		)
+	)
+
+	return self._playerSpecificValues[player.UserId]
 end
 
 function RemoteProperty:Set(newValue, specificPlayers)
@@ -74,12 +91,13 @@ function RemoteProperty:Set(newValue, specificPlayers)
 		self.OnUpdate:Fire(newValue)
 	end
 
-	if not self._remoteFunction then
-		return
-	end
+	if self._remoteFunction then
+		local players = specificPlayers or Players:GetPlayers()
 
-	for _, player in ipairs(specificPlayers or Players:GetPlayers()) do
-		self._remoteFunction:InvokeClient(player, newValue)
+		for _, player in ipairs(players) do
+			self._playerSpecificValues[player.UserId] = newValue
+			self._remoteFunction:InvokeClient(player, newValue)
+		end
 	end
 end
 
