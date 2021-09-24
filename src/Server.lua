@@ -177,6 +177,8 @@ function Server._initServices(folder)
 					end)
 				)
 			end
+
+			Server.Services[service.Name] = requiredService
 		end
 	end
 
