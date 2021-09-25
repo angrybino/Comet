@@ -21,6 +21,7 @@ Maid.__index = Maid
 local LocalConstants = {
 	ErrorMessages = {
 		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",
+		Destroyed = "Maid object is destroyed",
 	},
 }
 
@@ -36,14 +37,12 @@ function Maid.IsMaid(self)
 end
 
 function Maid:AddTask(task)
-	if self:IsDestroyed() then
-		return
-	end
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
 	assert(
 		typeof(task) == "function"
 			or typeof(task) == "RBXScriptConnection"
-			or typeof(task) == "table" and (task.Destroy or task.Disconnect)
+			or typeof(task) == "table" and (typeof(task.Destroy) == "function" or typeof(task.Disconnect) == "function")
 			or typeof(task) == "Instance",
 
 		LocalConstants.ErrorMessages.InvalidArgument:format(
@@ -60,15 +59,14 @@ function Maid:AddTask(task)
 end
 
 function Maid:RemoveTask(task)
-	if self:IsDestroyed() then
-		return
-	end
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
 	assert(
 		typeof(task) == "function"
 			or typeof(task) == "RBXScriptConnection"
-			or typeof(task) == "table" and (task.Destroy or task.Disconnect)
+			or typeof(task) == "table" and (typeof(task.Destroy) == "function" or typeof(task.Disconnect) == "function")
 			or typeof(task) == "Instance",
+
 		LocalConstants.ErrorMessages.InvalidArgument:format(
 			1,
 			"Maid:RemoveTask()",
@@ -85,18 +83,14 @@ function Maid:IsDestroyed()
 end
 
 function Maid:Destroy()
-	if self:IsDestroyed() then
-		return
-	end
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
-	self._isDestroyed = true
 	self:Cleanup()
+	self._isDestroyed = true
 end
 
 function Maid:LinkToInstances(instances)
-	if self:IsDestroyed() then
-		return
-	end
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
 	assert(
 		typeof(instances) == "table",
@@ -130,28 +124,27 @@ function Maid:LinkToInstances(instances)
 end
 
 function Maid:Cleanup()
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
+
 	local tasks = self._tasks
 
+	-- Spawn a new thread to cleanup the current tasks, and immediately cleanup self._tasks
+	-- to prevent cleaning up newly added tasks while this code is still running:
 	task.spawn(function()
-		-- Cleanup all connections first:
-		for _, task in pairs(tasks) do
-			if typeof(task) == "RBXScriptConnection" or typeof(task) == "table" then
-				if task.Disconnect then
-					task:Disconnect()
-				else
-					task:Destroy()
-				end
-			end
-		end
-
-		for _, task in pairs(tasks) do
+		for key, task in pairs(tasks) do
 			if typeof(task) == "function" then
 				task()
-			elseif typeof(task) == "Instance" or typeof(task) == "table" then
+			elseif typeof(task) == "RBXScriptConnection" then
+				task:Disconnect()
+			elseif typeof(task) == "Instance" then
+				task:Destroy()
+			else
+				if task.Disconnect then
+					task:Disconnect()
+				end
+
 				if task.Destroy then
 					task:Destroy()
-				else
-					task:Disconnect()
 				end
 			end
 		end

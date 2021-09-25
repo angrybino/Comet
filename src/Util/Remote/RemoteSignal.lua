@@ -8,6 +8,7 @@
 
     -- Only accessible from an object returned by RemoteSignal.new():  
 
+	RemoteSignal:IsDestroyed() --> boolean [IsDestroyed]
     RemoteSignal:Destroy() --> void []
     RemoteSignal:FireClient(client : Player, ... : any) --> void []
     RemoteSignal:FireAllClients(... : any) --> void []
@@ -19,35 +20,55 @@ RemoteSignal.__index = RemoteSignal
 
 local RunService = game:GetService("RunService")
 
+local LocalConstants = {
+	ErrorMessages = {
+		Destroyed = "RemoteSignal object is destroyed",
+	},
+}
+
 function RemoteSignal.IsRemoteSignal(self)
 	return getmetatable(self) == RemoteSignal
 end
 
 function RemoteSignal.new()
-	assert(RunService:IsServer(), "RemoteSignal can only be created on the client")
+	assert(RunService:IsServer(), "RemoteSignal can only be created on the server")
 
 	return setmetatable({
 		_callBacks = {},
+		_isDestroyed = false,
 	}, RemoteSignal)
 end
 
-function RemoteSignal:Init(remote)
+function RemoteSignal:SetRemoteEvent(remote)
 	self._remote = remote
 end
 
 function RemoteSignal:Destroy()
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
+
 	self._remote:Destroy()
+	self._isDestroyed = true
 end
 
 function RemoteSignal:FireClient(client, ...)
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
+
 	self._remote:FireClient(client, ...)
 end
 
 function RemoteSignal:FireAllClients(...)
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
+
 	self._remote:FireAllClients(...)
 end
 
+function RemoteSignal:IsDestroyed()
+	return self._isDestroyed
+end
+
 function RemoteSignal:FireClients(clients, ...)
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
+
 	for _, client in ipairs(clients) do
 		self:FireClient(client, ...)
 	end

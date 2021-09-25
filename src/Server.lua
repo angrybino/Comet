@@ -8,7 +8,7 @@
 	Server.Version : string
 
 	Server.SetServicesFolder(servicesFolder : Folder) --> void []
-	Server.GetService(serviceName : string) --> table | nil [Service]
+	Server.GetService(serviceName : string) --> table [Service]
 	Server.Start() --> Promise []
 ]]
 
@@ -205,7 +205,7 @@ function Server._bindRemoteFunctionToClientExposedRemoteSignal(clientTable, remo
 	remoteEvent.Parent = parent
 
 	local remoteSignal = clientTable[remoteSignalName]
-	remoteSignal:Init(remoteEvent)
+	remoteSignal:SetRemoteEvent(remoteEvent)
 end
 
 function Server._bindRemoteFunctionToClientExposedRemoteProperty(clientTable, remotePropertyName, parent)

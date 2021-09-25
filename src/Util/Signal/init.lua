@@ -29,6 +29,7 @@ local LocalConstants = {
 
 	ErrorMessages = {
 		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",
+		Destroyed = "Signal object is destroyed",
 	},
 }
 
@@ -44,9 +45,7 @@ function Signal.new()
 end
 
 function Signal:Connect(callBack)
-	if self:IsDestroyed() then
-		return
-	end
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
 	assert(
 		typeof(callBack) == "function",
@@ -66,9 +65,7 @@ function Signal:Connect(callBack)
 end
 
 function Signal:DisconnectAllConnections()
-	if self:IsDestroyed() then
-		return
-	end
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
 	self.ConnectionListHead = nil
 end
@@ -78,18 +75,14 @@ function Signal:IsDestroyed()
 end
 
 function Signal:Destroy()
-	if self:IsDestroyed() then
-		return
-	end
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
 	self:DisconnectAllConnections()
 	self._isDestroyed = true
 end
 
 function Signal:Wait()
-	if self:IsDestroyed() then
-		return
-	end
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
 	-- This method of resuming a yielded coroutine is efficient as it doesn't
 	-- cause any internal script errors (when resuming a yielded coroutine directly):
@@ -105,9 +98,7 @@ function Signal:Wait()
 end
 
 function Signal:WaitUntilArgumentsPassed(...)
-	if self:IsDestroyed() then
-		return
-	end
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
 	local expectedArguments = { ... }
 
@@ -140,9 +131,7 @@ function Signal:WaitUntilArgumentsPassed(...)
 end
 
 function Signal:Fire(...)
-	if self:IsDestroyed() then
-		return
-	end
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
 	-- Call handlers in reverse order (end - start):
 	local connection = self.ConnectionListHead
@@ -161,9 +150,7 @@ function Signal:Fire(...)
 end
 
 function Signal:DeferredFire(...)
-	if self:IsDestroyed() then
-		return
-	end
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
 	-- Call handlers in reverse order (end - start), except at a very slightly later
 	-- time (next engine step):
@@ -175,7 +162,7 @@ function Signal:DeferredFire(...)
 				Signal._freeRunnerThread = coroutine.create(Signal._runEventHandlerInFreeThread)
 			end
 
-			task.spawn(Signal._freeRunnerThread, connection.Callback, ...)
+			task.defer(Signal._freeRunnerThread, connection.Callback, ...)
 		end
 
 		connection = connection.Next

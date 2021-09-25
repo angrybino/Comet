@@ -10,6 +10,7 @@
 	 
     ClientRemoteProperty.OnValueUpdate : Signal (newValue : any)
 
+	ClientRemoteProperty:IsDestroyed() --> boolean [IsDestroyed]
     ClientRemoteProperty:Destroy() --> void []
     ClientRemoteProperty:Set() --> void []
     ClientRemoteProperty:Get() --> any [value]
@@ -23,6 +24,12 @@ local RunService = game:GetService("RunService")
 local comet = script:FindFirstAncestor("Comet")
 local Signal = require(comet.Util.Signal)
 
+local LocalConstants = {
+	ErrorMessages = {
+		Destroyed = "ClientRemoteProperty object is destroyed",
+	},
+}
+
 function ClientRemoteProperty.IsClientRemoteProperty(self)
 	return getmetatable(self) == ClientRemoteProperty
 end
@@ -33,8 +40,8 @@ function ClientRemoteProperty.new(currentValue)
 	return setmetatable({
 		OnValueUpdate = Signal.new(),
 		_currentValue = currentValue,
-
 		_callBacks = {},
+		_isDestroyed = false,
 	}, ClientRemoteProperty)
 end
 
@@ -46,12 +53,15 @@ function ClientRemoteProperty:InitRemoteFunction(remoteFunction)
 end
 
 function ClientRemoteProperty:Destroy()
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
+
 	self.OnValueUpdate:Destroy()
 
 	if self._remoteFunction then
 		self._remoteFunction:Destroy()
-		self._remoteFunction = nil
 	end
+
+	self._isDestroyed = true
 end
 
 function ClientRemoteProperty:Set(newValue)
@@ -59,6 +69,7 @@ function ClientRemoteProperty:Set(newValue)
 		not self._remoteFunction,
 		"Can't call ClientRemoteProperty:Set() on client as the current remote property is bound by the Server"
 	)
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
 	if self._currentValue ~= newValue then
 		self._currentValue = newValue
@@ -67,11 +78,17 @@ function ClientRemoteProperty:Set(newValue)
 end
 
 function ClientRemoteProperty:Get()
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
+
 	if self._remoteFunction then
 		return self._remoteFunction:InvokeServer()
 	else
 		return self._currentValue
 	end
+end
+
+function ClientRemoteProperty:IsDestroyed()
+	return self._isDestroyed
 end
 
 return ClientRemoteProperty

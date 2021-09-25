@@ -25,7 +25,6 @@ local Signal = require(comet.Util.Signal)
 
 local LocalConstants = {
 	WhitelistedServices = { Workspace },
-	IsClient = RunService:IsClient(),
 	RenderUpdatePriority = Enum.RenderPriority.Last.Value,
 }
 
@@ -114,14 +113,14 @@ function Component.Start()
 					("Component [%s] must have a Destroy method!"):format(component.Name)
 				)
 
-				if LocalConstants.IsClient and requiredComponent.RenderUpdatePriority then
+				if RunService:IsClient() and requiredComponent.RenderUpdatePriority then
 					assert(
 						typeof(requiredComponent.RenderUpdatePriority) == "number",
 						("RenderUpdatePriority in Component [%s] must be a number!"):format(component.Name)
 					)
 				end
 
-				if not LocalConstants.IsClient then
+				if not RunService:IsClient() then
 					assert(
 						typeof(requiredComponent.RenderUpdate) ~= "function",
 						("Component [%s] must not have a RenderUpdate method as it is bound by the server"):format(
@@ -253,9 +252,9 @@ function Component:_startRenderUpdate()
 end
 
 function Component:_startPhysicsUpdate()
-	self._maid:AddTask(RunService.Stepped:Connect(function(t, deltaTime)
+	self._maid:AddTask(RunService.Stepped:Connect(function(gameTime, deltaTime)
 		for _, component in pairs(self._objects) do
-			component:PhysicsUpdate(t, deltaTime)
+			component:PhysicsUpdate(gameTime, deltaTime)
 		end
 	end))
 end

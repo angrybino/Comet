@@ -11,6 +11,7 @@
     RemoteProperty.OnValueUpdate : Signal (newValue : any)
 	RemoteProperty.OnPlayerValueUpdate : Signal (player : Player, newValue : any)
 
+	RemoteSignal:IsDestroyed() --> boolean [IsDestroyed]
 	RemoteProperty:GetDefaultValue() --> any [DefaultValue]
     RemoteProperty:Destroy() --> void []
     RemoteProperty:Set(value : any, specificPlayers : table ?) --> void []
@@ -28,6 +29,12 @@ local comet = script:FindFirstAncestor("Comet")
 local Signal = require(comet.Util.Signal)
 local SharedConstants = require(comet.SharedConstants)
 
+local LocalConstants = {
+	ErrorMessages = {
+		Destroyed = "RemoteProperty object is destroyed",
+	},
+}
+
 function RemoteProperty.IsRemoteProperty(self)
 	return getmetatable(self) == RemoteProperty
 end
@@ -41,6 +48,7 @@ function RemoteProperty.new(defaultValue)
 		_defaultValue = defaultValue,
 		_currentValue = defaultValue,
 		_playerSpecificValues = {},
+		_isDestroyed = false,
 	}, RemoteProperty)
 end
 
@@ -53,15 +61,22 @@ function RemoteProperty:InitRemoteFunction(remoteFunction)
 end
 
 function RemoteProperty:Destroy()
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
+
 	self.OnValueUpdate:Destroy()
 	self.OnPlayerValueUpdate:Destroy()
+	self._playerSpecificValues = {}
 
 	if self._remoteFunction then
 		self._remoteFunction:Destroy()
 	end
+
+	self._isDestroyed = true
 end
 
 function RemoteProperty:GetPlayerValue(player)
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
+
 	assert(
 		typeof(player) == "Instance" and player:IsA("Player"),
 		SharedConstants.ErrorMessages.InvalidArgument:format(
@@ -76,10 +91,14 @@ function RemoteProperty:GetPlayerValue(player)
 end
 
 function RemoteProperty:GetDefaultValue()
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
+
 	return self._defaultValue
 end
 
 function RemoteProperty:Set(newValue, specificPlayers)
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
+
 	if specificPlayers then
 		assert(
 			typeof(specificPlayers) == "table",
@@ -111,7 +130,13 @@ function RemoteProperty:Set(newValue, specificPlayers)
 	end
 end
 
+function RemoteProperty:IsDestroyed()
+	return self._isDestroyed
+end
+
 function RemoteProperty:Get()
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
+
 	return self._currentValue
 end
 

@@ -18,7 +18,6 @@ local Client = {
 	Controllers = {},
 
 	_servicesBuilt = {},
-	_controllersSet = {},
 	_isStarted = false,
 }
 
@@ -28,9 +27,9 @@ local Promise = require(Client.Util.Promise)
 local ClientRemoteSignal = require(Client.Util.Remote.ClientRemoteSignal)
 local ClientRemoteProperty = require(Client.Util.Remote.ClientRemoteProperty)
 local SharedConstants = require(script.Parent.SharedConstants)
-local SafeWaitForChild = require(Client.Util.SafeWaitForChild)
+local SafeWaitUtil = require(Client.Util.SafeWaitUtil)
 
-local servicesFolder = SafeWaitForChild(script, "ClientExposedServices")
+local servicesFolder = SafeWaitUtil.WaitForChild(script, "ClientExposedServices")
 
 Client.Version = SharedConstants.Version
 Client.LocalPlayer = Players.LocalPlayer
@@ -109,7 +108,7 @@ function Client.Start()
 	Client._isStarted = true
 
 	return Promise.async(function(resolve)
-		local promises = Client._initControllers(Client._controllersFolder)
+		local promises = Client._initControllers()
 		resolve(Promise.All(promises))
 	end):andThen(function()
 		-- Start all controllers now as we know it is safe:
@@ -162,7 +161,7 @@ function Client._buildService(serviceName)
 			return method:InvokeServer(...)
 		end
 	end
-  
+
 	-- Expose members to the client:
 	for _, member in ipairs(clientExposedMembers) do
 		builtService[member.Name] = member:InvokeServer()

@@ -9,6 +9,7 @@
 	 
 	ClientRemoteSignal:Connect(callBack : function) --> void []
 	ClientRemoteSignal:Wait() --> void []
+	ClientRemoteSignal:IsDestroyed() --> boolean [IsDestroyed]
 	ClientRemoteSignal:Destroy() --> void []
 	ClientRemoteSignal:DisconnectAllConnections() --> void []
 ]]
@@ -21,6 +22,12 @@ local RunService = game:GetService("RunService")
 local comet = script:FindFirstAncestor("Comet")
 local Signal = require(comet.Util.Signal)
 
+local LocalConstants = {
+	ErrorMessages = {
+		Destroyed = "ClientRemoteSignal object is destroyed",
+	},
+}
+
 function ClientRemoteSignal.IsClientRemoteSignal(self)
 	return getmetatable(self) == ClientRemoteSignal
 end
@@ -30,6 +37,7 @@ function ClientRemoteSignal.new()
 
 	local self = setmetatable({
 		_signal = Signal.new(),
+		_isDestroyed = false,
 	}, ClientRemoteSignal)
 
 	return self
@@ -44,19 +52,31 @@ function ClientRemoteSignal:InitRemoteEvent(remoteEvent)
 end
 
 function ClientRemoteSignal:Connect(callBack)
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
+
 	return self._signal:Connect(callBack)
 end
 
 function ClientRemoteSignal:DisconnectAllConnections()
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
+
 	self._signal:DisconnectAllConnections()
 end
 
 function ClientRemoteSignal:Destroy()
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
+
 	self._remoteEvent:Destroy()
 	self._signal:Destroy()
 end
 
+function ClientRemoteSignal:IsDestroyed()
+	return self._isDestroyed
+end
+
 function ClientRemoteSignal:Wait()
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
+
 	return self._signal:Wait()
 end
 

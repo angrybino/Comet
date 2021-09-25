@@ -29,6 +29,7 @@ local Maid = require(script.Parent.Maid)
 local LocalConstants = {
 	ErrorMessages = {
 		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",
+		Destroyed = "Timer object is destroyed",
 	},
 }
 
@@ -42,20 +43,22 @@ function Timer.new(timer)
 		LocalConstants.ErrorMessages.InvalidArgument:format(1, "Timer.new()", "number", typeof(timer))
 	)
 
-	return setmetatable({
+	local self = setmetatable({
 		OnTimerTick = Signal.new(),
 		_timer = timer,
-		_currentTimerTickDeltaTime = 0,
 		_maid = Maid.new(),
 		_isPaused = false,
 		_isDestroyed = false,
+		_currentTimerTickDeltaTime = 0,
 	}, Timer)
+
+	self._maid:AddTask(function()
+		self._currentTimerTickDeltaTime = 0
+	end)
 end
 
 function Timer:Start()
-	if self:IsDestroyed() then
-		return
-	end
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
 	self._maid:AddTask(RunService.Heartbeat:Connect(function(deltaTime)
 		if self._isPaused then
@@ -72,10 +75,14 @@ function Timer:Start()
 end
 
 function Timer:Pause()
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
+
 	self._isPaused = true
 end
 
 function Timer:Unpause()
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
+
 	self._isPaused = false
 end
 
@@ -88,18 +95,14 @@ function Timer:IsDestroyed()
 end
 
 function Timer:Destroy()
-	if self:IsDestroyed() then
-		return
-	end
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
 	self._isDestroyed = true
 	self._maid:Destroy()
 end
 
 function Timer:Stop()
-	if self:IsDestroyed() then
-		return
-	end
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
 	self._maid:Cleanup()
 end
