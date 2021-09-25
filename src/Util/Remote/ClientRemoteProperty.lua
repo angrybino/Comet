@@ -47,6 +47,7 @@ end
 
 function ClientRemoteProperty:InitRemoteFunction(remoteFunction)
 	self._remoteFunction = remoteFunction
+
 	function self._remoteFunction.OnClientInvoke(newValue)
 		self.OnValueUpdate:Fire(newValue)
 	end
@@ -55,13 +56,13 @@ end
 function ClientRemoteProperty:Destroy()
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
+	self._isDestroyed = true
 	self.OnValueUpdate:Destroy()
 
 	if self._remoteFunction then
+		self._remoteFunction.OnClientInvoke = nil
 		self._remoteFunction:Destroy()
 	end
-
-	self._isDestroyed = true
 end
 
 function ClientRemoteProperty:Set(newValue)
