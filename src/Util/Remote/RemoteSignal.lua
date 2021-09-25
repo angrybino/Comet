@@ -46,8 +46,8 @@ end
 function RemoteSignal:Destroy()
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
-	self._remote:Destroy()
 	self._isDestroyed = true
+	self._remote:Destroy()
 end
 
 function RemoteSignal:FireClient(client, ...)
@@ -62,16 +62,16 @@ function RemoteSignal:FireAllClients(...)
 	self._remote:FireAllClients(...)
 end
 
-function RemoteSignal:IsDestroyed()
-	return self._isDestroyed
-end
-
 function RemoteSignal:FireClients(clients, ...)
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
 	for _, client in ipairs(clients) do
 		self:FireClient(client, ...)
 	end
+end
+
+function RemoteSignal:IsDestroyed()
+	return self._isDestroyed
 end
 
 return RemoteSignal

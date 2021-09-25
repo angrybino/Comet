@@ -41,7 +41,7 @@ local LocalConstants = {
 	},
 
 	DefaultBrickColor = BrickColor.White(),
-	DefaultMaxTouchingParts = math.huge,
+	DefaultMaxTouchingParts = 10,
 	DefaultRaySize = 1,
 	RayVisualizerThickness = 0.5,
 }
@@ -83,17 +83,6 @@ function Raycast.new(origin, direction, params)
 	self:_init()
 
 	return self
-end
-
-function Raycast:ChangeVisualizerColor(color)
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
-
-	assert(
-		typeof(color) == "BrickColor",
-		LocalConstants.ErrorMessages.InvalidArgument:format(1, "Raycast:Visualize()", "Color", typeof(color))
-	)
-
-	self.Visualizer.BrickColor = color
 end
 
 function Raycast:Visualize(color)
