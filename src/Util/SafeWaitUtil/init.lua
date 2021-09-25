@@ -3,10 +3,10 @@
 -- September 25, 2021
 
 --[[
-	SafeWaitUtil.WaitForChild(instance : Instance, childName : string, timeOut : number | nil) 
+	SafeWaitUtil.WaitForChild(instance : Instance, childName : string, timeOut : number ?) 
     --> Instance | nil [Child]
 
-	SafeWaitUtil.WaitForChildWhichIsA(instance : Instance, class : string, timeOut : number | nil) 
+	SafeWaitUtil.WaitForChildWhichIsA(instance : Instance, class : string, timeOut : number  ?) 
     --> Instance | nil [Child]
 ]]
 
@@ -121,7 +121,7 @@ function SafeWaitUtil.WaitForChildWhichIsA(instance, class, timeOut)
 			return instance
 		end
 	end
-	
+
 	local maid = Maid.new()
 	local onChildAdded = Signal.new()
 
