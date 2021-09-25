@@ -55,6 +55,8 @@ function Timer.new(timer)
 	self._maid:AddTask(function()
 		self._currentTimerTickDeltaTime = 0
 	end)
+	
+	return self
 end
 
 function Timer:Start()
