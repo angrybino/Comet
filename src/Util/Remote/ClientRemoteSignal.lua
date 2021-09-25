@@ -7,8 +7,8 @@
 
 	 -- Only when accessed from a object returned by ClientRemoteSignal.new():
 	 
-	ClientRemoteSignal:Connect(callBack : function) --> void []
-	ClientRemoteSignal:Wait() --> void []
+	ClientRemoteSignal:Connect(callBack : function) --> Connection []
+	ClientRemoteSignal:Wait() --> any []
 	ClientRemoteSignal:IsDestroyed() --> boolean [IsDestroyed]
 	ClientRemoteSignal:Destroy() --> void []
 	ClientRemoteSignal:DisconnectAllConnections() --> void []
@@ -66,6 +66,7 @@ end
 function ClientRemoteSignal:Destroy()
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
+	self._isDestroyed = true
 	self._remoteEvent:Destroy()
 	self._signal:Destroy()
 end
