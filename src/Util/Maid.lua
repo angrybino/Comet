@@ -7,10 +7,10 @@
 	Maid.IsMaid(self : any) --> boolean [IsMaid]
 	-- Only when accessed from an object created by Maid.new():
 	
-	Maid:AddTask(task : table | function | RBXScriptConnection) --> task []
+	Maid:AddTask(task : table | function | RBXScriptConnection | Instance) --> task []
 	Maid:Cleanup() --> void []
 	Maid:IsDestroyed() --> boolean [IsDestroyed]
-	Maid:RemoveTask(task) --> void []
+	Maid:RemoveTask(task : table | function | RBXScriptConnection | Instance) --> void []
 	Maid:Destroy() --> void []
 	Maid:LinkToInstances(instances : table) --> instances []
 ]]
