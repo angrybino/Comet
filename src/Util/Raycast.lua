@@ -15,7 +15,6 @@
 	Raycast:Unvisualize() --> void []
 	Raycast:SetVisualizerThickness(thickness : number) --> void []
 	Raycast:SetVisualizerColor(color : BrickColor) --> void []
-	Raycast:MoveRelativeTo(direction : Vector3, speed : number ?) --> void []
     Raycast:GetTouchingParts(maxTouchingParts : number ?) --> table [TouchingParts]
     Raycast:Resize(size : number ?) --> void []
     Raycast:Destroy() --> void []
@@ -49,8 +48,6 @@ local LocalConstants = {
 	DefaultMaxTouchingParts = 10,
 	DefaultRaySize = 1,
 	RayVisualizerThickness = 0.5,
-	DefaultSpeed = 5,
-	CloseDistance = 0.1,
 }
 
 function Raycast.new(origin, direction, params)
@@ -87,45 +84,6 @@ function Raycast.new(origin, direction, params)
 	self:_init()
 
 	return self
-end
-
-function Raycast:MoveRelativeTo(direction, speed)
-	assert(
-		typeof(direction) == "Vector3",
-		LocalConstants.ErrorMessages.InvalidArgument:format(1, "Raycast:MoveTo()", "Vector3", typeof(direction))
-	)
-
-	if speed then
-		assert(
-			typeof(speed) == "number",
-			LocalConstants.ErrorMessages.InvalidArgument:format(2, "Raycast:MoveTo()", "number", typeof(speed))
-		)
-	end
-
-	local visualizer = self.Visualizer
-	direction += visualizer.Position
-	local distance = (visualizer.Position - direction).Magnitude
-
-	-- Handle edge case where visualizer.Position == direction:
-	if visualizer.Position ~= direction then
-		visualizer.CFrame = CFrame.lookAt(visualizer.Position, direction)
-	end
-
-	if distance <= LocalConstants.CloseDistance then
-		return
-	end
-
-	while distance > LocalConstants.CloseDistance do
-		local deltaTime = RunService.Heartbeat:Wait()
-		visualizer.CFrame *= CFrame.new(0, 0, -speed * deltaTime)
-
-		-- Update origin and the direction:
-		local updatedOrigin = (visualizer.CFrame * CFrame.new(0, 0, self.Size / 2))
-		self.Origin = updatedOrigin.Position
-		local updatedDistance = updatedOrigin * CFrame.new(0, 0, -self.Size)
-		self.Distance = updatedDistance.Position
-		distance = (visualizer.Position - direction).Magnitude
-	end
 end
 
 function Raycast:Reverse()
