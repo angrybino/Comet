@@ -9,8 +9,13 @@
 
     Raycast.OnInstanceHit : Signal (instance : Instance)
 
+	Raycast:Reverse() --> void []
 	Raycast:IsDestroyed() --> boolean [IsDestroyed]
-    Raycast:Visualize(color : BrickColor3) --> void []
+    Raycast:Visualize() --> void []
+	Raycast:Unvisualize() --> void []
+	Raycast:SetVisualizerThickness(thickness : number) --> void []
+	Raycast:SetVisualizerColor(color : BrickColor) --> void []
+	Raycast:MoveRelativeTo(direction : Vector3, speed : number ?) --> void []
     Raycast:GetTouchingParts(maxTouchingParts : number ?) --> table [TouchingParts]
     Raycast:Resize(size : number ?) --> void []
     Raycast:Destroy() --> void []
@@ -44,6 +49,8 @@ local LocalConstants = {
 	DefaultMaxTouchingParts = 10,
 	DefaultRaySize = 1,
 	RayVisualizerThickness = 0.5,
+	DefaultSpeed = 5,
+	CloseDistance = 0.1,
 }
 
 function Raycast.new(origin, direction, params)
@@ -75,32 +82,102 @@ function Raycast.new(origin, direction, params)
 		Visualizer = Instance.new("Part"),
 		_maid = Maid.new(),
 		_params = params,
-		_isRayVisualized = false,
 	}, Raycast)
 
-	self._maid:AddTask(self.Visualizer)
-	self._maid:AddTask(self.OnInstanceHit)
-	self.Size = (origin - (origin + direction)).Magnitude
 	self:_init()
 
 	return self
 end
 
-function Raycast:Visualize(color)
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
+function Raycast:MoveRelativeTo(direction, speed)
+	assert(
+		typeof(direction) == "Vector3",
+		LocalConstants.ErrorMessages.InvalidArgument:format(1, "Raycast:MoveTo()", "Vector3", typeof(direction))
+	)
 
-	if color then
+	if speed then
 		assert(
-			typeof(color) == "BrickColor",
-			LocalConstants.ErrorMessages.InvalidArgument:format(1, "Raycast:Visualize()", "Color", typeof(color))
+			typeof(speed) == "number",
+			LocalConstants.ErrorMessages.InvalidArgument:format(2, "Raycast:MoveTo()", "number", typeof(speed))
 		)
 	end
 
-	assert(not self._isRayVisualized, "Ray is already being visualized")
+	local visualizer = self.Visualizer
+	direction += visualizer.Position
+	local distance = (visualizer.Position - direction).Magnitude
 
-	color = color or LocalConstants.DefaultBrickColor
-	self:_setupRayVisualizer(color)
-	self._isRayVisualized = true
+	-- Handle edge case where visualizer.Position == direction:
+	if visualizer.Position ~= direction then
+		visualizer.CFrame = CFrame.lookAt(visualizer.Position, direction)
+	end
+
+	if distance <= LocalConstants.CloseDistance then
+		return
+	end
+
+	while distance > LocalConstants.CloseDistance do
+		local deltaTime = RunService.Heartbeat:Wait()
+		visualizer.CFrame *= CFrame.new(0, 0, -speed * deltaTime)
+
+		-- Update origin and the direction:
+		local updatedOrigin = (visualizer.CFrame * CFrame.new(0, 0, self.Size / 2))
+		self.Origin = updatedOrigin.Position
+		local updatedDistance = updatedOrigin * CFrame.new(0, 0, -self.Size)
+		self.Distance = updatedDistance.Position
+		distance = (visualizer.Position - direction).Magnitude
+	end
+end
+
+function Raycast:Reverse()
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
+
+	self.Direction = -self.Direction
+	self:_updateVisualizerPosition()
+end
+
+function Raycast:Visualize()
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
+
+	self.Visualizer.BrickColor = LocalConstants.DefaultBrickColor
+	self.Visualizer.Transparency = 0
+end
+
+function Raycast:SetVisualizerThickness(thickness)
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
+
+	assert(
+		typeof(thickness) == "number",
+		LocalConstants.ErrorMessages.InvalidArgument:format(
+			1,
+			"Raycast:SetVisualizerThickness()",
+			"number",
+			typeof(thickness)
+		)
+	)
+
+	self:_updateVisualizerThickness(thickness)
+end
+
+function Raycast:SetVisualizerColor(color)
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
+
+	assert(
+		typeof(color) == "BrickColor",
+		LocalConstants.ErrorMessages.InvalidArgument:format(
+			1,
+			"Raycast:SetVisualizerColor()",
+			"BrickColor",
+			typeof(color)
+		)
+	)
+
+	self.Visualizer.BrickColor = color
+end
+
+function Raycast:Unvisualize()
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
+
+	self.Visualizer.Transparency = 1
 end
 
 function Raycast:GetTouchingParts(maxTouchingParts)
@@ -176,6 +253,11 @@ function Raycast:Destroy()
 end
 
 function Raycast:_init()
+	self.Size = (self.Origin - (self.Origin + self.Direction)).Magnitude
+	self._maid:AddTask(self.Visualizer)
+	self._maid:AddTask(self.OnInstanceHit)
+	self:_setupRayVisualizer()
+
 	self._maid:AddTask(RunService.Heartbeat:Connect(function()
 		local ray = Workspace:Raycast(self.Origin, self.Direction, self._params)
 
@@ -183,6 +265,19 @@ function Raycast:_init()
 			self.OnInstanceHit:Fire(ray.Instance, Raycast._getRayHitSurface(ray))
 		end
 	end))
+end
+
+function Raycast:_updateVisualizerThickness(thickness)
+	local visualizer = self.Visualizer
+
+	visualizer.Size = Vector3.new(thickness / 2, thickness / 2, visualizer.Size.Z)
+end
+
+function Raycast:_updateVisualizerPosition()
+	local finalPosition = (self.Origin + self.Direction)
+	local visualizer = self.Visualizer
+
+	visualizer.CFrame = CFrame.lookAt(self.Origin, finalPosition) * CFrame.new(0, 0, -visualizer.Size.Z / 2)
 end
 
 function Raycast:_updateVisualizerSize(size)
@@ -193,7 +288,7 @@ function Raycast:_updateVisualizerSize(size)
 	visualizer.CFrame = CFrame.lookAt(self.Origin, finalPosition) * CFrame.new(0, 0, -size / 2)
 end
 
-function Raycast:_setupRayVisualizer(color)
+function Raycast:_setupRayVisualizer()
 	local origin = self.Origin
 	local direction = self.Direction
 	local visualizer = self.Visualizer
@@ -204,10 +299,10 @@ function Raycast:_setupRayVisualizer(color)
 
 	visualizer.Anchored = true
 	visualizer.CanCollide = false
+	visualizer.Transparency = 1
 	visualizer.CanQuery = false
 	visualizer.Size = Vector3.new(thickness / 2, thickness / 2, distance)
-	visualizer.CFrame = CFrame.lookAt(origin, origin + direction) * CFrame.new(0, 0, -distance / 2)
-	visualizer.BrickColor = color
+	visualizer.CFrame = CFrame.lookAt(origin, finalPosition) * CFrame.new(0, 0, -distance / 2)
 	visualizer.CanCollide = false
 	visualizer.Locked = true
 	visualizer.Material = Enum.Material.Neon
