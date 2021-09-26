@@ -1,6 +1,6 @@
--- SilentsReplacement
+-- angrybino
 -- ClientRemoteProperty
--- September 23, 2021
+-- September 26, 2021
 
 --[[
     ClientRemoteProperty.IsClientRemoteProperty(self : any) --> boolean [IsClientRemoteProperty]

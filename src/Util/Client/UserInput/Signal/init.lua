@@ -1,6 +1,6 @@
--- SilentsReplacement
--- Signal
--- July 13, 2021
+-- angrybino
+-- init
+-- September 26, 2021
 
 --[[
 	Signal.new() --> Signal []

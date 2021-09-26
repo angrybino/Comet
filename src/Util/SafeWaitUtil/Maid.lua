@@ -1,6 +1,6 @@
--- SilentsReplacement
+-- angrybino
 -- Maid
--- July 06, 2021
+-- September 26, 2021
 
 --[[
 	Maid.new() --> Maid []
@@ -24,6 +24,14 @@ local LocalConstants = {
 		Destroyed = "Maid object is destroyed",
 	},
 }
+
+local function IsInstanceDestroyed(instance)
+	local _, response = pcall(function()
+		instance.Parent = instance
+	end)
+
+	return response:find("locked") ~= nil
+end
 
 function Maid.new()
 	return setmetatable({
@@ -100,7 +108,7 @@ function Maid:LinkToInstances(instances)
 	for _, instance in ipairs(instances) do
 		-- If the instance was parented to nil, then destroy the maid because its possible
 		-- that the instance may have already been destroyed:
-		if not instance.Parent then
+		if IsInstanceDestroyed(instance) then
 			self:Destroy()
 			break
 		end

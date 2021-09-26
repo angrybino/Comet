@@ -1,6 +1,6 @@
--- SilentsReplacement
+-- angrybino
 -- Clamp
--- September 14, 2021
+-- September 26, 2021
 
 -- Clamps a negative / positive value if it is lower than 0.1, to 0.
 

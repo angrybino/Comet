@@ -1,6 +1,6 @@
--- SilentsReplacement
+-- angrybino
 -- Connection
--- August 01, 2021
+-- September 26, 2021
 
 --[[
 	Connection.new() --> Connection []

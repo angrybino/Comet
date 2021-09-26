@@ -1,6 +1,6 @@
--- SilentsReplacement
+-- angrybino
 -- ClientRemoteSignal
--- September 23, 2021
+-- September 26, 2021
 
 --[[
 	ClientRemoteSignal.IsClientRemoteSignal(self : any) --> boolean [IsClientRemoteSignal]

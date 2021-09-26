@@ -1,6 +1,6 @@
--- SilentsReplacement
+-- angrybino
 -- Component
--- September 23, 2021
+-- September 26, 2021
 
 --[[
 	Component.SetComponentsFolder(componentsFolder : Folder) --> void []

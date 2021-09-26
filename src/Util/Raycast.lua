@@ -1,6 +1,6 @@
--- SilentsReplacement
+-- angrybino
 -- Raycast
--- September 25, 2021
+-- September 26, 2021
 
 --[[
     Raycast.new(origin : Vector3, direction : Vector3, params : RaycastParams ?) --> Raycast []
@@ -78,6 +78,7 @@ function Raycast.new(origin, direction, params)
 		_isRayVisualized = false,
 	}, Raycast)
 
+	self._maid:AddTask(self.Visualizer)
 	self._maid:AddTask(self.OnInstanceHit)
 	self.Size = (origin - (origin + direction)).Magnitude
 	self:_init()
@@ -99,7 +100,6 @@ function Raycast:Visualize(color)
 
 	color = color or LocalConstants.DefaultBrickColor
 	self:_setupRayVisualizer(color)
-	self._maid:AddTask(self.Visualizer)
 	self._isRayVisualized = true
 end
 
@@ -177,7 +177,7 @@ end
 
 function Raycast:_init()
 	self._maid:AddTask(RunService.Heartbeat:Connect(function()
-		local ray = Workspace:Raycast(self.Origin, self.Direction, self.Params)
+		local ray = Workspace:Raycast(self.Origin, self.Direction, self._params)
 
 		if ray then
 			self.OnInstanceHit:Fire(ray.Instance, Raycast._getRayHitSurface(ray))

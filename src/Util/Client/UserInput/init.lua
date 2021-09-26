@@ -1,6 +1,6 @@
--- SilentsReplacement
--- UserInput
--- August 21, 2021
+-- angrybino
+-- init
+-- September 26, 2021
 
 --[[
 	UserInput.OnInputTypeChange : Signal (newInputType : string)

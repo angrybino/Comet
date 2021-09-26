@@ -1,6 +1,6 @@
--- SilentsReplacement
+-- angrybino
 -- Timer
--- September 23, 2021
+-- September 26, 2021
 
 --[[
     Timer.new(timer : number) --> Timer []

@@ -1,9 +1,8 @@
--- SilentsReplacement
+-- angrybino
 -- SharedConstants
--- September 23, 2021
+-- September 26, 2021
 
 return {
-	ShowClientExposedServicesFolder = false, -- For debugging purposes only
 	Version = "v0.1-Beta",
 	Comet = "[Comet-Debug]:",
 
