@@ -8,6 +8,11 @@
     -- Only accessible from an object returned by Raycast.new():
 
     Raycast.OnInstanceHit : Signal (instance : Instance)
+	Raycast.Origin : Vector3
+	Raycast.Direction : Vector3
+	Raycast.Size : number
+	Raycast.Visualizer : Part
+	Raycast.Results : table [RaycastResults]
 
 	Raycast:Reverse() --> void []
 	Raycast:IsDestroyed() --> boolean [IsDestroyed]
@@ -44,10 +49,9 @@ local LocalConstants = {
 		BackSurface = Vector3.new(0, 0, 1),
 	},
 
-	DefaultBrickColor = BrickColor.White(),
+	DefaultRayVisualizerBrickColor = BrickColor.White(),
 	DefaultMaxTouchingParts = 10,
-	DefaultRaySize = 1,
-	RayVisualizerThickness = 0.5,
+	DefaultRayVisualizerThickness = 0.5,
 }
 
 function Raycast.new(origin, direction, params)
@@ -72,11 +76,19 @@ function Raycast.new(origin, direction, params)
 		)
 	end
 
+	local ray = Workspace:Raycast(origin, direction, params)
+
 	local self = setmetatable({
 		Origin = origin,
 		Direction = direction,
 		OnInstanceHit = Signal.new(),
 		Visualizer = Instance.new("Part"),
+		Results = {
+			Instance = ray and ray.Instance or nil,
+			Position = ray and ray.Position or nil,
+			Material = ray and ray.Material or nil,
+			Normal = ray and ray.Normal or nil,
+		},
 		_maid = Maid.new(),
 		_params = params,
 	}, Raycast)
@@ -96,7 +108,7 @@ end
 function Raycast:Visualize()
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
-	self.Visualizer.BrickColor = LocalConstants.DefaultBrickColor
+	self.Visualizer.BrickColor = LocalConstants.DefaultRayVisualizerBrickColor
 	self.Visualizer.Transparency = 0
 end
 
@@ -156,13 +168,17 @@ function Raycast:GetTouchingParts(maxTouchingParts)
 	maxTouchingParts = maxTouchingParts or LocalConstants.DefaultMaxTouchingParts
 
 	local params = RaycastParams.new()
-	params.FilterDescendantsInstances = self._params and self._params.FilterDescendantsInstances
+	params.FilterDescendantsInstances = {}
+	if self._params then
+		params.FilterDescendantsInstances = self._params.FilterDescendantsInstances
+	end
 
-	local capturedInstances = {}
+	local capturedInstances = { self.Visualizer }
 	local touchingInstances = {}
 
 	-- Keep on adding all the touching parts to the table unless there are none:
 	while #capturedInstances < maxTouchingParts do
+		params.FilterDescendantsInstances = capturedInstances
 		local ray = Workspace:Raycast(self.Origin, self.Direction, params)
 
 		if not ray then
@@ -173,7 +189,7 @@ function Raycast:GetTouchingParts(maxTouchingParts)
 
 		table.insert(capturedInstances, ray.Instance)
 		touchingInstances[ray.Instance] = Raycast._getRayHitSurface(ray)
-		params.FilterDescendantsInstances = capturedInstances
+
 		RunService.Heartbeat:Wait()
 	end
 
@@ -183,14 +199,11 @@ end
 function Raycast:Resize(size)
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
-	if size then
-		assert(
-			typeof(size) == "number",
-			LocalConstants.ErrorMessages.InvalidArgument:format(1, "Raycast:Resize()", "number", typeof(size))
-		)
-	end
+	assert(
+		typeof(size) == "number",
+		LocalConstants.ErrorMessages.InvalidArgument:format(1, "Raycast:Resize()", "number", typeof(size))
+	)
 
-	size = size or LocalConstants.DefaultRaySize
 	local finalPosition = (self.Origin + self.Direction)
 
 	self.Direction = self.Direction.Unit * size
@@ -228,14 +241,14 @@ end
 function Raycast:_updateVisualizerThickness(thickness)
 	local visualizer = self.Visualizer
 
-	visualizer.Size = Vector3.new(thickness / 2, thickness / 2, visualizer.Size.Z)
+	visualizer.Size = Vector3.new(thickness, thickness, visualizer.Size.Z)
 end
 
 function Raycast:_updateVisualizerPosition()
 	local finalPosition = (self.Origin + self.Direction)
 	local visualizer = self.Visualizer
 
-	visualizer.CFrame = CFrame.lookAt(self.Origin, finalPosition) * CFrame.new(0, 0, -visualizer.Size.Z / 2)
+	visualizer.CFrame = CFrame.lookAt(self.Origin, finalPosition) * CFrame.new(0, 0, -visualizer.Size.Magnitude / 2)
 end
 
 function Raycast:_updateVisualizerSize(size)
@@ -243,7 +256,7 @@ function Raycast:_updateVisualizerSize(size)
 	local visualizer = self.Visualizer
 
 	visualizer.Size = Vector3.new(visualizer.Size.X, visualizer.Size.Y, size)
-	visualizer.CFrame = CFrame.lookAt(self.Origin, finalPosition) * CFrame.new(0, 0, -size / 2)
+	visualizer.CFrame *= CFrame.new(0, 0, -size / 2)
 end
 
 function Raycast:_setupRayVisualizer()
@@ -251,7 +264,6 @@ function Raycast:_setupRayVisualizer()
 	local direction = self.Direction
 	local visualizer = self.Visualizer
 
-	local thickness = LocalConstants.RayVisualizerThickness
 	local finalPosition = (origin + direction)
 	local distance = (origin - finalPosition).Magnitude
 
@@ -259,8 +271,9 @@ function Raycast:_setupRayVisualizer()
 	visualizer.CanCollide = false
 	visualizer.Transparency = 1
 	visualizer.CanQuery = false
-	visualizer.Size = Vector3.new(thickness / 2, thickness / 2, distance)
-	visualizer.CFrame = CFrame.lookAt(origin, finalPosition) * CFrame.new(0, 0, -distance / 2)
+	self:SetVisualizerThickness(LocalConstants.DefaultRayVisualizerThickness)
+	self:_updateVisualizerSize(distance)
+	self:_updateVisualizerPosition()
 	visualizer.CanCollide = false
 	visualizer.Locked = true
 	visualizer.Material = Enum.Material.Neon
