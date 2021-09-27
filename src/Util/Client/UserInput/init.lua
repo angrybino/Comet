@@ -4,6 +4,7 @@
 
 --[[
 	UserInput.OnInputTypeChange : Signal (newInputType : string)
+	UserInput.InputType : table	
 
 	UserInput.GetCurrentInputType() --> string | nil [CurrentInputType]
 	UserInput.Get(moduleName : string) --> table | nil [RequiredModule]
