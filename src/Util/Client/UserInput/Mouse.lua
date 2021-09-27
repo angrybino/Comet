@@ -5,7 +5,7 @@
 --[[
 	Mouse.OnLeftClick : Signal (isInputProcessed : boolean)
 	Mouse.OnRightClick : Signal (isInputProcessed : boolean)
-	Mouse.OnScrollClick : Signal ((isInputProcessed : boolean)
+	Mouse.OnScrollClick : Signal (isInputProcessed : boolean)
 	Mouse.OnMove : Signal (deltaPosition : Vector3)
 	Mouse.OnTargetChanged : Signal (newTarget : Instance | nil)
 
@@ -18,7 +18,7 @@
 	Mouse.Origin : CFrame
 	Mouse.IgnoreCharacter : boolean
 
-	Mouse.CastRay(rayCastParams : RaycastParams, distance : number | nil) --> RayCastResults
+	Mouse.CastRay(rayCastParams : RaycastParams, distance : number ?) --> RayCastResults
 	Mouse.LockCurrentPosition() --> void []
 	Mouse.SetLock() --> void []
 	Mouse.Unlock() --> void []
