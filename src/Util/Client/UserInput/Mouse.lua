@@ -159,7 +159,7 @@ function Mouse._getMouseTarget()
 	local mouseRay = Mouse._getViewPointToRay()
 	local rayCastParams = RaycastParams.new()
 	rayCastParams.FilterDescendantsInstances = {
-		not Mouse.IgnoreCharacter and Players.LocalPlayer.Character,
+		not Mouse.IgnoreCharacter and Players.LocalPlayer.Character or nil,
 		table.unpack(Mouse.TargetFilters),
 	}
 
