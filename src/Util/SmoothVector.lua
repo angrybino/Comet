@@ -84,7 +84,7 @@ function SmoothVector:QuadraticInterpolate(goalVector)
 	assert(
 		typeof(goalVector) == "Vector3",
 		SharedConstants.ErrorMessages.InvalidArgument:format(
-			2,
+			1,
 			"SmoothVector:QuadraticInterpolate()",
 			"Vector3",
 			typeof(goalVector)
@@ -107,7 +107,7 @@ function SmoothVector:Interpolate(goalVector)
 	assert(
 		typeof(goalVector) == "Vector3",
 		SharedConstants.ErrorMessages.InvalidArgument:format(
-			2,
+			1,
 			"SmoothVector:Interpolate()",
 			"Vector3",
 			typeof(goalVector)
