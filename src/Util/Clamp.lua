@@ -23,9 +23,9 @@ return function(value)
 	)
 
 	-- If the number is negative, then make sure it is >= than 0.1 in its absolute form:
-	if value < 0 and math.abs(value) >= LocalConstants.MaxToleratedNumber then
-		return value
+	if math.abs(value) < LocalConstants.MaxToleratedNumber then
+		return 0
 	end
 
-	return value < LocalConstants.MaxToleratedNumber and 0 or value
+	return value
 end
