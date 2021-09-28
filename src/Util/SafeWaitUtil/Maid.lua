@@ -139,7 +139,7 @@ function Maid:Cleanup()
 	-- Spawn a new thread to cleanup the current tasks, and immediately cleanup self._tasks
 	-- to prevent cleaning up newly added tasks while this code is still running:
 	task.spawn(function()
-		for key, task in pairs(tasks) do
+		for _, task in pairs(tasks) do
 			if typeof(task) == "function" then
 				task()
 			elseif typeof(task) == "RBXScriptConnection" then
