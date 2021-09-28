@@ -52,10 +52,12 @@ function Timer.new(timer)
 		_currentTimerTickDeltaTime = 0,
 	}, Timer)
 
+	self._maid:AddTask(self._timer)
+	self._maid:AddTask(self.OnTimerTick)
 	self._maid:AddTask(function()
 		self._currentTimerTickDeltaTime = 0
 	end)
-	
+
 	return self
 end
 
@@ -63,7 +65,7 @@ function Timer:Start()
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
 	self._maid:AddTask(RunService.Heartbeat:Connect(function(deltaTime)
-		if self._isPaused then
+		if self._isPaused or self:IsDestroyed() then
 			return
 		end
 
