@@ -129,7 +129,9 @@ function Server._initServices()
 			return
 		end
 
-		for key, value in pairs(requiredService.Client) do
+		local function BindClientExposedValue(requiredService, key)
+			local value = requiredService.Client[key]
+
 			if typeof(value) == "function" then
 				Server._bindRemoteFunctionToClientExposedMethod(requiredService.Client, key, clientExposedMethodsFolder)
 			elseif RemoteSignal.IsRemoteSignal(value) then
@@ -154,6 +156,17 @@ function Server._initServices()
 			else
 				Server._bindRemoteFunctionToClientExposedMember(requiredService.Client, key, clientExposedMembersFolder)
 			end
+		end
+
+		setmetatable(requiredService.Client, {
+			__newindex = function(self, key, value)
+				rawset(self, key, value)
+				BindClientExposedValue(requiredService, key)
+			end,
+		})
+
+		for key, value in pairs(requiredService.Client) do
+			BindClientExposedValue(requiredService, key)
 		end
 	end
 

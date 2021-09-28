@@ -149,35 +149,56 @@ end
 function Client._buildService(serviceName)
 	local service = servicesFolder[serviceName]
 
-	local clientExposedMethods = service.ClientExposedMethods:GetChildren()
-	local clientExposedRemoteSignals = service.ClientExposedRemoteSignals:GetChildren()
-	local clientExposedRemoteProperties = service.ClientExposedRemoteProperties:GetChildren()
-	local clientExposedMembers = service.ClientExposedMembers:GetChildren()
+	local clientExposedMethods = service.ClientExposedMethods
+	local clientExposedRemoteSignals = service.ClientExposedRemoteSignals
+	local clientExposedRemoteProperties = service.ClientExposedRemoteProperties
+	local clientExposedMembers = service.ClientExposedMembers
 	local builtService = {}
 
-	-- Expose methods to the client:
-	for _, method in ipairs(clientExposedMethods) do
+	local function ExposeMethodToClient(method)
 		builtService[method.Name] = function(...)
 			return method:InvokeServer(...)
 		end
 	end
 
-	-- Expose members to the client:
-	for _, member in ipairs(clientExposedMembers) do
+	local function ExposeMemberToClient(member)
 		builtService[member.Name] = member:InvokeServer()
 	end
 
-	-- Expose remote signals to the client:
-	for _, remoteSignal in ipairs(clientExposedRemoteSignals) do
+	local function ExposeRemoteSignalToClient(remoteSignal)
 		builtService[remoteSignal.Name] = ClientRemoteSignal.new()
 		builtService[remoteSignal.Name]:InitRemoteEvent(remoteSignal)
 	end
 
-	-- Expose remote properties to the client:
-	for _, remoteProperty in ipairs(clientExposedRemoteProperties) do
+	local function ExposeRemotePropertyToClient(remoteProperty)
 		builtService[remoteProperty.Name] = ClientRemoteProperty.new()
 		builtService[remoteProperty.Name]:InitRemoteFunction(remoteProperty)
 	end
+
+	-- Expose methods to the client:
+	for _, method in ipairs(clientExposedMethods:GetChildren()) do
+		ExposeMethodToClient(method)
+	end
+
+	-- Expose members to the client:
+	for _, member in ipairs(clientExposedMembers:GetChildren()) do
+		ExposeMemberToClient(member)
+	end
+
+	-- Expose remote signals to the client:
+	for _, remoteSignal in ipairs(clientExposedRemoteSignals:GetChildren()) do
+		ExposeRemoteSignalToClient(remoteSignal)
+	end
+
+	-- Expose remote properties to the client:
+	for _, remoteProperty in ipairs(clientExposedRemoteProperties:GetChildren()) do
+		ExposeRemotePropertyToClient(remoteProperty)
+	end
+
+	clientExposedMethods.ChildAdded:Connect(ExposeMethodToClient)
+	clientExposedMembers.ChildAdded:Connect(ExposeMethodToClient)
+	clientExposedRemoteSignals.ChildAdded:Connect(ExposeRemoteSignalToClient)
+	clientExposedRemoteProperties.ChildAdded:Connect(ExposeRemotePropertyToClient)
 
 	Client._servicesBuilt[service] = builtService
 
