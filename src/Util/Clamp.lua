@@ -9,7 +9,7 @@
 ]]
 
 local LocalConstants = {
-	MaxToleratedNumber = 0.1,
+	MaxToleratedNumber = 0.01,
 
 	ErrorMessages = {
 		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",
