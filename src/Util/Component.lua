@@ -95,7 +95,7 @@ function Component.Start()
 		for _, component in ipairs(folder:GetChildren()) do
 			if component:IsA("Folder") then
 				SetupComponents(component)
-				continue
+
 			elseif component:IsA("ModuleScript") then
 				local requiredComponent = require(component)
 
