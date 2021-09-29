@@ -165,7 +165,7 @@ function Server._initServices()
 			end,
 		})
 
-		for key, value in pairs(requiredService.Client) do
+		for key, _ in pairs(requiredService.Client) do
 			BindClientExposedValue(requiredService, key)
 		end
 	end
