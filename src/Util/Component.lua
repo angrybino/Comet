@@ -236,25 +236,25 @@ function Component:_stopLifeCycle()
 end
 
 function Component:_startHeartbeatUpdate()
-	self._maid:AddTask(RunService.Heartbeat:Connect(function(deltaTime)
+	self._maid:AddTask(RunService.Heartbeat:Connect(function(...)
 		for _, component in pairs(self._objects) do
-			component:HeartbeatUpdate(deltaTime)
+			component:HeartbeatUpdate(...)
 		end
 	end))
 end
 
 function Component:_startRenderUpdate()
-	RunService:BindToRenderStep(self._memoryId, self._renderUpdatePriority, function(deltaTime)
+	RunService:BindToRenderStep(self._memoryId, self._renderUpdatePriority, function(...)
 		for _, component in pairs(self._objects) do
-			component:RenderUpdate(deltaTime)
+			component:RenderUpdate(...)
 		end
 	end)
 end
 
 function Component:_startPhysicsUpdate()
-	self._maid:AddTask(RunService.Stepped:Connect(function(gameTime, deltaTime)
+	self._maid:AddTask(RunService.Stepped:Connect(function(...)
 		for _, component in pairs(self._objects) do
-			component:PhysicsUpdate(gameTime, deltaTime)
+			component:PhysicsUpdate(...)
 		end
 	end))
 end
