@@ -7,8 +7,9 @@
 
 	 -- Only when accessed from a object returned by ClientRemoteSignal.new():
 	 
-	ClientRemoteSignal:Connect(callBack : function) --> Connection []
+	ClientRemoteSignal:Connect(callBack : function) --> RBXScriptConnection []
 	ClientRemoteSignal:Wait() --> any []
+	ClientRemoteSignal:Fire(... : any) --> void []
 	ClientRemoteSignal:IsDestroyed() --> boolean [IsDestroyed]
 	ClientRemoteSignal:Destroy() --> void []
 	ClientRemoteSignal:DisconnectAllConnections() --> void []
@@ -20,7 +21,7 @@ ClientRemoteSignal.__index = ClientRemoteSignal
 local RunService = game:GetService("RunService")
 
 local comet = script:FindFirstAncestor("Comet")
-local Signal = require(comet.Util.Signal)
+local SharedConstants = require(comet.SharedConstants)
 
 local LocalConstants = {
 	ErrorMessages = {
@@ -35,26 +36,34 @@ end
 function ClientRemoteSignal.new()
 	assert(RunService:IsClient(), "ClientRemoteSignal can only be created on the client")
 
-	local self = setmetatable({
-		_signal = Signal.new(),
+	return setmetatable({
 		_isDestroyed = false,
 	}, ClientRemoteSignal)
-
-	return self
 end
 
 function ClientRemoteSignal:InitRemoteEvent(remoteEvent)
 	self._remoteEvent = remoteEvent
-
-	self._remoteEvent.OnClientEvent:Connect(function(...)
-		self._signal:Fire(...)
-	end)
 end
 
 function ClientRemoteSignal:Connect(callBack)
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
+	assert(
+		typeof(callBack) == "function",
+		SharedConstants.ErrorMessages.InvalidArgument:format(
+			1,
+			"ClientRemoteSignal:Connect()",
+			"function",
+			typeof(callBack)
+		)
+	)
 
-	return self._signal:Connect(callBack)
+	return self._remoteEvent.OnClientEvent:Connect(callBack)
+end
+
+function ClientRemoteSignal:Fire(...)
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
+
+	self._remoteEvent:FireServer(...)
 end
 
 function ClientRemoteSignal:DisconnectAllConnections()

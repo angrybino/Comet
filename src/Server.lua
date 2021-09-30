@@ -141,7 +141,7 @@ function Server._initServices()
 			if typeof(value) == "function" then
 				Server._bindRemoteFunctionToClientExposedMethod(requiredService.Client, key, clientExposedMethodsFolder)
 			elseif RemoteSignal.IsRemoteSignal(value) then
-				Server._bindRemoteFunctionToClientExposedRemoteSignal(
+				Server._bindRemoteEventToClientExposedRemoteSignal(
 					requiredService.Client,
 					key,
 					clientExposedRemoteSignalsFolder
@@ -218,7 +218,7 @@ function Server._bindRemoteFunctionToClientExposedMember(clientTable, member, pa
 	remoteFunction.Parent = parent
 end
 
-function Server._bindRemoteFunctionToClientExposedRemoteSignal(clientTable, remoteSignalName, parent)
+function Server._bindRemoteEventToClientExposedRemoteSignal(clientTable, remoteSignalName, parent)
 	local remoteEvent = Instance.new("RemoteEvent")
 	remoteEvent.Name = remoteSignalName
 	remoteEvent.Parent = parent

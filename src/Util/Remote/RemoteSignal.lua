@@ -8,6 +8,7 @@
 
     -- Only accessible from an object returned by RemoteSignal.new():  
 
+	RemoteSignal:Connect(callBack : function) --> RBXScriptConnection []
 	RemoteSignal:IsDestroyed() --> boolean [IsDestroyed]
     RemoteSignal:Destroy() --> void []
     RemoteSignal:FireClient(client : Player, ... : any) --> void []
@@ -19,6 +20,9 @@ local RemoteSignal = {}
 RemoteSignal.__index = RemoteSignal
 
 local RunService = game:GetService("RunService")
+
+local comet = script:FindFirstAncestor("Comet")
+local SharedConstants = require(comet.SharedConstants)
 
 local LocalConstants = {
 	ErrorMessages = {
@@ -32,7 +36,7 @@ end
 
 function RemoteSignal.new()
 	assert(RunService:IsServer(), "RemoteSignal can only be created on the server")
-
+ 
 	return setmetatable({
 		_callBacks = {},
 		_isDestroyed = false,
@@ -50,8 +54,21 @@ function RemoteSignal:Destroy()
 	self._remote:Destroy()
 end
 
+function RemoteSignal:Connect(callBack)
+	assert(
+		typeof(callBack) == "function",
+		SharedConstants.ErrorMessages.InvalidArgument:format(1, "RemoteSignal:Connect()", "function", typeof(callBack))
+	)
+
+	return self._remote.OnServerEvent:Connect(callBack)
+end
+
 function RemoteSignal:FireClient(client, ...)
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
+	assert(
+		typeof(client) == "Instance" and client:IsA("Player"),
+		SharedConstants.ErrorMessages.InvalidArgument:format(1, "RemoteSignal:FireClient()", "Player", typeof(client))
+	)
 
 	self._remote:FireClient(client, ...)
 end
@@ -64,6 +81,10 @@ end
 
 function RemoteSignal:FireClients(clients, ...)
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
+	assert(
+		typeof(clients) == "table",
+		SharedConstants.ErrorMessages.InvalidArgument:format(1, "RemoteSignal:FireClients()", "table", typeof(clients))
+	)
 
 	for _, client in ipairs(clients) do
 		self:FireClient(client, ...)
