@@ -58,7 +58,7 @@ function SafeWaitUtil.WaitForChild(instance, childName, timeOut)
 	local onChildAdded = Signal.new()
 
 	maid:AddTask(onChildAdded)
-	maid:LinkToInstances(instance)
+	maid:LinkToInstances({ instance })
 
 	maid:AddTask(instance.ChildAdded:Connect(function(child)
 		if child.Name == childName and not onChildAdded:IsDestroyed() then
@@ -124,7 +124,7 @@ function SafeWaitUtil.WaitForFirstChildWhichIsA(instance, class, timeOut)
 	local onChildAdded = Signal.new()
 
 	maid:AddTask(onChildAdded)
-	maid:LinkToInstances(instance)
+	maid:LinkToInstances({ instance })
 
 	maid:AddTask(instance.ChildAdded:Connect(function(child)
 		if child:IsA(class) and not onChildAdded:IsDestroyed() then
@@ -190,7 +190,7 @@ function SafeWaitUtil.WaitForFirstChildOfClass(instance, class, timeOut)
 	local onChildAdded = Signal.new()
 
 	maid:AddTask(onChildAdded)
-	maid:LinkToInstances(instance)
+	maid:LinkToInstances({ instance })
 
 	maid:AddTask(instance.ChildAdded:Connect(function(child)
 		if child.ClassName == class and not onChildAdded:IsDestroyed() then
