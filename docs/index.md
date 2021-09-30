@@ -6,4 +6,4 @@ Comet is an advanced framework designed to properly abstract server-client commu
 This documentation contains guides on setting up Comet for your game, getting started with Comet, creating components for Comet, API references and much more.
 
 # Getting started
-If you are new to Comet, head to [this page](./go/intro.md) to learn more about Comet.
+If you are new to Comet, head to [this page](./getstarted/intro.md) to learn more about Comet.
