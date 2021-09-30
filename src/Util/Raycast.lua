@@ -108,7 +108,6 @@ end
 function Raycast:Visualize()
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
-	self.Visualizer.BrickColor = LocalConstants.DefaultRayVisualizerBrickColor
 	self.Visualizer.Transparency = 0
 end
 
