@@ -1,0 +1,16 @@
+site_name: Comet
+
+theme:
+  name: material
+  font:
+    text: Ubuntu
+    code: Roboto Mono
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: light blue
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue
+      accent: light blue
