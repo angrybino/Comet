@@ -10,7 +10,7 @@
 
     -- Instance methods:
 
-	RemoteSignal:Connect(callBack : function) --> RBXScriptConnection []
+	RemoteSignal:Connect(callback : function) --> RBXScriptConnection []
 	RemoteSignal:IsDestroyed() --> boolean [IsDestroyed]
     RemoteSignal:Destroy() --> void []
     RemoteSignal:FireClient(client : Player, ... : any) --> void []
@@ -40,7 +40,6 @@ function RemoteSignal.new()
 	assert(RunService:IsServer(), "RemoteSignal can only be created on the server")
  
 	return setmetatable({
-		_callBacks = {},
 		_isDestroyed = false,
 	}, RemoteSignal)
 end

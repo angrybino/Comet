@@ -13,7 +13,7 @@
 	Signal.ConnectedConnectionCount : number
 	Signal.ConnectionListHead : function | nil
 
-	Signal:Connect(callBack : function) --> Connection []
+	Signal:Connect(callback : function) --> Connection []
 	Signal:Fire(tuple : any) --> void []
 	Signal:DeferredFire(tuple : any) --> void []
 	Signal:Wait() --> any [tuple]

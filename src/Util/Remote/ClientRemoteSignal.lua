@@ -9,7 +9,7 @@
 
 	-- Instance methods:
 	 
-	ClientRemoteSignal:Connect(callBack : function) --> RBXScriptConnection []
+	ClientRemoteSignal:Connect(callback : function) --> RBXScriptConnection []
 	ClientRemoteSignal:Wait() --> any []
 	ClientRemoteSignal:Fire(... : any) --> void []
 	ClientRemoteSignal:IsDestroyed() --> boolean [IsDestroyed]

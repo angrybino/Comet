@@ -42,7 +42,6 @@ function ClientRemoteProperty.new(currentValue)
 	return setmetatable({
 		OnValueUpdate = Signal.new(),
 		_currentValue = currentValue,
-		_callBacks = {},
 		_isDestroyed = false,
 	}, ClientRemoteProperty)
 end
