@@ -11,7 +11,7 @@
     RemoteProperty.OnValueUpdate : Signal (newValue : any)
 	RemoteProperty.OnPlayerValueUpdate : Signal (player : Player, newValue : any)
 
-	RemoteSignal:IsDestroyed() --> boolean [IsDestroyed]
+	RemoteProperty:IsDestroyed() --> boolean [IsDestroyed]
 	RemoteProperty:GetDefaultValue() --> any [DefaultValue]
     RemoteProperty:Destroy() --> void []
     RemoteProperty:Set(value : any, specificPlayers : table ?) --> void []

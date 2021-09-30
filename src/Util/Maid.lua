@@ -18,12 +18,8 @@
 local Maid = {}
 Maid.__index = Maid
 
-local LocalConstants = {
-	ErrorMessages = {
-		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",
-		Destroyed = "Maid object is destroyed",
-	},
-}
+local comet = script:FindFirstAncestor("Comet")
+local SharedConstants = require(comet.SharedConstants)
 
 local function IsInstanceDestroyed(instance)
 	local _, response = pcall(function()
@@ -45,7 +41,7 @@ function Maid.IsMaid(self)
 end
 
 function Maid:AddTask(task)
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
+	assert(not self:IsDestroyed(), SharedConstants.ErrorMessages.Destroyed)
 
 	assert(
 		typeof(task) == "function"
@@ -53,7 +49,7 @@ function Maid:AddTask(task)
 			or typeof(task) == "table" and (typeof(task.Destroy) == "function" or typeof(task.Disconnect) == "function")
 			or typeof(task) == "Instance",
 
-		LocalConstants.ErrorMessages.InvalidArgument:format(
+		SharedConstants.ErrorMessages.InvalidArgument:format(
 			1,
 			"Maid.new()",
 			"function or RBXScriptConnection or table with Destroy or Disconnect method or Instance",
@@ -67,7 +63,7 @@ function Maid:AddTask(task)
 end
 
 function Maid:RemoveTask(task)
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
+	assert(not self:IsDestroyed(), SharedConstants.ErrorMessages.Destroyed)
 
 	assert(
 		typeof(task) == "function"
@@ -75,7 +71,7 @@ function Maid:RemoveTask(task)
 			or typeof(task) == "table" and (typeof(task.Destroy) == "function" or typeof(task.Disconnect) == "function")
 			or typeof(task) == "Instance",
 
-		LocalConstants.ErrorMessages.InvalidArgument:format(
+		SharedConstants.ErrorMessages.InvalidArgument:format(
 			1,
 			"Maid:RemoveTask()",
 			"function or RBXScriptConnection or table with Destroy or Disconnect method or Instance",
@@ -91,18 +87,18 @@ function Maid:IsDestroyed()
 end
 
 function Maid:Destroy()
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
+	assert(not self:IsDestroyed(), SharedConstants.ErrorMessages.Destroyed)
 
 	self:Cleanup()
 	self._isDestroyed = true
 end
 
 function Maid:LinkToInstances(instances)
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
+	assert(not self:IsDestroyed(), SharedConstants.ErrorMessages.Destroyed)
 
 	assert(
 		typeof(instances) == "table",
-		LocalConstants.ErrorMessages.InvalidArgument:format(1, "Maid:LinkToInstances()", "table", typeof(table))
+		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Maid:LinkToInstances()", "table", typeof(table))
 	)
 
 	for _, instance in ipairs(instances) do
@@ -112,7 +108,7 @@ function Maid:LinkToInstances(instances)
 			self:Destroy()
 			break
 		end
- 
+
 		local instanceParentChangedConnection
 		instanceParentChangedConnection = self:AddTask(instance:GetPropertyChangedSignal("Parent"):Connect(function()
 			if not instance.Parent then
@@ -132,7 +128,7 @@ function Maid:LinkToInstances(instances)
 end
 
 function Maid:Cleanup()
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
+	assert(not self:IsDestroyed(), SharedConstants.ErrorMessages.Destroyed)
 
 	local tasks = self._tasks
 

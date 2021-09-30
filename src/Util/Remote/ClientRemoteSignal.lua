@@ -45,19 +45,19 @@ function ClientRemoteSignal:InitRemoteEvent(remoteEvent)
 	self._remoteEvent = remoteEvent
 end
 
-function ClientRemoteSignal:Connect(callBack)
+function ClientRemoteSignal:Connect(callback)
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 	assert(
-		typeof(callBack) == "function",
+		typeof(callback) == "function",
 		SharedConstants.ErrorMessages.InvalidArgument:format(
 			1,
 			"ClientRemoteSignal:Connect()",
 			"function",
-			typeof(callBack)
+			typeof(callback)
 		)
 	)
 
-	return self._remoteEvent.OnClientEvent:Connect(callBack)
+	return self._remoteEvent.OnClientEvent:Connect(callback)
 end
 
 function ClientRemoteSignal:Fire(...)

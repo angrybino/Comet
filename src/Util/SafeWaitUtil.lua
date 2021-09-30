@@ -15,30 +15,26 @@
 
 local SafeWaitUtil = {}
 
-local Signal = require(script.Signal)
-local Maid = require(script.Maid)
+local Signal = require(script.Parent.Signal)
+local Maid = require(script.Parent.Maid)
 local Timer = require(script.Parent.Timer)
-
-local LocalConstants = {
-	ErrorMessages = {
-		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",
-	},
-}
+local comet = script:FindFirstAncestor("Comet")
+local SharedConstants = require(comet.SharedConstants)
 
 function SafeWaitUtil.WaitForChild(instance, childName, timeOut)
 	assert(
 		typeof(instance) == "Instance",
-		LocalConstants.ErrorMessages.InvalidArgument:format(1, "SafeWaitForChild()", "instance", typeof(instance))
+		SharedConstants.ErrorMessages.InvalidArgument:format(1, "SafeWaitForChild()", "instance", typeof(instance))
 	)
 	assert(
 		typeof(childName) == "string",
-		LocalConstants.ErrorMessages.InvalidArgument:format(2, "SafeWaitForChild()", "string", typeof(childName))
+		SharedConstants.ErrorMessages.InvalidArgument:format(2, "SafeWaitForChild()", "string", typeof(childName))
 	)
 
 	if timeOut then
 		assert(
 			typeof(timeOut) == "number",
-			LocalConstants.ErrorMessages.InvalidArgument:format(
+			SharedConstants.ErrorMessages.InvalidArgument:format(
 				3,
 				"SafeWaitUtil.WaitForChild()",
 				"number or nil",
@@ -85,7 +81,7 @@ end
 function SafeWaitUtil.WaitForFirstChildWhichIsA(instance, class, timeOut)
 	assert(
 		typeof(instance) == "Instance",
-		LocalConstants.ErrorMessages.InvalidArgument:format(
+		SharedConstants.ErrorMessages.InvalidArgument:format(
 			1,
 			"SafeWaitUtil.WaitForFirstChildWhichIsA()",
 			"instance",
@@ -94,7 +90,7 @@ function SafeWaitUtil.WaitForFirstChildWhichIsA(instance, class, timeOut)
 	)
 	assert(
 		typeof(class) == "string",
-		LocalConstants.ErrorMessages.InvalidArgument:format(
+		SharedConstants.ErrorMessages.InvalidArgument:format(
 			2,
 			"SafeWaitUtil.WaitForFirstChildWhichIsA()",
 			"string",
@@ -104,7 +100,7 @@ function SafeWaitUtil.WaitForFirstChildWhichIsA(instance, class, timeOut)
 	if timeOut then
 		assert(
 			typeof(timeOut) == "number",
-			LocalConstants.ErrorMessages.InvalidArgument:format(
+			SharedConstants.ErrorMessages.InvalidArgument:format(
 				3,
 				"SafeWaitUtil.WaitForFirstChildWhichIsA()",
 				"number or nil",
@@ -151,7 +147,7 @@ end
 function SafeWaitUtil.WaitForFirstChildOfClass(instance, class, timeOut)
 	assert(
 		typeof(instance) == "Instance",
-		LocalConstants.ErrorMessages.InvalidArgument:format(
+		SharedConstants.ErrorMessages.InvalidArgument:format(
 			1,
 			"SafeWaitUtil.WaitForFirstChildOfClass()",
 			"instance",
@@ -160,7 +156,7 @@ function SafeWaitUtil.WaitForFirstChildOfClass(instance, class, timeOut)
 	)
 	assert(
 		typeof(class) == "string",
-		LocalConstants.ErrorMessages.InvalidArgument:format(
+		SharedConstants.ErrorMessages.InvalidArgument:format(
 			2,
 			"SafeWaitUtil.WaitForFirstChildOfClass()",
 			"string",
@@ -170,7 +166,7 @@ function SafeWaitUtil.WaitForFirstChildOfClass(instance, class, timeOut)
 	if timeOut then
 		assert(
 			typeof(timeOut) == "number",
-			LocalConstants.ErrorMessages.InvalidArgument:format(
+			SharedConstants.ErrorMessages.InvalidArgument:format(
 				3,
 				"SafeWaitUtil.WaitForFirstChildOfClass()",
 				"number or nil",

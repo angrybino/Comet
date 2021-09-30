@@ -8,18 +8,17 @@
     Clamp(value : number) --> number [ClampedNumber]
 ]]
 
-local LocalConstants = {
-	MaxToleratedNumber = 0.01,
+local comet = script:FindFirstAncestor("Comet")
+local SharedConstants = require(comet.SharedConstants)
 
-	ErrorMessages = {
-		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",
-	},
+local LocalConstants = {
+	MaxToleratedNumber = 0.01
 }
 
 return function(value)
 	assert(
 		typeof(value) == "number",
-		LocalConstants.ErrorMessages.InvalidArgument:format(1, "Clamp()", "number", typeof(value))
+		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Clamp()", "number", typeof(value))
 	)
 
 	-- If the number is negative, then make sure it is >= than 0.1 in its absolute form:

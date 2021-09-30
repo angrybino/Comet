@@ -54,13 +54,13 @@ function RemoteSignal:Destroy()
 	self._remote:Destroy()
 end
 
-function RemoteSignal:Connect(callBack)
+function RemoteSignal:Connect(callback)
 	assert(
-		typeof(callBack) == "function",
-		SharedConstants.ErrorMessages.InvalidArgument:format(1, "RemoteSignal:Connect()", "function", typeof(callBack))
+		typeof(callback) == "function",
+		SharedConstants.ErrorMessages.InvalidArgument:format(1, "RemoteSignal:Connect()", "function", typeof(callback))
 	)
 
-	return self._remote.OnServerEvent:Connect(callBack)
+	return self._remote.OnServerEvent:Connect(callback)
 end
 
 function RemoteSignal:FireClient(client, ...)

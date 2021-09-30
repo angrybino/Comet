@@ -25,7 +25,7 @@ local Signal = require(comet.Util.Signal)
 
 local LocalConstants = {
 	WhitelistedServices = { Workspace },
-	RenderUpdatePriority = Enum.RenderPriority.Last.Value,
+	DefaultRenderUpdatePriority = Enum.RenderPriority.Last.Value,
 }
 
 function Component.GetFromInstance(instance)
@@ -145,7 +145,7 @@ function Component._new(requiredComponent)
 		_requiredComponent = requiredComponent,
 		_objects = {},
 		_tags = requiredComponent.OptionalTags or requiredComponent.RequiredTags,
-		_renderUpdatePriority = requiredComponent.RenderUpdatePriority or LocalConstants.RenderUpdatePriority,
+		_renderUpdatePriority = requiredComponent.RenderUpdatePriority or LocalConstants.DefaultRenderUpdatePriority,
 		_areTagsRequired = requiredComponent.RequiredTags ~= nil,
 		_hasPhysicsUpdateMethod = typeof(requiredComponent.PhysicsUpdate) == "function",
 		_hasInitMethod = typeof(requiredComponent.Init) == "function",

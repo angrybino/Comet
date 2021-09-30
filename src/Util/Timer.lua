@@ -25,10 +25,11 @@ local RunService = game:GetService("RunService")
 
 local Signal = require(script.Parent.Signal)
 local Maid = require(script.Parent.Maid)
+local comet = script:FindFirstAncestor("Comet")
+local SharedConstants = require(comet.SharedConstants)
 
 local LocalConstants = {
 	ErrorMessages = {
-		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",
 		Destroyed = "Timer object is destroyed",
 	},
 }
@@ -40,7 +41,7 @@ end
 function Timer.new(timer)
 	assert(
 		typeof(timer) == "number",
-		LocalConstants.ErrorMessages.InvalidArgument:format(1, "Timer.new()", "number", typeof(timer))
+		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Timer.new()", "number", typeof(timer))
 	)
 
 	local self = setmetatable({

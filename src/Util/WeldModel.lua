@@ -8,16 +8,13 @@
 	WeldModel(model : Model) --> void []
 ]]
 
-local LocalConstants = {
-	ErrorMessages = {
-		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",
-	},
-}
+local comet = script:FindFirstAncestor("Comet")
+local SharedConstants = require(comet.SharedConstants)
 
 return function(model)
 	assert(
 		typeof(model) == "Instance" and model:IsA("Model"),
-		LocalConstants.ErrorMessages.InvalidArgument:format(1, "WeldModel()", "Model", typeof(model))
+		SharedConstants.ErrorMessages.InvalidArgument:format(1, "WeldModel()", "Model", typeof(model))
 	)
 
 	assert(model.PrimaryPart, ("Can't weld model %s as it doesn't have a primary part"):format(model:GetFullName()))

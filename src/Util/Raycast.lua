@@ -33,10 +33,11 @@ local RunService = game:GetService("RunService")
 
 local Signal = require(script.Parent.Signal)
 local Maid = require(script.Parent.Maid)
+local comet = script:FindFirstAncestor("Comet")
+local SharedConstants = require(comet.SharedConstants)
 
 local LocalConstants = {
 	ErrorMessages = {
-		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",
 		Destroyed = "Ray object is destroyed",
 	},
 
@@ -57,17 +58,17 @@ local LocalConstants = {
 function Raycast.new(origin, direction, params)
 	assert(
 		typeof(origin) == "Vector3",
-		LocalConstants.ErrorMessages.InvalidArgument:format(1, "Raycast.new()", "Vector3", typeof(origin))
+		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Raycast.new()", "Vector3", typeof(origin))
 	)
 	assert(
 		typeof(origin) == "Vector3",
-		LocalConstants.ErrorMessages.InvalidArgument:format(2, "Raycast.new()", "Vector3", typeof(direction))
+		SharedConstants.ErrorMessages.InvalidArgument:format(2, "Raycast.new()", "Vector3", typeof(direction))
 	)
 
 	if params then
 		assert(
 			typeof(params) == "RaycastParams",
-			LocalConstants.ErrorMessages.InvalidArgument:format(
+			SharedConstants.ErrorMessages.InvalidArgument:format(
 				3,
 				"Raycast.new()",
 				"RaycastParams or nil",
@@ -116,7 +117,7 @@ function Raycast:SetVisualizerThickness(thickness)
 
 	assert(
 		typeof(thickness) == "number",
-		LocalConstants.ErrorMessages.InvalidArgument:format(
+		SharedConstants.ErrorMessages.InvalidArgument:format(
 			1,
 			"Raycast:SetVisualizerThickness()",
 			"number",
@@ -132,7 +133,7 @@ function Raycast:SetVisualizerColor(color)
 
 	assert(
 		typeof(color) == "BrickColor",
-		LocalConstants.ErrorMessages.InvalidArgument:format(
+		SharedConstants.ErrorMessages.InvalidArgument:format(
 			1,
 			"Raycast:SetVisualizerColor()",
 			"BrickColor",
@@ -155,7 +156,7 @@ function Raycast:GetTouchingParts(maxTouchingParts)
 	if maxTouchingParts then
 		assert(
 			typeof(maxTouchingParts) == "number",
-			LocalConstants.ErrorMessages.InvalidArgument:format(
+			SharedConstants.ErrorMessages.InvalidArgument:format(
 				1,
 				"RayCast:GetTouchingParts()",
 				"number or nil",
@@ -200,7 +201,7 @@ function Raycast:Resize(size)
 
 	assert(
 		typeof(size) == "number",
-		LocalConstants.ErrorMessages.InvalidArgument:format(1, "Raycast:Resize()", "number", typeof(size))
+		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Raycast:Resize()", "number", typeof(size))
 	)
 
 	local finalPosition = (self.Origin + self.Direction)
