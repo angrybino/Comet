@@ -6,7 +6,10 @@
 	SafeWaitUtil.WaitForChild(instance : Instance, childName : string, timeOut : number ?) 
     --> Instance | nil [Child]
 
-	SafeWaitUtil.WaitForChildWhichIsA(instance : Instance, class : string, timeOut : number  ?) 
+	SafeWaitUtil.WaitForFirstChildWhichIsA(instance : Instance, class : string, timeOut : number  ?) 
+    --> Instance | nil [Child]
+
+	SafeWaitUtil.WaitForFirstChildOfClass(instance : Instance, class : string, timeOut : number  ?) 
     --> Instance | nil [Child]
 ]]
 
@@ -55,12 +58,7 @@ function SafeWaitUtil.WaitForChild(instance, childName, timeOut)
 	local onChildAdded = Signal.new()
 
 	maid:AddTask(onChildAdded)
-
-	maid:AddTask(instance:GetPropertyChangedSignal("Parent"):Connect(function()
-		if not instance.Parent and not onChildAdded:IsDestroyed() then
-			onChildAdded:Fire(nil)
-		end
-	end))
+	maid:LinkToInstances(instance)
 
 	maid:AddTask(instance.ChildAdded:Connect(function(child)
 		if child.Name == childName and not onChildAdded:IsDestroyed() then
@@ -84,12 +82,12 @@ function SafeWaitUtil.WaitForChild(instance, childName, timeOut)
 	return child
 end
 
-function SafeWaitUtil.WaitForChildWhichIsA(instance, class, timeOut)
+function SafeWaitUtil.WaitForFirstChildWhichIsA(instance, class, timeOut)
 	assert(
 		typeof(instance) == "Instance",
 		LocalConstants.ErrorMessages.InvalidArgument:format(
 			1,
-			"SafeWaitUtil.WaitForChildWhichIsA()",
+			"SafeWaitUtil.WaitForFirstChildWhichIsA()",
 			"instance",
 			typeof(instance)
 		)
@@ -98,7 +96,7 @@ function SafeWaitUtil.WaitForChildWhichIsA(instance, class, timeOut)
 		typeof(class) == "string",
 		LocalConstants.ErrorMessages.InvalidArgument:format(
 			2,
-			"SafeWaitUtil.WaitForChildWhichIsA()",
+			"SafeWaitUtil.WaitForFirstChildWhichIsA()",
 			"string",
 			typeof(class)
 		)
@@ -108,7 +106,7 @@ function SafeWaitUtil.WaitForChildWhichIsA(instance, class, timeOut)
 			typeof(timeOut) == "number",
 			LocalConstants.ErrorMessages.InvalidArgument:format(
 				3,
-				"SafeWaitUtil.WaitForChildWhichIsA()",
+				"SafeWaitUtil.WaitForFirstChildWhichIsA()",
 				"number or nil",
 				typeof(timeOut)
 			)
@@ -126,15 +124,76 @@ function SafeWaitUtil.WaitForChildWhichIsA(instance, class, timeOut)
 	local onChildAdded = Signal.new()
 
 	maid:AddTask(onChildAdded)
-
-	maid:AddTask(instance:GetPropertyChangedSignal("Parent"):Connect(function()
-		if not instance.Parent and not onChildAdded:IsDestroyed() then
-			onChildAdded:Fire(nil)
-		end
-	end))
+	maid:LinkToInstances(instance)
 
 	maid:AddTask(instance.ChildAdded:Connect(function(child)
 		if child:IsA(class) and not onChildAdded:IsDestroyed() then
+			onChildAdded:Fire(child)
+		end
+	end))
+
+	if timeOut then
+		local timer = maid:AddTask(Timer.new(timeOut))
+
+		timer.OnTimerTick:Connect(function()
+			if not timer:IsDestroyed() then
+				onChildAdded:Fire(nil)
+			end
+		end)
+	end
+
+	local child = onChildAdded:Wait()
+	maid:Destroy()
+
+	return child
+end
+
+function SafeWaitUtil.WaitForFirstChildOfClass(instance, class, timeOut)
+	assert(
+		typeof(instance) == "Instance",
+		LocalConstants.ErrorMessages.InvalidArgument:format(
+			1,
+			"SafeWaitUtil.WaitForFirstChildOfClass()",
+			"instance",
+			typeof(instance)
+		)
+	)
+	assert(
+		typeof(class) == "string",
+		LocalConstants.ErrorMessages.InvalidArgument:format(
+			2,
+			"SafeWaitUtil.WaitForFirstChildOfClass()",
+			"string",
+			typeof(class)
+		)
+	)
+	if timeOut then
+		assert(
+			typeof(timeOut) == "number",
+			LocalConstants.ErrorMessages.InvalidArgument:format(
+				3,
+				"SafeWaitUtil.WaitForFirstChildOfClass()",
+				"number or nil",
+				typeof(timeOut)
+			)
+		)
+	end
+
+	do
+		local instance = instance:FindFirstChildOfClass(class)
+		if instance then
+			return instance
+		end
+	end
+
+	local maid = Maid.new()
+	local onChildAdded = Signal.new()
+
+	maid:AddTask(onChildAdded)
+	maid:LinkToInstances(instance)
+
+	maid:AddTask(instance.ChildAdded:Connect(function(child)
+		if child.ClassName == class and not onChildAdded:IsDestroyed() then
 			onChildAdded:Fire(child)
 		end
 	end))
