@@ -112,15 +112,15 @@ function Maid:LinkToInstances(instances)
 			self:Destroy()
 			break
 		end
-
+ 
 		local instanceParentChangedConnection
 		instanceParentChangedConnection = self:AddTask(instance:GetPropertyChangedSignal("Parent"):Connect(function()
-			if not instance.Parent and not self:IsDestroyed() then
+			if not instance.Parent then
 				task.defer(function()
 					-- If the connection has also been disconnected, then its
 					-- guaranteed that the instance has been destroyed through
 					-- Destroy():
-					if not instanceParentChangedConnection.Connected then
+					if not self:IsDestroyed() and not instanceParentChangedConnection.Connected then
 						self:Destroy()
 					end
 				end)
