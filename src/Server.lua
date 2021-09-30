@@ -52,7 +52,13 @@ function Server.SetServicesFolder(servicesFolder)
 			end
 
 			if serviceNames[service.Name] then
-				warn(("Service with duplicate name [%s] found: %s"):format(service.Name, service:GetFullName()))
+				warn(
+					("%s Service with duplicate name [%s] found in: %s"):format(
+						SharedConstants.Comet,
+						service.Name,
+						service:GetFullName()
+					)
+				)
 			end
 
 			local requiredService = require(service)
@@ -66,7 +72,7 @@ end
 
 function Server.Start()
 	if Server._isStarted then
-		return Promise.reject("Can't start Comet as it is already started")
+		return Promise.reject(("%s Can't start Comet as it is already started"):format(SharedConstants.Comet))
 	end
 
 	Server._isStarted = true
