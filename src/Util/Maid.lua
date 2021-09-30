@@ -3,9 +3,12 @@
 -- September 26, 2021
 
 --[[
+	-- Static methods:
+
 	Maid.new() --> Maid []
 	Maid.IsMaid(self : any) --> boolean [IsMaid]
-	-- Only when accessed from an object created by Maid.new():
+
+	-- Instance methods:
 	
 	Maid:AddTask(task : table | function | RBXScriptConnection | Instance) --> task []
 	Maid:Cleanup() --> void []

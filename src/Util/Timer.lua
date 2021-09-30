@@ -3,10 +3,12 @@
 -- September 26, 2021
 
 --[[
+	-- Static methods:
+
     Timer.new(timer : number) --> Timer []
     Timer.IsTimer(self : any) --> boolean [IsTimer]
 
-    -- Only acessible from an object returned by Timer.new():
+   	-- Instance methods / members:
 
 	Timer.OnTimerTick : Signal (deltaTime : number)
 

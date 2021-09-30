@@ -3,10 +3,12 @@
 -- September 26, 2021
 
 --[[
+	-- Static methods:
+	
     RemoteSignal.IsRemoteSignal(self : any) --> boolean [IsRemoteSignal]
     RemoteSignal.new() --> RemoteSignal []
 
-    -- Only accessible from an object returned by RemoteSignal.new():  
+    -- Instance methods:
 
 	RemoteSignal:Connect(callBack : function) --> RBXScriptConnection []
 	RemoteSignal:IsDestroyed() --> boolean [IsDestroyed]

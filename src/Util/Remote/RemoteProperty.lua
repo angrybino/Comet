@@ -3,10 +3,12 @@
 -- September 26, 2021
 
 --[[
+	-- Static methods:
+
     RemoteProperty.IsRemoteProperty(self : any) --> boolean [IsRemoteProperty]
     RemoteProperty.new(value : any) --> RemoteProperty []
 
-    -- Only accessible from an object returned by RemoteProperty.new(): 
+    -- Instance methods / members:
 
     RemoteProperty.OnValueUpdate : Signal (newValue : any)
 	RemoteProperty.OnPlayerValueUpdate : Signal (player : Player, newValue : any)

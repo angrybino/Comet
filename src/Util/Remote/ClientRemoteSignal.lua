@@ -3,9 +3,11 @@
 -- September 26, 2021
 
 --[[
+	-- Static methods:
+
 	ClientRemoteSignal.IsClientRemoteSignal(self : any) --> boolean [IsClientRemoteSignal]
 
-	 -- Only when accessed from a object returned by ClientRemoteSignal.new():
+	-- Instance methods:
 	 
 	ClientRemoteSignal:Connect(callBack : function) --> RBXScriptConnection []
 	ClientRemoteSignal:Wait() --> any []

@@ -3,12 +3,16 @@
 -- September 26, 2021
 
 --[[
+	-- Static methods:
+	
 	Signal.new() --> Signal []
 	Signal.IsSignal(self : any) --> boolean [IsSignal]
-	-- Only when accessed from an object returned by Signal.new:
+	
+	-- Instance members / methods:
 	
 	Signal.ConnectedConnectionCount : number
 	Signal.ConnectionListHead : function | nil
+
 	Signal:Connect(callBack : function) --> Connection []
 	Signal:Fire(tuple : any) --> void []
 	Signal:DeferredFire(tuple : any) --> void []

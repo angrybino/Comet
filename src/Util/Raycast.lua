@@ -3,9 +3,12 @@
 -- September 26, 2021
 
 --[[
-    Raycast.new(origin : Vector3, direction : Vector3, params : RaycastParams ?) --> Raycast []
+	-- Static methods:
 
-    -- Only accessible from an object returned by Raycast.new():
+    Raycast.new(origin : Vector3, direction : Vector3, params : RaycastParams ?) --> Raycast []
+	Raycast.IsRaycast(self : any) --> boolean [IsRayCast]
+
+    -- Instance methods / members:
 
     Raycast.OnInstanceHit : Signal (instance : Instance)
 	Raycast.Origin : Vector3
@@ -54,6 +57,10 @@ local LocalConstants = {
 	DefaultMaxTouchingParts = 10,
 	DefaultRayVisualizerThickness = 0.5,
 }
+
+function Raycast.IsRaycast(self)
+	return getmetatable(self) == Raycast
+end
 
 function Raycast.new(origin, direction, params)
 	assert(

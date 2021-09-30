@@ -3,10 +3,12 @@
 -- September 26, 2021
 
 --[[
+	-- Static methods:
+
     ClientRemoteProperty.IsClientRemoteProperty(self : any) --> boolean [IsClientRemoteProperty]
 	ClientRemoteProperty.new(value : any) --> ClientRemoteProperty [] 
 
-	 -- Only when accessed from a object returned by ClientRemoteProperty.new():
+	-- Instance methods / members:
 	 
     ClientRemoteProperty.OnValueUpdate : Signal (newValue : any)
 
