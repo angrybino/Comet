@@ -1,14 +1,43 @@
 site_name: Comet
+site_url: https://angrybino.github.io/Comet
 site_description: 'Comet is an advanced framework designed to properly abstract server-client communication in the right way and provide other useful utilities for better game development workflow.'
 site_author: 'angrybino'
+copyright: Copyright &copy; 2020 - 2021 angrybino
+
 docs_dir: docs/
 repo_name: 'Repository'
 repo_url: 'https://github.com/angrybino/Comet'
 edit_uri: edit/master/docs
+
+theme:
+  name: 'material'
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.top
+    - toc.integrate
+  favicon: assets/images/logo.png
+  logo: assets/images/logo.png
+  icon:
+    repo: fontawesome/brands/github-alt
+  palette:
+    scheme: default
+    primary: white
+    accent: light blue
+extra_css:
+  - stylesheets/custom.css
+
+nav:
+  - Home: index.md
+  - Getting started:
+    - Introduction: getstarted/intro.md
+    - Setting up: getstarted/setup.md
+  - API reference: api/index.md
+
 plugins:
   - search
   - git-revision-date-localized
-copyright: Copyright &copy; 2020 - 2021 angrybino
+
 markdown_extensions:
   - attr_list
   - admonition
@@ -42,20 +71,3 @@ markdown_extensions:
       emoji_generator: !!python/name:materialx.emoji.to_svg
   - pymdownx.tasklist:
      custom_checkbox: true
-theme:
-  name: 'material'
-  features:
-    - navigation.instant
-    - navigation.tracking
-    - navigation.top
-    - toc.integrate
-  favicon: assets/images/logo.png
-  logo: assets/images/logo.png
-  icon:
-    repo: fontawesome/brands/github-alt
-  palette:
-    scheme: default
-    primary: white
-    accent: light blue
-extra_css:
-  - stylesheets/custom.css
