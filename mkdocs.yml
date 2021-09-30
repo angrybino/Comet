@@ -1,16 +1,61 @@
 site_name: Comet
-
+site_description: 'Comet is an advanced framework designed to properly abstract server-client communication in the right way and provide other useful utilities for better game development workflow.'
+site_author: 'angrybino'
+docs_dir: docs/
+repo_name: 'Repository'
+repo_url: 'https://github.com/angrybino/Comet'
+edit_uri: edit/master/docs
+plugins:
+  - search
+  - git-revision-date-localized
+copyright: Copyright &copy; 2020 - 2021 angrybino
+markdown_extensions:
+  - attr_list
+  - admonition
+  - codehilite:
+        guess_lang: false
+  - toc:
+        permalink: true
+  - def_list
+  - meta
+  - pymdownx.arithmatex
+  - pymdownx.betterem:
+        smart_enable: all
+  - pymdownx.caret
+  - pymdownx.critic
+  - pymdownx.details
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.magiclink
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences
+  - pymdownx.tasklist:
+        custom_checkbox: true
+  - pymdownx.tilde
+  - pymdownx.tabbed
+  - pymdownx.snippets
+  - pymdownx.highlight
+  - footnotes
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.tasklist:
+     custom_checkbox: true
 theme:
-  name: material
-  font:
-    text: Ubuntu
-    code: Roboto Mono
+  name: 'material'
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.top
+    - toc.integrate
+  favicon: assets/images/logo.png
+  logo: assets/images/logo.png
+  icon:
+    repo: fontawesome/brands/github-alt
   palette:
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
-      primary: indigo
-      accent: light blue
-    - media: "(prefers-color-scheme: dark)"
-      scheme: slate
-      primary: blue
-      accent: light blue
+    scheme: default
+    primary: white
+    accent: light blue
+extra_css:
+  - stylesheets/custom.css

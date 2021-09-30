@@ -1,17 +1,9 @@
-# Welcome to MkDocs
+# Home
+Welcome to the documentation website for Comet.
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+Comet is an advanced framework designed to properly abstract server-client communication in the right way and provide other useful utilities for better game development workflow.
 
-## Commands
+This documentation contains guides on setting up Comet for your game, getting started with Comet, creating components for Comet, API references and much more.
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
-
-## Project layout
-
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+# Getting started
+If you are new to Comet, head to [this page](./go/intro.md) to learn more about Comet.
