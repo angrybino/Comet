@@ -28,21 +28,29 @@ local ClientRemoteSignal = require(Client.Util.Remote.ClientRemoteSignal)
 local ClientRemoteProperty = require(Client.Util.Remote.ClientRemoteProperty)
 local SharedConstants = require(script.Parent.SharedConstants)
 local SafeWaitUtil = require(Client.Util.SafeWaitUtil)
+local Signal = require(Client.Util.Signal)
 
 local servicesFolder = SafeWaitUtil.WaitForChild(script, "ClientExposedServices")
 
 Client.Version = SharedConstants.Version
 Client.LocalPlayer = Players.LocalPlayer
 
-function Client.GetService(service)
+function Client.GetService(serviceName)
 	assert(
-		typeof(service) == "string",
-		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Client.GetService()", "string", typeof(service))
+		typeof(serviceName) == "string",
+		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Client.GetService()", "string", typeof(serviceName))
 	)
 
-	assert(servicesFolder:FindFirstChild(service), ("Service [%s] not found!"):format(service))
+	assert(servicesFolder:FindFirstChild(serviceName), ("Service [%s] not found!"):format(serviceName))
 
-	return Client._servicesBuilt[service] or Client._buildService(service)
+	local onServiceBuilt = Client._servicesBuilt[serviceName]
+
+	-- Prevent multiple service builds:
+	if Signal.IsSignal(onServiceBuilt) then
+		onServiceBuilt:Wait()
+	end
+
+	return Client._servicesBuilt[serviceName] or Client._buildService(serviceName)
 end
 
 function Client.GetController(controllerName)
@@ -87,7 +95,11 @@ function Client.SetControllersFolder(controllersFolder)
 
 			if controllerNames[controller.Name] then
 				warn(
-					("Controller with duplicate name [%s] found: %s"):format(controller.Name, controller:GetFullName())
+					("%s Controller with duplicate name [%s] found in: %s"):format(
+						SharedConstants.Comet,
+						controller.Name,
+						controller:GetFullName()
+					)
 				)
 			end
 
@@ -147,6 +159,9 @@ function Client._initControllers()
 end
 
 function Client._buildService(serviceName)
+	local onServiceBuilt = Signal.new()
+	Client._servicesBuilt[serviceName] = onServiceBuilt
+
 	local service = servicesFolder[serviceName]
 
 	local clientExposedMethods = service.ClientExposedMethods
@@ -200,7 +215,9 @@ function Client._buildService(serviceName)
 	clientExposedRemoteSignals.ChildAdded:Connect(ExposeRemoteSignalToClient)
 	clientExposedRemoteProperties.ChildAdded:Connect(ExposeRemotePropertyToClient)
 
-	Client._servicesBuilt[service] = builtService
+	Client._servicesBuilt[serviceName] = builtService
+	onServiceBuilt:Fire()
+	onServiceBuilt:Destroy()
 
 	return builtService
 end
