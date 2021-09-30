@@ -3,12 +3,16 @@
 -- September 26, 2021
 
 --[[
+	-- Static methods:
+	
 	Signal.new() --> Signal []
 	Signal.IsSignal(self : any) --> boolean [IsSignal]
-	-- Only when accessed from an object returned by Signal.new:
+	
+	-- Instance members / methods:
 	
 	Signal.ConnectedConnectionCount : number
 	Signal.ConnectionListHead : function | nil
+
 	Signal:Connect(callBack : function) --> Connection []
 	Signal:Fire(tuple : any) --> void []
 	Signal:DeferredFire(tuple : any) --> void []
@@ -23,12 +27,13 @@ local Signal = {}
 Signal.__index = Signal
 
 local Connection = require(script.Connection)
+local comet = script:FindFirstAncestor("Comet")
+local SharedConstants = require(comet.SharedConstants)
 
 local LocalConstants = {
 	MinArgumentCount = 1,
 
 	ErrorMessages = {
-		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",
 		Destroyed = "Signal object is destroyed",
 	},
 }
@@ -44,15 +49,15 @@ function Signal.new()
 	}, Signal)
 end
 
-function Signal:Connect(callBack)
+function Signal:Connect(callback)
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
 	assert(
-		typeof(callBack) == "function",
-		LocalConstants.ErrorMessages.InvalidArgument:format(1, "Signal:Connect", "function", typeof(callBack))
+		typeof(callback) == "function",
+		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Signal:Connect", "function", typeof(callback))
 	)
 
-	local connection = Connection.new(self, callBack)
+	local connection = Connection.new(self, callback)
 
 	if self.ConnectionListHead then
 		connection.Next = self.ConnectionListHead
@@ -169,11 +174,11 @@ function Signal:DeferredFire(...)
 	end
 end
 
-function Signal._acquireRunnerThreadAndCallEventHandler(callBack, ...)
+function Signal._acquireRunnerThreadAndCallEventHandler(callback, ...)
 	local acquiredRunnerThread = Signal._freeRunnerThread
 	Signal._freeRunnerThread = nil
 
-	callBack(...)
+	callback(...)
 	Signal._freeRunnerThread = acquiredRunnerThread
 end
 

@@ -38,7 +38,7 @@ local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 
 local LocalConstants = {
-	MaxMouseRayDistance = 15000,
+	DefaultMouseRayDistance = 15000,
 	MinDelta = 1e-5,
 }
 
@@ -87,7 +87,7 @@ function Mouse.CastRay(rayCastParams, distance)
 
 	return Workspace:Raycast(
 		ray.Origin,
-		ray.Direction * (distance or LocalConstants.MaxMouseRayDistance),
+		ray.Direction * (distance or LocalConstants.DefaultMouseRayDistance),
 		rayCastParams
 	)
 end
@@ -165,7 +165,7 @@ function Mouse._getMouseTarget()
 
 	local ray = Workspace:Raycast(
 		mouseRay.Origin,
-		mouseRay.Direction * LocalConstants.MaxMouseRayDistance,
+		mouseRay.Direction * LocalConstants.DefaultMouseRayDistance,
 		rayCastParams
 	)
 
@@ -183,11 +183,11 @@ function Mouse._getHitCFrame()
 
 	local ray = Workspace:Raycast(
 		mouseRay.Origin,
-		mouseRay.Direction * LocalConstants.MaxMouseRayDistance,
+		mouseRay.Direction * LocalConstants.DefaultMouseRayDistance,
 		rayCastParams
 	)
 
-	return CFrame.new(ray and ray.Position or mouseRay.Origin + mouseRay.Direction * LocalConstants.MaxMouseRayDistance)
+	return CFrame.new(ray and ray.Position or mouseRay.Origin + mouseRay.Direction * LocalConstants.DefaultMouseRayDistance)
 end
 
 return Mouse

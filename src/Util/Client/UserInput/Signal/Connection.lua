@@ -3,12 +3,15 @@
 -- September 26, 2021
 
 --[[
+	-- Static methods:
+
 	Connection.new() --> Connection []
 	Connection.IsConnection(self : any) --> boolean [IsConnection]
 	
+	-- Instance methods / members:
+
 	Connection.Callback : function
 	Connection.Next : Connection | nil
-	-- Only when accessed from an object returned by Connection.new:
 	
 	Connection:Disconnect() --> void []
 	Connection:IsConnected() -- > boolean [IsConnected]
