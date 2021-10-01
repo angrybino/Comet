@@ -5,7 +5,7 @@ The [RemoteSignal](https://github.com/angrybino/Comet/blob/master/src/Util/Remot
 ## Static methods
 
 ### new()
-!!! info "`RemoteSignal [] RemoteSignal.new()`"
+!!! abstract "`RemoteSignal [] RemoteSignal.new()`"
 	```lua
 	RemoteSignal.new() --> RemoteSignal []
 	```
@@ -13,7 +13,7 @@ The [RemoteSignal](https://github.com/angrybino/Comet/blob/master/src/Util/Remot
 	Creates and returns a `RemoteSignal` object.
 
 ### IsRemoteSignal()
-!!! info "`boolean [IsRemoteSignal] Remote.Signal.IsRemoteSignal(self: any)`"
+!!! abstract "`boolean [IsRemoteSignal] Remote.Signal.IsRemoteSignal(self: any)`"
 	```lua
 	RemoteSignal.IsRemoteSignal(self : any) --> boolean [IsRemoteSignal]
 	```
@@ -23,7 +23,7 @@ The [RemoteSignal](https://github.com/angrybino/Comet/blob/master/src/Util/Remot
 ## Instance methods
 
 ### IsDestroyed()
-!!! info "`boolean [IsDestroyed] RemoteSignal:IsDestroyed()`"
+!!! abstract "`boolean [IsDestroyed] RemoteSignal:IsDestroyed()`"
 	```lua
 	RemoteSignal:IsDestroyed() --> boolean [IsDestroyed]
 	```
@@ -31,7 +31,7 @@ The [RemoteSignal](https://github.com/angrybino/Comet/blob/master/src/Util/Remot
 	Returns a boolean indicating if the `RemoteSignal` object is destroyed.
 
 ### Connect()
-!!! info "`RbxScriptConnection [] RemoteSignal:Connect(callback: function)`"
+!!! abstract "`RbxScriptConnection [] RemoteSignal:Connect(callback: function)`"
 	```lua
 	RemoteSignal:Connect(callback : function) --> RBXScriptConnection []
 	```
@@ -39,7 +39,7 @@ The [RemoteSignal](https://github.com/angrybino/Comet/blob/master/src/Util/Remot
 	Exactly like `remoteEvent.OnServerEvent:Connect(callback)`.
 
 ### FireClient()
-!!! info "`void [] RemoteSignal:FireClient(client: Player, ...: any)`"
+!!! abstract "`void [] RemoteSignal:FireClient(client: Player, ...: any)`"
 	```lua
 	RemoteSignal:FireClient(client : Player, ... : any) --> void []
 	```
@@ -47,7 +47,7 @@ The [RemoteSignal](https://github.com/angrybino/Comet/blob/master/src/Util/Remot
 	Exactly like `remoteEvent:FireClient(client, ...)`.
 
 ### FireClients(clients : table, ... : any)
-!!! info "`void [] RemoteSignal:FireClient(clients: {Player}, ...: any)`"
+!!! abstract "`void [] RemoteSignal:FireClient(clients: {Player}, ...: any)`"
 	```lua
 	RemoteSignal:FireClient(clients : table, ...) --> void []
 	```
@@ -61,5 +61,5 @@ The [RemoteSignal](https://github.com/angrybino/Comet/blob/master/src/Util/Remot
 	```
 
 ### FireAllClients(... : any)
-!!! info "`void [] RemoteSignal:FireAllClients(...: any)`"
+!!! abstract "`void [] RemoteSignal:FireAllClients(...: any)`"
 	Exactly like `remoteEvent:FireAllClients(...)`
