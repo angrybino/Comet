@@ -36,7 +36,7 @@ nav:
   - Services: Services.md
   - Controllers : Controllers.md
   - Lifecycle: Lifecycle.md
-  - Util:
+  - Utilities:
     - Remote: 
       - RemoteSignal: Util/Remote/RemoteSignal.md
   - API: API.md

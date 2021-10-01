@@ -4,62 +4,62 @@ The [RemoteSignal](https://github.com/angrybino/Comet/blob/master/src/Util/Remot
 
 ## Static methods
 
-### `new()`
+### new()
+!!! info "`RemoteSignal [] RemoteSignal.new()`"
+	```lua
+	RemoteSignal.new() --> RemoteSignal []
+	```
+	
+	Creates and returns a `RemoteSignal` object.
 
-```lua
-RemoteSignal.new() --> RemoteSignal []
-```
-
-Creates and returns a `RemoteSignal` object.
-
-### `IsRemoteSignal()`
-
-```lua
-RemoteSignal.IsRemoteSignal(self : any) --> boolean [IsRemoteSignal]
-```
-
-Returns a boolean indicating if `self` is a `RemoteSignal` object.
+### IsRemoteSignal()
+!!! info "`boolean [IsRemoteSignal] Remote.Signal.IsRemoteSignal(self: any)`"
+	```lua
+	RemoteSignal.IsRemoteSignal(self : any) --> boolean [IsRemoteSignal]
+	```
+	
+	Returns a boolean indicating if `self` is a `RemoteSignal` object.
 
 ## Instance methods
 
-### `IsDestroyed()`
+### IsDestroyed()
+!!! info "`boolean [IsDestroyed] RemoteSignal:IsDestroyed()`"
+	```lua
+	RemoteSignal:IsDestroyed() --> boolean [IsDestroyed]
+	```
+	
+	Returns a boolean indicating if the `RemoteSignal` object is destroyed.
 
-```lua
-RemoteSignal:IsDestroyed() --> boolean [IsDestroyed]
-```
+### Connect()
+!!! info "`RbxScriptConnection [] RemoteSignal:Connect(callback: function)`"
+	```lua
+	RemoteSignal:Connect(callback : function) --> RBXScriptConnection []
+	```
+	
+	Exactly like `remoteEvent.OnServerEvent:Connect(callback)`.
 
-Returns a boolean indicating if the `RemoteSignal` object is destroyed.
+### FireClient()
+!!! info "`void [] RemoteSignal:FireClient(client: Player, ...: any)`"
+	```lua
+	RemoteSignal:FireClient(client : Player, ... : any) --> void []
+	```
+	
+	Exactly like `remoteEvent:FireClient(client, ...)`.
 
-### `Connect()`
+### FireClients(clients : table, ... : any)
+	!!! info "`void [] RemoteSignal:FireClient(clients: {Player}, ...: any)`"
+	```lua
+	RemoteSignal:FireClient(clients : table, ...) --> void []
+	```
+	
+	Exactly like 
+	
+	```lua
+	for _, client in ipairs(clients) do
+		remoteEvent:FireClient(client, ...)
+	end
+	```
 
-```lua
-RemoteSignal:Connect(callback : function) --> RBXScriptConnection []
-```
-
-Exactly like `remoteEvent.OnServerEvent:Connect(callback)`.
-
-### `FireClient()`
-
-```lua
-RemoteSignal:FireClient(client : Player, ... : any) --> void []
-```
-
-Exactly like `remoteEvent:FireClient(client, ...)`.
-
-### `FireClients(clients : table, ... : any)`
-
-```lua
-RemoteSignal:FireClient(clients : table, ...) --> void []
-```
-
-Exactly like 
-
-```lua
-for _, client in ipairs(clients) do
-	remoteEvent:FireClient(client, ...)
-end
-```
-
-### `FireAllClients(... : any)`
-
-Exactly like `remoteEvent:FireAllClients(...)`
+### FireAllClients(... : any)
+!!! info "`void [] RemoteSignal:FireAllClients(...: any)`"
+	Exactly like `remoteEvent:FireAllClients(...)`

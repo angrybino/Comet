@@ -24,7 +24,7 @@ end
 return PlayerDataService
 ```
 
-!!!note
+!!! note "Note"
     - The name of the service will be the name of the module script it is nested in.
     - The `Client` table is optional. However, it is good practice to keep it.
 
