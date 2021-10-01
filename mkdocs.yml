@@ -28,7 +28,7 @@ theme:
     primary: white
     accent: light blue
 extra_css:
-  - assets/stylesheets/index.css
+  - assets/Stylesheets/Index.css
  
 nav:
   - Home: index.md
