@@ -1,16 +1,22 @@
 ---
-  hide:
-	- toc
-	- navigation
+title: Comet
+hide:
+  - toc
+  - navigation
 ---
 
 <link rel="stylesheet" href="assets/stylesheets/home.css">
 
+<section class="comet-background"></section>
 <section class="comet-landing">
 <h1>Scalable game, made with Comet!</h1>
 <p>
 	Comet is an advanced framework designed for <a href="https://luau-lang.org/">Luau</a>, to properly abstract server-client communication in the right way, and provide other useful utilities for better game development workflow. Easing your burden on building a proper game infrastructure and deploy your games as soon as possible.
 </p>
+<nav>
+<a href="./gettingstarted/basicusage/" class="arrow-link">Get Started</a>
+<a href="./home/" class="arrow-link">Continue</a>
+</nav>
 </section>
 <hr>
 <section class="comet-float">
@@ -37,16 +43,8 @@
 </section>
 <hr>
 <section class="comet-center">
-<h1>Coming from Knit?</h1>
-<p>
-	No problem! Comet is coded in a way that everyone can pick it up swiftly. Thanks to the MVC pattern we adopted, users from Knit can easily learn Comet and start using it in their own games.
-</p>
-</section>
-<hr>
-
-<section class="comet-center">
 <h1>Get started today!</h1>
 <p>
-	Does Comet suit you? If so, get started by visiting our [beginner's guide]().
+	Does Comet suit you? If so, get started by visiting our <a href="#">Beginner's guide</a>.
 </p>
 </section>

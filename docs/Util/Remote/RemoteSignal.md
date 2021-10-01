@@ -47,7 +47,7 @@ The [RemoteSignal](https://github.com/angrybino/Comet/blob/master/src/Util/Remot
 	Exactly like `remoteEvent:FireClient(client, ...)`.
 
 ### FireClients(clients : table, ... : any)
-	!!! info "`void [] RemoteSignal:FireClient(clients: {Player}, ...: any)`"
+!!! info "`void [] RemoteSignal:FireClient(clients: {Player}, ...: any)`"
 	```lua
 	RemoteSignal:FireClient(clients : table, ...) --> void []
 	```
