@@ -20,6 +20,9 @@ theme:
   logo: Assets/Images/Logo.png
   icon:
     repo: fontawesome/brands/github-alt
+  font: 
+    text: Red Hat Text
+    mono: DM Mono
   palette:
     scheme: default
     primary: white
@@ -78,3 +81,4 @@ markdown_extensions:
       emoji_generator: !!python/name:materialx.emoji.to_svg
   - pymdownx.tasklist:
      custom_checkbox: true
+  - meta
