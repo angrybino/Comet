@@ -4,4 +4,4 @@ Comet is a advanced framework designed to properly abstract server-client commun
 
 # For starters
   
-If you're new to Comet, head to the [Getting started](Gettingstarted/Settingup.md) guide to start using it.
+If you're new to Comet, head to the [Getting started](Gettingstarted.md) guide to start using it.

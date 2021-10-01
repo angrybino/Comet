@@ -1,16 +1,16 @@
 site_name: Comet
 site_url: https://angrybino.github.io/Comet
-site_description: 'Comet is an advanced framework designed to properly abstract server-client communication in the right way and provide other useful utilities for better game development workflow.'
-site_author: 'angrybino'
+site_description: Comet is an advanced framework designed to properly abstract server-client communication in the right way and provide other useful utilities for better game development workflow.
+site_author: angrybino
 copyright: Copyright &copy; 2021 - 2022 angrybino
 
 docs_dir: docs/
-repo_name: 'Comet'
-repo_url: 'https://github.com/angrybino/Comet'
+repo_name: Comet
+repo_url: https://github.com/angrybino/Comet
 edit_uri: edit/master/docs
 
 theme:
-  name: 'material'
+  name: material
   features:
     - navigation.instant
     - navigation.tracking
@@ -32,18 +32,15 @@ extra_css:
  
 nav:
   - Home: index.md
-  - Getting started:
-    - Setting up: Gettingstarted/Settingup.md
-    - Basic usage: Gettingstarted/Basicusage.md
-
+  - Getting started: Gettingstarted.md
   - Services: Services.md
   - Controllers : Controllers.md
   - Lifecycle: Lifecycle.md
-  - Utilities:
+  - Util:
     - Remote: 
       - RemoteSignal: Util/Remote/RemoteSignal.md
   - API: API.md
-
+ 
 plugins:
   - search
   - git-revision-date-localized

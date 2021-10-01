@@ -1,4 +1,6 @@
-# Setting up
+# Getting started
+
+# Setup
 
 There are currently two ways to install Comet in your game, either by grabbing the Roblox model in the library, or syncing Comet into your game with Rojo.
 
@@ -9,7 +11,9 @@ There are currently two ways to install Comet in your game, either by grabbing t
 
 ## With Rojo
 
-- Install the latest release from [here](https://github.com/angrybino/Comet/releases).
+- Install the latest release from [releases](https://github.com/angrybino/Comet/releases).
 - Extract the binary source.
 - Rename the `src` folder to `Comet`, and move the `src` folder to your game's repository.
 - Have Rojo point `Comet` to ReplicatedStorage.
+
+# Basic usage
