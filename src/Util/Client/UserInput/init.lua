@@ -23,8 +23,9 @@ local UserInput = {
 
 local UserInputService = game:GetService("UserInputService")
 
-local Signal = require(script.Signal)
-local SharedConstants = require(script.SharedConstants)
+local Signal = require(script.Parent.Signal)
+local comet = require(script:FindFirstAncestor("Comet"))
+local SharedConstants = require(comet.SharedConstants)
 
 function UserInput.GetCurrentInputType()
 	return UserInput._currentInputType

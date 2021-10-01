@@ -8,9 +8,11 @@
     Timer.new(timer : number) --> Timer []
     Timer.IsTimer(self : any) --> boolean [IsTimer]
 
-   	-- Instance methods / members:
+   	-- Instance members:
 
 	Timer.OnTimerTick : Signal (deltaTime : number)
+
+	-- Instance methods:
 
     Timer:Start() --> void []
     Timer:Stop() --> void []

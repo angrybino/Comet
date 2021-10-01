@@ -8,10 +8,12 @@
     RemoteProperty.IsRemoteProperty(self : any) --> boolean [IsRemoteProperty]
     RemoteProperty.new(value : any) --> RemoteProperty []
 
-    -- Instance methods / members:
+    -- Instance members:
 
     RemoteProperty.OnValueUpdate : Signal (newValue : any)
 	RemoteProperty.OnPlayerValueUpdate : Signal (player : Player, newValue : any)
+
+	-- Instance methods:
 
 	RemoteProperty:IsDestroyed() --> boolean [IsDestroyed]
 	RemoteProperty:GetDefaultValue() --> any [DefaultValue]

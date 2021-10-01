@@ -8,7 +8,7 @@
     Raycast.new(origin : Vector3, direction : Vector3, params : RaycastParams ?) --> Raycast []
 	Raycast.IsRaycast(self : any) --> boolean [IsRayCast]
 
-    -- Instance methods / members:
+    -- Instance members:
 
     Raycast.OnInstanceHit : Signal (instance : Instance)
 	Raycast.Origin : Vector3
@@ -16,6 +16,8 @@
 	Raycast.Size : number
 	Raycast.Visualizer : Part
 	Raycast.Results : table [RaycastResults]
+
+	-- Instance methdos:
 
 	Raycast:Reverse() --> void []
 	Raycast:IsDestroyed() --> boolean [IsDestroyed]

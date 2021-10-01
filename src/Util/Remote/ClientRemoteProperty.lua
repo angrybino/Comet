@@ -8,9 +8,11 @@
     ClientRemoteProperty.IsClientRemoteProperty(self : any) --> boolean [IsClientRemoteProperty]
 	ClientRemoteProperty.new(value : any) --> ClientRemoteProperty [] 
 
-	-- Instance methods / members:
+	-- Instance members:
 	 
     ClientRemoteProperty.OnValueUpdate : Signal (newValue : any)
+
+	-- Instance methods:
 
 	ClientRemoteProperty:IsDestroyed() --> boolean [IsDestroyed]
     ClientRemoteProperty:Destroy() --> void []

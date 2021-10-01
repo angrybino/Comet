@@ -8,11 +8,13 @@
 	Connection.new() --> Connection []
 	Connection.IsConnection(self : any) --> boolean [IsConnection]
 	
-	-- Instance methods / members:
+	-- Instance members:
 
 	Connection.Callback : function
-	Connection.Next : Connection | nil
+	Connection.Next : Connection ?
 	
+	-- Instance methods:
+
 	Connection:Disconnect() --> void []
 	Connection:IsConnected() -- > boolean [IsConnected]
 ]]

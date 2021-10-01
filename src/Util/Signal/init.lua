@@ -8,10 +8,12 @@
 	Signal.new() --> Signal []
 	Signal.IsSignal(self : any) --> boolean [IsSignal]
 	
-	-- Instance members / methods:
+	-- Instance members:
 	
 	Signal.ConnectedConnectionCount : number
-	Signal.ConnectionListHead : function | nil
+	Signal.ConnectionListHead : function ?
+
+	-- Instance methodS:
 
 	Signal:Connect(callback : function) --> Connection []
 	Signal:Fire(tuple : any) --> void []
