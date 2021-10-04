@@ -20,6 +20,7 @@ local UserInput = {
 		Gyro = "Gyro",
 		Focus = "Focus",
 		TextInput = "TextInput",
+		InputMethod = "InputMethod",
 	},
 
 	_enumInputTypes = {
@@ -48,6 +49,7 @@ local UserInput = {
 		Gyro = Enum.UserInputType.Gyro,
 		Focus = Enum.UserInputType.Focus,
 		TextInput = Enum.UserInputType.TextInput,
+		InputMethod = Enum.UserInputType.InputMethod,
 	},
 
 	_modulesInit = {},
@@ -64,16 +66,14 @@ local SharedConstants = require(comet.SharedConstants)
 function UserInput.GetCurrentInputType()
 	local inputType = UserInputService:GetLastInputType()
 
-	if inputType == UserInput._enumInputTypes.Keyboard then
-		return UserInput.InputType.Keyboard
-	elseif inputType == UserInput._enumInputTypes.Touch then
-		return UserInput.InputType.Touch
-	elseif inputType == UserInput._enumInputTypes.Gyro then
-		return UserInput.InputType.Gyro
-	elseif inputType == UserInput._enumInputTypes.Focus then
-		return UserInput.InputType.Focus
-	elseif inputType == UserInput._enumInputTypes.TextInput then
-		return UserInput.InputType.TextInput
+	for key, value in pairs(UserInput._enumInputTypes) do
+		if typeof(value) == "table" then
+			continue
+		end
+
+		if inputType.Name == value.Name then
+			return UserInput.InputType[value.Name]
+		end
 	end
 
 	for _, enum in ipairs(UserInput._enumInputTypes.Mouse) do
