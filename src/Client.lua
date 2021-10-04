@@ -211,7 +211,7 @@ function Client._buildService(serviceName)
 	end
 
 	clientExposedMethods.ChildAdded:Connect(ExposeMethodToClient)
-	clientExposedMembers.ChildAdded:Connect(ExposeMethodToClient)
+	clientExposedMembers.ChildAdded:Connect(ExposeMemberToClient)
 	clientExposedRemoteSignals.ChildAdded:Connect(ExposeRemoteSignalToClient)
 	clientExposedRemoteProperties.ChildAdded:Connect(ExposeRemotePropertyToClient)
 
