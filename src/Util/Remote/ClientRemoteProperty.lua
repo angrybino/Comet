@@ -16,8 +16,8 @@
 
 	ClientRemoteProperty:IsDestroyed() --> boolean [IsDestroyed]
     ClientRemoteProperty:Destroy() --> void []
-    ClientRemoteProperty:Set() --> void []
-    ClientRemoteProperty:Get() --> any [value]
+    ClientRemoteProperty:SetValue() --> void []
+    ClientRemoteProperty:GetValue() --> any [value]
 ]]
 
 local ClientRemoteProperty = {}
@@ -68,10 +68,10 @@ function ClientRemoteProperty:Destroy()
 	end
 end
 
-function ClientRemoteProperty:Set(newValue)
+function ClientRemoteProperty:SetValue(newValue)
 	assert(
 		not self._remoteFunction,
-		"Can't call ClientRemoteProperty:Set() on client as the current remote property is bound by the Server"
+		"Can't call ClientRemoteProperty:SetValue() on client as the current remote property is bound by the Server"
 	)
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
@@ -81,7 +81,7 @@ function ClientRemoteProperty:Set(newValue)
 	end
 end
 
-function ClientRemoteProperty:Get()
+function ClientRemoteProperty:GetValue()
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
 	if self._remoteFunction then

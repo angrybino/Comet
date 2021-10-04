@@ -18,8 +18,8 @@
 	RemoteProperty:IsDestroyed() --> boolean [IsDestroyed]
 	RemoteProperty:GetDefaultValue() --> any [DefaultValue]
     RemoteProperty:Destroy() --> void []
-    RemoteProperty:Set(value : any, specificPlayers : table ?) --> void []
-    RemoteProperty:Get() --> any [value]
+    RemoteProperty:SetValue(value : any, specificPlayers : table ?) --> void []
+    RemoteProperty:GetValue() --> any [value]
 	RemoteProperty:GetPlayerValue(player : Player) --> any [PlayerSpecificValue]
 ]]
 
@@ -100,7 +100,7 @@ function RemoteProperty:GetDefaultValue()
 	return self._defaultValue
 end
 
-function RemoteProperty:Set(newValue, specificPlayers)
+function RemoteProperty:SetValue(newValue, specificPlayers)
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
 	if specificPlayers then
@@ -108,7 +108,7 @@ function RemoteProperty:Set(newValue, specificPlayers)
 			typeof(specificPlayers) == "table",
 			SharedConstants.ErrorMessages.InvalidArgument:format(
 				2,
-				"RemoteProperty:Set()",
+				"RemoteProperty:SetValue()",
 				"table",
 				typeof(specificPlayers)
 			)
@@ -138,7 +138,7 @@ function RemoteProperty:IsDestroyed()
 	return self._isDestroyed
 end
 
-function RemoteProperty:Get()
+function RemoteProperty:GetValue()
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
 	return self._currentValue
