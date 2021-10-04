@@ -12,19 +12,19 @@
 
     Raycast.OnInstanceHit : Signal (instance : Instance)
 	Raycast.Origin : Vector3
+	Raycast.Unit : Vector3 
 	Raycast.Direction : Vector3
 	Raycast.Size : number
 	Raycast.Visualizer : Part
 	Raycast.Results : table [RaycastResults]
 
-	-- Instance methdos:
+	-- Instance methods:
 
 	Raycast:Reverse() --> void []
 	Raycast:IsDestroyed() --> boolean [IsDestroyed]
     Raycast:Visualize() --> void []
 	Raycast:Unvisualize() --> void []
 	Raycast:SetVisualizerThickness(thickness : number) --> void []
-	Raycast:SetVisualizerColor(color : BrickColor) --> void []
     Raycast:GetTouchingParts(maxTouchingParts : number ?) --> table [TouchingParts]
     Raycast:Resize(size : number ?) --> void []
     Raycast:Destroy() --> void []
@@ -86,19 +86,13 @@ function Raycast.new(origin, direction, params)
 		)
 	end
 
-	local ray = Workspace:Raycast(origin, direction, params)
-
 	local self = setmetatable({
 		Origin = origin,
 		Direction = direction,
+		Unit = direction.Unit,
 		OnInstanceHit = Signal.new(),
 		Visualizer = Instance.new("Part"),
-		Results = {
-			Instance = ray and ray.Instance or nil,
-			Position = ray and ray.Position or nil,
-			Material = ray and ray.Material or nil,
-			Normal = ray and ray.Normal or nil,
-		},
+		Results = {},
 		_maid = Maid.new(),
 		_params = params,
 	}, Raycast)
@@ -112,6 +106,10 @@ function Raycast:Reverse()
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
 	self.Direction = -self.Direction
+	self.Unit = self.Direction.Unit
+	self.Origin += -self.Direction
+
+	self:_updateResults()
 	self:_updateVisualizerPosition()
 end
 
@@ -135,22 +133,6 @@ function Raycast:SetVisualizerThickness(thickness)
 	)
 
 	self:_updateVisualizerThickness(thickness)
-end
-
-function Raycast:SetVisualizerColor(color)
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
-
-	assert(
-		typeof(color) == "BrickColor",
-		SharedConstants.ErrorMessages.InvalidArgument:format(
-			1,
-			"Raycast:SetVisualizerColor()",
-			"BrickColor",
-			typeof(color)
-		)
-	)
-
-	self.Visualizer.BrickColor = color
 end
 
 function Raycast:Unvisualize()
@@ -178,6 +160,7 @@ function Raycast:GetTouchingParts(maxTouchingParts)
 
 	local params = RaycastParams.new()
 	params.FilterDescendantsInstances = {}
+
 	if self._params then
 		params.FilterDescendantsInstances = self._params.FilterDescendantsInstances
 	end
@@ -216,9 +199,12 @@ function Raycast:Resize(size)
 	local finalPosition = (self.Origin + self.Direction)
 
 	self.Direction = self.Direction.Unit * size
+	self.Unit = self.Direction.Unit
 	self.Size = (self.Origin - finalPosition).Magnitude
 
+	self:_updateResults()
 	self:_updateVisualizerSize(size)
+	self:_updateVisualizerPosition()
 end
 
 function Raycast:IsDestroyed()
@@ -232,10 +218,24 @@ function Raycast:Destroy()
 	self._isDestroyed = true
 end
 
+function Raycast:_updateResults()
+	local ray = Workspace:Raycast(self.Origin, self.Direction, self._params)
+
+	if not ray then
+		return
+	end
+
+	self.Results.Instance = ray.Instance
+	self.Results.Position = ray.Position
+	self.Results.Normal = ray.Normal
+	self.Results.Material = ray.Material
+end
+
 function Raycast:_init()
 	self.Size = (self.Origin - (self.Origin + self.Direction)).Magnitude
 	self._maid:AddTask(self.Visualizer)
 	self._maid:AddTask(self.OnInstanceHit)
+	self:_updateResults()
 	self:_setupRayVisualizer()
 
 	self._maid:AddTask(RunService.Heartbeat:Connect(function()
@@ -265,7 +265,6 @@ function Raycast:_updateVisualizerSize(size)
 	local visualizer = self.Visualizer
 
 	visualizer.Size = Vector3.new(visualizer.Size.X, visualizer.Size.Y, size)
-	visualizer.CFrame *= CFrame.new(0, 0, -size / 2)
 end
 
 function Raycast:_setupRayVisualizer()
