@@ -30,7 +30,7 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
 local comet = script:FindFirstAncestor("Comet")
-local Signal = require(comet.Util.Signal)
+local Signal = require(comet.Util.Shared.Signal)
 local SharedConstants = require(comet.SharedConstants)
 
 local LocalConstants = {

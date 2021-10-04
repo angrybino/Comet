@@ -20,11 +20,11 @@ local Server = {
 	_isStarted = false,
 }
 
-local Promise = require(Server.Util.Promise)
-local RemoteSignal = require(Server.Util.Remote.RemoteSignal)
+local Promise = require(Server.Util.Shared.Promise)
+local RemoteSignal = require(Server.Util.Shared.Remote.RemoteSignal)
 local SharedConstants = require(script.Parent.SharedConstants)
-local Signal = require(Server.Util.Signal)
-local RemoteProperty = require(Server.Util.Remote.RemoteProperty)
+local Signal = require(Server.Util.Shared.Signal)
+local RemoteProperty = require(Server.Util.Shared.Remote.RemoteProperty)
 
 Server.Version = SharedConstants.Version
 

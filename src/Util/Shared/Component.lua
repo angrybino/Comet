@@ -20,8 +20,8 @@ local Workspace = game:GetService("Workspace")
 
 local comet = script:FindFirstAncestor("Comet")
 local SharedConstants = require(comet.SharedConstants)
-local Maid = require(comet.Util.Maid)
-local Signal = require(comet.Util.Signal)
+local Maid = require(comet.Util.Shared.Maid)
+local Signal = require(comet.Util.Shared.Signal)
 
 local LocalConstants = {
 	WhitelistedServices = { Workspace },
