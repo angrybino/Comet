@@ -7,14 +7,14 @@
 	Mouse.OnRightClick : Signal (isInputProcessed : boolean)
 	Mouse.OnScrollClick : Signal (isInputProcessed : boolean)
 	Mouse.OnMove : Signal (deltaPosition : Vector3)
-	Mouse.OnTargetChanged : Signal (newTarget : Instance | nil)
+	Mouse.OnTargetChanged : Signal (newTarget : Instance ?)
 
 	Mouse.TargetFilters : table
 	Mouse.UnitRay : Vector3
 	Mouse.Hit : CFrame
 	Mouse.X : number
 	Mouse.Y : number
-	Mouse.Target : Instance | nil
+	Mouse.Target : Instance ?
 	Mouse.Origin : CFrame
 	Mouse.IgnoreCharacter : boolean
 
@@ -119,11 +119,14 @@ function Mouse.Init()
 	local lastTarget = Mouse.Target
 	Mouse._lastPosition = Mouse.Hit.Position
 
-	UserInputService.LastInputTypeChanged:Connect(function(inputType)
-		if inputType == Enum.UserInputType.MouseMovement then
-			Mouse.OnMove:Fire(Mouse.GetDeltaPosition())
-			Mouse._lastPosition = Mouse.Hit.Position
+	RunService.RenderStepped:Connect(function()
+		local deltaPosition = Mouse.GetDeltaPosition()
+
+		if deltaPosition.Magnitude > 0 then
+			Mouse.OnMove:Fire(deltaPosition)
 		end
+
+		Mouse._lastPosition = Mouse.Hit.Position
 	end)
 
 	Mouse.OnMove:Connect(function()
