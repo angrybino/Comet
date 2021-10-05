@@ -135,27 +135,23 @@ function Maid:Cleanup()
 
 	local tasks = self._tasks
 
-	-- Spawn a new thread to cleanup the current tasks, and immediately cleanup self._tasks
-	-- to prevent cleaning up newly added tasks while this code is still running:
-	task.spawn(function()
-		for _, task in pairs(tasks) do
-			if typeof(task) == "function" then
-				task()
-			elseif typeof(task) == "RBXScriptConnection" then
+	for _, task in pairs(tasks) do
+		if typeof(task) == "function" then
+			task()
+		elseif typeof(task) == "RBXScriptConnection" then
+			task:Disconnect()
+		elseif typeof(task) == "Instance" then
+			task:Destroy()
+		else
+			if task.Disconnect then
 				task:Disconnect()
-			elseif typeof(task) == "Instance" then
-				task:Destroy()
-			else
-				if task.Disconnect then
-					task:Disconnect()
-				end
+			end
 
-				if task.Destroy then
-					task:Destroy()
-				end
+			if task.Destroy then
+				task:Destroy()
 			end
 		end
-	end)
+	end
 
 	self._tasks = {}
 end
