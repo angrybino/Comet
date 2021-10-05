@@ -5,7 +5,7 @@
 --[[
 	-- Static methods:
 
-    Timer.new(timer : number) --> Timer []
+    Timer.new(timer : number, customUpdateSignal : RBXScriptSignal ) --> Timer []
     Timer.IsTimer(self : any) --> boolean [IsTimer]
 
    	-- Instance members:
@@ -42,16 +42,29 @@ function Timer.IsTimer(self)
 	return getmetatable(self) == Timer
 end
 
-function Timer.new(timer)
+function Timer.new(timer, customUpdateSignal)
 	assert(
 		typeof(timer) == "number",
 		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Timer.new()", "number", typeof(timer))
 	)
 
+	if customUpdateSignal then
+		assert(
+			typeof(customUpdateSignal) == "RBXScriptSignal",
+			SharedConstants.ErrorMessages.InvalidArgument:format(
+				2,
+				"Timer.new()",
+				"RBXScriptSignal or nil",
+				typeof(timer)
+			)
+		)
+	end
+
 	local self = setmetatable({
 		OnTimerTick = Signal.new(),
-		_timer = timer,
+		_customUpdateSignal = customUpdateSignal or RunService.Heartbeat,
 		_maid = Maid.new(),
+		_timer = timer,
 		_isPaused = false,
 		_isDestroyed = false,
 		_currentTimerTickDeltaTime = 0,
@@ -60,6 +73,7 @@ function Timer.new(timer)
 	self._maid:AddTask(self.OnTimerTick)
 	self._maid:AddTask(function()
 		self._currentTimerTickDeltaTime = 0
+		self._isDestroyed = true
 	end)
 
 	return self
@@ -68,7 +82,7 @@ end
 function Timer:Start()
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
-	self._maid:AddTask(RunService.Heartbeat:Connect(function(deltaTime)
+	self._maid:AddTask(self._customUpdateSignal:Connect(function(deltaTime)
 		if self._isPaused or self:IsDestroyed() then
 			return
 		end
@@ -105,7 +119,6 @@ end
 function Timer:Destroy()
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
-	self._isDestroyed = true
 	self._maid:Destroy()
 end
 
