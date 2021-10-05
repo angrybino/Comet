@@ -5,7 +5,7 @@
 --[[
 	-- Static methods:
 
-    Timer.new(timer : number, customUpdateSignal : RBXScriptSignal ) --> Timer []
+    Timer.new(timer : number, customUpdateSignal : RBXScriptSignal ?) --> Timer []
     Timer.IsTimer(self : any) --> boolean [IsTimer]
 
    	-- Instance members:
@@ -52,12 +52,7 @@ function Timer.new(timer, customUpdateSignal)
 	if customUpdateSignal then
 		assert(
 			typeof(customUpdateSignal) == "RBXScriptSignal",
-			SharedConstants.ErrorMessages.InvalidArgument:format(
-				2,
-				"Timer.new()",
-				"RBXScriptSignal or nil",
-				typeof(timer)
-			)
+			SharedConstants.ErrorMessages.InvalidArgument:format(2, "Timer.new()", "RBXScriptSignal or nil", typeof(timer))
 		)
 	end
 
@@ -83,6 +78,7 @@ function Timer.new(timer, customUpdateSignal)
 		self._isDestroyed = true
 	end)
 	self._stopMaid:AddTask(function()
+		self._isPaused = false
 		self._isStopped = true
 	end)
 
