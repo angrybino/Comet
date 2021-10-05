@@ -215,7 +215,6 @@ function Raycast:Destroy()
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
 	self._maid:Destroy()
-	self._isDestroyed = true
 end
 
 function Raycast:_updateResults()
@@ -235,6 +234,10 @@ function Raycast:_init()
 	self.Size = (self.Origin - (self.Origin + self.Direction)).Magnitude
 	self._maid:AddTask(self.Visualizer)
 	self._maid:AddTask(self.OnInstanceHit)
+	self._maid:AddTask(function()
+		self._isDestroyed = true
+	end)
+
 	self:_updateResults()
 	self:_setupRayVisualizer()
 
