@@ -52,7 +52,12 @@ function Timer.new(timer, customUpdateSignal)
 	if customUpdateSignal then
 		assert(
 			typeof(customUpdateSignal) == "RBXScriptSignal",
-			SharedConstants.ErrorMessages.InvalidArgument:format(2, "Timer.new()", "RBXScriptSignal or nil", typeof(timer))
+			SharedConstants.ErrorMessages.InvalidArgument:format(
+				2,
+				"Timer.new()",
+				"RBXScriptSignal or nil",
+				typeof(timer)
+			)
 		)
 	end
 
@@ -90,7 +95,7 @@ function Timer:Start()
 
 	self._isStopped = false
 
-	self._stopMaid:AddTask(self._maid:AddTask(self._customUpdateSignal:Connect(function(deltaTime)
+	self._stopMaid:AddTask(self._customUpdateSignal:Connect(function(deltaTime)
 		if self._isPaused or self:IsDestroyed() then
 			return
 		end
@@ -101,7 +106,7 @@ function Timer:Start()
 		end
 
 		self._currentTimerTickDeltaTime += deltaTime
-	end)))
+	end))
 end
 
 function Timer:IsStopped()
