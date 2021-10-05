@@ -54,7 +54,7 @@ function Maid:AddTask(task)
 
 		SharedConstants.ErrorMessages.InvalidArgument:format(
 			1,
-			"Maid.new()",
+			"Maid:AddTask()",
 			"function or RBXScriptConnection or table with Destroy or Disconnect method or Instance",
 			typeof(task)
 		)
@@ -101,7 +101,7 @@ function Maid:LinkToInstances(instances)
 
 	assert(
 		typeof(instances) == "table",
-		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Maid:LinkToInstances()", "table", typeof(table))
+		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Maid:LinkToInstances()", "table", typeof(instances))
 	)
 
 	for _, instance in ipairs(instances) do
