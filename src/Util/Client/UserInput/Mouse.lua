@@ -65,7 +65,7 @@ setmetatable(Mouse, {
 })
 
 function Mouse.GetDeltaPosition()
-	return Mouse.Hit.Position - (Mouse._lastPosition or Mouse.Hit.Position)
+	return Mouse.Hit.Position - Mouse._lastPosition
 end
 
 function Mouse.CastRay(rayCastParams, distance)
@@ -117,18 +117,13 @@ function Mouse.Init()
 	Mouse.OnScrollClick = Signal.new()
 
 	local lastTarget = Mouse.Target
+	Mouse._lastPosition = Mouse.Hit.Position
 
-	RunService.RenderStepped:Connect(function()
-		local deltaPosition = Mouse.GetDeltaPosition()
-
-		if
-			math.abs(deltaPosition.X) >= LocalConstants.MinDelta
-			or math.abs(deltaPosition.Y) >= LocalConstants.MinDelta
-		then
-			Mouse.OnMove:Fire(deltaPosition)
+	UserInputService.LastInputTypeChanged:Connect(function(inputType)
+		if inputType == Enum.UserInputType.MouseMovement then
+			Mouse.OnMove:Fire(Mouse.GetDeltaPosition())
+			Mouse._lastPosition = Mouse.Hit.Position
 		end
-
-		Mouse._lastPosition = Mouse.Hit.Position
 	end)
 
 	Mouse.OnMove:Connect(function()
@@ -170,7 +165,11 @@ function Mouse._getMouseTarget()
 		rayCastParams
 	)
 
-	return ray and ray.Instance or nil
+	if ray then
+		return ray.Instance
+	end
+
+	return nil
 end
 
 function Mouse._getHitCFrame()
@@ -188,7 +187,9 @@ function Mouse._getHitCFrame()
 		rayCastParams
 	)
 
-	return CFrame.new(ray and ray.Position or mouseRay.Origin + mouseRay.Direction * LocalConstants.DefaultMouseRayDistance)
+	return CFrame.new(
+		ray and ray.Position or mouseRay.Origin + mouseRay.Direction * LocalConstants.DefaultMouseRayDistance
+	)
 end
 
 return Mouse
