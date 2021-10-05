@@ -19,6 +19,7 @@
 	Timer:Destroy() --> void []
 	Timer:IsDestroyed() --> boolean [IsDestroyed]
     Timer:IsPaused() --> boolean [IsPaused]
+	Timer:IsStopped() --> boolean [IsStopped]
     Timer:Pause() --> void []
 ]]
 
@@ -64,19 +65,25 @@ function Timer.new(timer, customUpdateSignal)
 		OnTimerTick = Signal.new(),
 		_customUpdateSignal = customUpdateSignal or RunService.Heartbeat,
 		_maid = Maid.new(),
+		_stopMaid = Maid.new(),
 		_timer = timer,
 		_isPaused = false,
 		_isDestroyed = false,
+		_isStopped = false,
 		_currentTimerTickDeltaTime = 0,
 	}, Timer)
 
 	self._maid:AddTask(self.OnTimerTick)
+	self._maid:AddTask(self._stopMaid)
 	self._maid:AddTask(function()
 		for key, _ in pairs(self) do
 			self[key] = nil
 		end
 
 		self._isDestroyed = true
+	end)
+	self._stopMaid:AddTask(function()
+		self._isStopped = true
 	end)
 
 	return self
@@ -85,7 +92,9 @@ end
 function Timer:Start()
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
-	self._maid:AddTask(self._customUpdateSignal:Connect(function(deltaTime)
+	self._isStopped = false
+
+	self._stopMaid:AddTask(self._maid:AddTask(self._customUpdateSignal:Connect(function(deltaTime)
 		if self._isPaused or self:IsDestroyed() then
 			return
 		end
@@ -96,7 +105,11 @@ function Timer:Start()
 		end
 
 		self._currentTimerTickDeltaTime += deltaTime
-	end))
+	end)))
+end
+
+function Timer:IsStopped()
+	return self._isStopped
 end
 
 function Timer:Pause()
@@ -128,7 +141,7 @@ end
 function Timer:Stop()
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
-	self._maid:Cleanup()
+	self._stopMaid:Cleanup()
 end
 
 return Timer
