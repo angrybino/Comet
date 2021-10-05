@@ -29,7 +29,6 @@ local ClientRemoteProperty = require(Client.Util.Shared.Remote.ClientRemotePrope
 local SharedConstants = require(script.Parent.SharedConstants)
 local SafeWaitUtil = require(Client.Util.Shared.SafeWaitUtil)
 local Signal = require(Client.Util.Shared.Signal)
-local Server = require(script.Parent.Server)
 
 local servicesFolder = SafeWaitUtil.WaitForChild(script, "ClientExposedServices")
 
