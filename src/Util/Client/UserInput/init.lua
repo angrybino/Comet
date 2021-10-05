@@ -43,13 +43,13 @@ local UserInput = {
 			Enum.UserInputType.Gamepad8,
 		},
 
-		Keyboard = Enum.UserInputType.Keyboard,
-		Touch = Enum.UserInputType.Touch,
-		Accelerometer = Enum.UserInputType.Accelerometer,
-		Gyro = Enum.UserInputType.Gyro,
-		Focus = Enum.UserInputType.Focus,
-		TextInput = Enum.UserInputType.TextInput,
-		InputMethod = Enum.UserInputType.InputMethod,
+		Enum.UserInputType.Keyboard,
+		Enum.UserInputType.Touch,
+		Enum.UserInputType.Accelerometer,
+		Enum.UserInputType.Gyro,
+		Enum.UserInputType.Focus,
+		Enum.UserInputType.TextInput,
+		Enum.UserInputType.InputMethod,
 	},
 
 	_modulesInit = {},
@@ -64,26 +64,26 @@ local Signal = require(comet.Util.Shared.Signal)
 local SharedConstants = require(comet.SharedConstants)
 
 function UserInput.GetCurrentInputType()
-	local inputType = UserInputService:GetLastInputType()
+	local enumInputType = UserInputService:GetLastInputType()
 
-	for key, value in pairs(UserInput._enumInputTypes) do
-		if typeof(value) == "table" then
+	for _, value in ipairs(UserInput._enumInputTypes) do
+		if typeof(value) ~= "EnumItem" then
 			continue
 		end
 
-		if inputType.Name == value.Name then
+		if enumInputType.Name == value.Name then
 			return UserInput.InputType[value.Name]
 		end
 	end
 
 	for _, enum in ipairs(UserInput._enumInputTypes.Mouse) do
-		if inputType == enum then
+		if enumInputType == enum then
 			return UserInput.InputType.Mouse
 		end
 	end
 
 	for _, enum in ipairs(UserInput._enumInputTypes.Gamepad) do
-		if inputType == enum then
+		if enumInputType == enum then
 			return UserInput.InputType.Gamepad
 		end
 	end
@@ -125,6 +125,7 @@ function UserInput._init()
 	end
 
 	UserInput._currentInputType = UserInput.GetCurrentInputType()
+
 	UserInputService.LastInputTypeChanged:Connect(function()
 		OnInputTypeUpdate(UserInput.GetCurrentInputType())
 	end)
