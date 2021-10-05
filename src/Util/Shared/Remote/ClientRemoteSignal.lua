@@ -24,6 +24,7 @@ local RunService = game:GetService("RunService")
 
 local comet = script:FindFirstAncestor("Comet")
 local SharedConstants = require(comet.SharedConstants)
+local Maid = require(comet.Util.Shared.Maid)
 
 local LocalConstants = {
 	ErrorMessages = {
@@ -40,11 +41,13 @@ function ClientRemoteSignal.new()
 
 	return setmetatable({
 		_isDestroyed = false,
+		_maid = Maid.new(),
 	}, ClientRemoteSignal)
 end
 
 function ClientRemoteSignal:InitRemoteEvent(remoteEvent)
 	self._remoteEvent = remoteEvent
+	self._maid:AddTask(remoteEvent)
 end
 
 function ClientRemoteSignal:Connect(callback)
@@ -68,18 +71,21 @@ function ClientRemoteSignal:Fire(...)
 	self._remoteEvent:FireServer(...)
 end
 
-function ClientRemoteSignal:DisconnectAllConnections()
+function ClientRemoteSignal:Cleanup()
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
-	self._signal:DisconnectAllConnections()
+	if not self._maid then
+		return
+	end
+
+	self._maid:Cleanup()
 end
 
 function ClientRemoteSignal:Destroy()
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
 	self._isDestroyed = true
-	self._remoteEvent:Destroy()
-	self._signal:Destroy()
+	self._maid:Destroy()
 end
 
 function ClientRemoteSignal:IsDestroyed()

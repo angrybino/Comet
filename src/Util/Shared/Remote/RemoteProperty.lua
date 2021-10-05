@@ -15,6 +15,7 @@
 
 	-- Instance methods:
 
+	RemoteProperty:Cleanup() --> void []
 	RemoteProperty:IsDestroyed() --> boolean [IsDestroyed]
 	RemoteProperty:GetDefaultValue() --> any [DefaultValue]
     RemoteProperty:Destroy() --> void []
@@ -32,6 +33,7 @@ local RunService = game:GetService("RunService")
 local comet = script:FindFirstAncestor("Comet")
 local Signal = require(comet.Util.Shared.Signal)
 local SharedConstants = require(comet.SharedConstants)
+local Maid = require(comet.Util.Shared.Maid)
 
 local LocalConstants = {
 	ErrorMessages = {
@@ -46,18 +48,30 @@ end
 function RemoteProperty.new(defaultValue)
 	assert(RunService:IsServer(), "RemoteProperty can only be created on the server")
 
-	return setmetatable({
+	local self = setmetatable({
 		OnValueUpdate = Signal.new(),
 		OnPlayerValueUpdate = Signal.new(),
+		_maid = Maid.new(),
 		_defaultValue = defaultValue,
 		_currentValue = defaultValue,
 		_playerSpecificValues = {},
 		_isDestroyed = false,
 	}, RemoteProperty)
+
+	self._maid:AddTask(self.OnPlayerValueUpdate)
+	self._maid:AddTask(self.OnValueUpdate)
+
+	return self
 end
 
 function RemoteProperty:InitRemoteFunction(remoteFunction)
 	self._remoteFunction = remoteFunction
+
+	self._maid:AddTask(function()
+		self._remoteFunction.OnServerInvoke = nil
+		self._remoteFunction:Destroy()
+		self._playerSpecificValues = {}
+	end)
 
 	function remoteFunction.OnServerInvoke(player)
 		return self._playerSpecificValues[player.UserId] or self._defaultValue
@@ -67,15 +81,8 @@ end
 function RemoteProperty:Destroy()
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
-	self.OnValueUpdate:Destroy()
-	self.OnPlayerValueUpdate:Destroy()
-	self._playerSpecificValues = {}
-
-	if self._remoteFunction then
-		self._remoteFunction:Destroy()
-	end
-
 	self._isDestroyed = true
+	self._maid:Destroy()
 end
 
 function RemoteProperty:GetPlayerValue(player)
@@ -125,7 +132,8 @@ function RemoteProperty:SetValue(newValue, specificPlayers)
 
 		for _, player in ipairs(players) do
 			local currentPlayerValue = self._playerSpecificValues[player.UserId]
-			if currentPlayerValue ~= newValue and newValue ~= self._defaultValue then
+
+			if currentPlayerValue ~= newValue then
 				self._playerSpecificValues[player.UserId] = newValue
 				self.OnPlayerValueUpdate:Fire(player, newValue)
 				self._remoteFunction:InvokeClient(player, newValue)

@@ -27,6 +27,7 @@ local RunService = game:GetService("RunService")
 
 local comet = script:FindFirstAncestor("Comet")
 local Signal = require(comet.Util.Shared.Signal)
+local Maid = require(comet.Util.Shared.Maid)
 
 local LocalConstants = {
 	ErrorMessages = {
@@ -41,17 +42,27 @@ end
 function ClientRemoteProperty.new(currentValue)
 	assert(RunService:IsClient(), "ClientRemoteProperty can only be created on the client")
 
-	return setmetatable({
+	local self = setmetatable({
 		OnValueUpdate = Signal.new(),
+		_maid = Maid.new(),
 		_currentValue = currentValue,
 		_isDestroyed = false,
 	}, ClientRemoteProperty)
+
+	self._maid:AddTask(self.OnValueUpdate)
+
+	return self
 end
 
 function ClientRemoteProperty:InitRemoteFunction(remoteFunction)
 	self._remoteFunction = remoteFunction
 
-	function self._remoteFunction.OnClientInvoke(newValue)
+	self._maid:AddTask(function()
+		remoteFunction.OnClientInvoke = nil
+		remoteFunction:Destroy()
+	end)
+
+	function remoteFunction.OnClientInvoke(newValue)
 		self.OnValueUpdate:Fire(newValue)
 	end
 end
@@ -60,12 +71,7 @@ function ClientRemoteProperty:Destroy()
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
 	self._isDestroyed = true
-	self.OnValueUpdate:Destroy()
-
-	if self._remoteFunction then
-		self._remoteFunction.OnClientInvoke = nil
-		self._remoteFunction:Destroy()
-	end
+	self._maid:Destroy()
 end
 
 function ClientRemoteProperty:SetValue(newValue)

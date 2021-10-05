@@ -25,6 +25,7 @@ local RunService = game:GetService("RunService")
 
 local comet = script:FindFirstAncestor("Comet")
 local SharedConstants = require(comet.SharedConstants)
+local Maid = require(comet.Util.Shared.Maid)
 
 local LocalConstants = {
 	ErrorMessages = {
@@ -38,21 +39,23 @@ end
 
 function RemoteSignal.new()
 	assert(RunService:IsServer(), "RemoteSignal can only be created on the server")
- 
+
 	return setmetatable({
 		_isDestroyed = false,
+		_maid = Maid.new(),
 	}, RemoteSignal)
 end
 
 function RemoteSignal:SetRemoteEvent(remote)
 	self._remote = remote
+	self._maid:AddTask(remote)
 end
 
 function RemoteSignal:Destroy()
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
 	self._isDestroyed = true
-	self._remote:Destroy()
+	self._maid:Destroy()
 end
 
 function RemoteSignal:Connect(callback)
