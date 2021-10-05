@@ -15,7 +15,6 @@
 
 	-- Instance methods:
 
-	RemoteProperty:Cleanup() --> void []
 	RemoteProperty:IsDestroyed() --> boolean [IsDestroyed]
 	RemoteProperty:GetDefaultValue() --> any [DefaultValue]
     RemoteProperty:Destroy() --> void []
@@ -67,10 +66,15 @@ end
 function RemoteProperty:InitRemoteFunction(remoteFunction)
 	self._remoteFunction = remoteFunction
 
+	self._maid:AddTask(self._remoteFunction)
 	self._maid:AddTask(function()
-		self._remoteFunction.OnServerInvoke = nil
-		self._remoteFunction:Destroy()
-		self._playerSpecificValues = {}
+		remoteFunction.OnServerInvoke = nil
+
+		for key, _ in pairs(self) do
+			self[key] = nil
+		end
+
+		self._isDestroyed = true
 	end)
 
 	function remoteFunction.OnServerInvoke(player)
@@ -81,7 +85,6 @@ end
 function RemoteProperty:Destroy()
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
-	self._isDestroyed = true
 	self._maid:Destroy()
 end
 

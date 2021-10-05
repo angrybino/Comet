@@ -57,9 +57,15 @@ end
 function ClientRemoteProperty:InitRemoteFunction(remoteFunction)
 	self._remoteFunction = remoteFunction
 
+	self._maid:AddTask(remoteFunction)
 	self._maid:AddTask(function()
 		remoteFunction.OnClientInvoke = nil
-		remoteFunction:Destroy()
+
+		for key, _ in pairs(self) do
+			self[key] = nil
+		end
+
+		self._isDestroyed = true
 	end)
 
 	function remoteFunction.OnClientInvoke(newValue)
@@ -70,7 +76,6 @@ end
 function ClientRemoteProperty:Destroy()
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
-	self._isDestroyed = true
 	self._maid:Destroy()
 end
 

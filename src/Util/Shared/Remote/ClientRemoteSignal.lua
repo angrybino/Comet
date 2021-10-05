@@ -14,7 +14,6 @@
 	ClientRemoteSignal:Fire(... : any) --> void []
 	ClientRemoteSignal:IsDestroyed() --> boolean [IsDestroyed]
 	ClientRemoteSignal:Destroy() --> void []
-	ClientRemoteSignal:DisconnectAllConnections() --> void []
 ]]
 
 local ClientRemoteSignal = {}
@@ -37,8 +36,6 @@ function ClientRemoteSignal.IsClientRemoteSignal(self)
 end
 
 function ClientRemoteSignal.new()
-	assert(RunService:IsClient(), "ClientRemoteSignal can only be created on the client")
-
 	return setmetatable({
 		_isDestroyed = false,
 		_maid = Maid.new(),
@@ -48,6 +45,13 @@ end
 function ClientRemoteSignal:InitRemoteEvent(remoteEvent)
 	self._remoteEvent = remoteEvent
 	self._maid:AddTask(remoteEvent)
+	self._maid:AddTask(function()
+		for key, _ in pairs(self) do
+			self[key] = nil
+		end
+
+		self._isDestroyed = true
+	end)
 end
 
 function ClientRemoteSignal:Connect(callback)
@@ -71,20 +75,9 @@ function ClientRemoteSignal:Fire(...)
 	self._remoteEvent:FireServer(...)
 end
 
-function ClientRemoteSignal:Cleanup()
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
-
-	if not self._maid then
-		return
-	end
-
-	self._maid:Cleanup()
-end
-
 function ClientRemoteSignal:Destroy()
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
-	self._isDestroyed = true
 	self._maid:Destroy()
 end
 

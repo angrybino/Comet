@@ -31,6 +31,7 @@ Signal.__index = Signal
 local Connection = require(script.Connection)
 local comet = script:FindFirstAncestor("Comet")
 local SharedConstants = require(comet.SharedConstants)
+local Maid = require(comet.Util.Shared.Maid)
 
 local LocalConstants = {
 	MinArgumentCount = 1,
@@ -45,10 +46,22 @@ function Signal.IsSignal(self)
 end
 
 function Signal.new()
-	return setmetatable({
+	local self = setmetatable({
 		ConnectedConnectionCount = 0,
+		_maid = Maid.new(),
 		_isDestroyed = false,
 	}, Signal)
+
+	self._maid:AddTask(function()
+		for key, _ in pairs(self) do
+			self[key] = nil
+		end
+		
+		self:DisconnectAllConnections()
+		self._isDestroyed = true
+	end)
+
+	return self
 end
 
 function Signal:Connect(callback)
@@ -84,8 +97,7 @@ end
 function Signal:Destroy()
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
-	self:DisconnectAllConnections()
-	self._isDestroyed = true
+	self._maid:Destroy()
 end
 
 function Signal:Wait()

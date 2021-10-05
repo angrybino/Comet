@@ -49,12 +49,18 @@ end
 function RemoteSignal:SetRemoteEvent(remote)
 	self._remote = remote
 	self._maid:AddTask(remote)
+	self._maid:AddTask(function()
+		for key, _ in pairs(self) do
+			self[key] = nil
+		end
+
+		self._isDestroyed = true
+	end)
 end
 
 function RemoteSignal:Destroy()
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
-	self._isDestroyed = true
 	self._maid:Destroy()
 end
 

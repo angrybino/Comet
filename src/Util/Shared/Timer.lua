@@ -72,7 +72,10 @@ function Timer.new(timer, customUpdateSignal)
 
 	self._maid:AddTask(self.OnTimerTick)
 	self._maid:AddTask(function()
-		self._currentTimerTickDeltaTime = 0
+		for key, _ in pairs(self) do
+			self[key] = nil
+		end
+
 		self._isDestroyed = true
 	end)
 
