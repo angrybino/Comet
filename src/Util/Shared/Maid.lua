@@ -23,6 +23,7 @@ Maid.__index = Maid
 
 local comet = script:FindFirstAncestor("Comet")
 local SharedConstants = require(comet.SharedConstants)
+local TableUtil = require(script.Parent.TableUtil)
 
 local LocalConstants = {
 	ErrorMessages = {
@@ -66,7 +67,7 @@ function Maid:AddTask(task)
 		)
 	)
 
-	self._tasks[task] = task
+	table.insert(self._tasks, task)
 
 	return task
 end
@@ -88,7 +89,7 @@ function Maid:RemoveTask(task)
 		)
 	)
 
-	self._tasks[task] = nil
+	table.remove(self._tasks, table.remove(self._tasks, task))
 end
 
 function Maid:IsDestroyed()
@@ -156,9 +157,12 @@ end
 function Maid:Cleanup()
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
-	local tasks = self._tasks
+	local tasks = TableUtil.ShallowCopyTable(self._tasks)
+	self._tasks = {}
 
-	for _, task in pairs(tasks) do
+	for index, task in pairs(tasks) do
+		tasks[index] = nil
+
 		if typeof(task) == "function" then
 			task()
 		elseif typeof(task) == "RBXScriptConnection" then
@@ -175,8 +179,6 @@ function Maid:Cleanup()
 			end
 		end
 	end
-
-	self._tasks = {}
 end
 
 return Maid
