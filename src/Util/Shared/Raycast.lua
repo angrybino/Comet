@@ -90,12 +90,18 @@ function Raycast.new(origin, direction, params)
 		Origin = origin,
 		Direction = direction,
 		Unit = direction.Unit,
-		OnInstanceHit = Signal.new(),
-		Visualizer = Instance.new("Part"),
 		Results = {},
+		Visualizer = Instance.new("Part"),
+		OnInstanceHit = Signal.new(),
 		_maid = Maid.new(),
 		_params = params,
 	}, Raycast)
+
+	self._maid:AddTask(self.Visualizer)
+	self._maid:AddTask(self.OnInstanceHit)
+	self._maid:AddTask(function()
+		self._isDestroyed = true
+	end)
 
 	self:_init()
 
@@ -232,11 +238,6 @@ end
 
 function Raycast:_init()
 	self.Size = (self.Origin - (self.Origin + self.Direction)).Magnitude
-	self._maid:AddTask(self.Visualizer)
-	self._maid:AddTask(self.OnInstanceHit)
-	self._maid:AddTask(function()
-		self._isDestroyed = true
-	end)
 
 	self:_updateResults()
 	self:_setupRayVisualizer()
@@ -280,6 +281,7 @@ function Raycast:_setupRayVisualizer()
 
 	visualizer.Anchored = true
 	visualizer.CanCollide = false
+	-- Hide the visualizer initially:
 	visualizer.Transparency = 1
 	visualizer.CanQuery = false
 	self:SetVisualizerThickness(LocalConstants.DefaultRayVisualizerThickness)

@@ -35,12 +35,13 @@ function Connection.new(signal, callBack)
 
 	local self = setmetatable({
 		Callback = callBack,
-		_isConnected = true,
-		_signal = signal,
 		_maid = Maid.new(),
+		_signal = signal,
+		_isConnected = true,
 	}, Connection)
 
 	self._maid:AddTask(function()
+		self._isConnected = false
 		self._signal.ConnectedConnectionCount -= 1
 
 		-- Unhook the node, but DON'T clear it. That way any fire calls that are
@@ -59,12 +60,6 @@ function Connection.new(signal, callBack)
 				previousConnectionListHead.Next = self.Next
 			end
 		end
-
-		for key, _ in pairs(self) do
-			self[key] = nil
-		end
-
-		self._connected = false
 	end)
 
 	return self

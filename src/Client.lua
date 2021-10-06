@@ -41,14 +41,6 @@ function Client.GetService(serviceName)
 		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Client.GetService()", "string", typeof(serviceName))
 	)
 
-	-- Prevent rare Roblox replication edge cases:
-	local onDeferCycleComplete = Signal.new()
-	task.defer(function()
-		onDeferCycleComplete:Fire()
-	end)
-	onDeferCycleComplete:Wait()
-	onDeferCycleComplete:Destroy()
-
 	assert(servicesFolder:FindFirstChild(serviceName), ("Service [%s] not found!"):format(serviceName))
 	local onServiceBuilt = Client._servicesBuilt[serviceName]
 

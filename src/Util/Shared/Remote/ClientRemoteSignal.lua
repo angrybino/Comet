@@ -46,10 +46,6 @@ function ClientRemoteSignal:InitRemoteEvent(remoteEvent)
 	self._remoteEvent = remoteEvent
 	self._maid:AddTask(remoteEvent)
 	self._maid:AddTask(function()
-		for key, _ in pairs(self) do
-			self[key] = nil
-		end
-
 		self._isDestroyed = true
 	end)
 end

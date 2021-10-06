@@ -60,11 +60,6 @@ function ClientRemoteProperty:InitRemoteFunction(remoteFunction)
 	self._maid:AddTask(remoteFunction)
 	self._maid:AddTask(function()
 		remoteFunction.OnClientInvoke = nil
-
-		for key, _ in pairs(self) do
-			self[key] = nil
-		end
-
 		self._isDestroyed = true
 	end)
 

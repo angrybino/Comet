@@ -24,6 +24,12 @@ Maid.__index = Maid
 local comet = script:FindFirstAncestor("Comet")
 local SharedConstants = require(comet.SharedConstants)
 
+local LocalConstants = {
+	ErrorMessages = {
+		Destroyed = "Maid object is destroyed",
+	},
+}
+
 local function IsInstanceDestroyed(instance)
 	local _, response = pcall(function()
 		instance.Parent = instance
@@ -44,7 +50,7 @@ function Maid.IsMaid(self)
 end
 
 function Maid:AddTask(task)
-	assert(not self:IsDestroyed(), SharedConstants.ErrorMessages.Destroyed)
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
 	assert(
 		typeof(task) == "function"
@@ -66,7 +72,7 @@ function Maid:AddTask(task)
 end
 
 function Maid:RemoveTask(task)
-	assert(not self:IsDestroyed(), SharedConstants.ErrorMessages.Destroyed)
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
 	assert(
 		typeof(task) == "function"
@@ -90,14 +96,14 @@ function Maid:IsDestroyed()
 end
 
 function Maid:Destroy()
-	assert(not self:IsDestroyed(), SharedConstants.ErrorMessages.Destroyed)
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
 	self:Cleanup()
 	self._isDestroyed = true
 end
 
 function Maid:LinkToInstances(instances)
-	assert(not self:IsDestroyed(), SharedConstants.ErrorMessages.Destroyed)
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
 	assert(
 		typeof(instances) == "table",
@@ -131,7 +137,7 @@ function Maid:LinkToInstances(instances)
 end
 
 function Maid:Cleanup()
-	assert(not self:IsDestroyed(), SharedConstants.ErrorMessages.Destroyed)
+	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
 	local tasks = self._tasks
 

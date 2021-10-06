@@ -11,9 +11,8 @@
 	-- Instance members:
 	
 	Signal.ConnectedConnectionCount : number
-	Signal.ConnectionListHead : function ?
 
-	-- Instance methodS:
+	-- Instance methods:
 
 	Signal:Connect(callback : function) --> Connection []
 	Signal:Fire(tuple : any) --> void []
@@ -31,7 +30,6 @@ Signal.__index = Signal
 local Connection = require(script.Connection)
 local comet = script:FindFirstAncestor("Comet")
 local SharedConstants = require(comet.SharedConstants)
-local Maid = require(comet.Util.Shared.Maid)
 
 local LocalConstants = {
 	MinArgumentCount = 1,
@@ -48,18 +46,8 @@ end
 function Signal.new()
 	local self = setmetatable({
 		ConnectedConnectionCount = 0,
-		_maid = Maid.new(),
 		_isDestroyed = false,
 	}, Signal)
-
-	self._maid:AddTask(function()
-		for key, _ in pairs(self) do
-			self[key] = nil
-		end
-		
-		self:DisconnectAllConnections()
-		self._isDestroyed = true
-	end)
 
 	return self
 end
@@ -97,7 +85,8 @@ end
 function Signal:Destroy()
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
-	self._maid:Destroy()
+	self:DisconnectAllConnections()
+	self._isDestroyed = true
 end
 
 function Signal:Wait()

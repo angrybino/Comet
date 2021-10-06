@@ -10,7 +10,7 @@
 
    	-- Instance members:
 
-	Timer.OnTimerTick : Signal (deltaTime : number)
+	Timer.OnTick : Signal (deltaTime : number)
 
 	-- Instance methods:
 
@@ -37,6 +37,8 @@ local LocalConstants = {
 	ErrorMessages = {
 		Destroyed = "Timer object is destroyed",
 	},
+
+	DefaultUpdateSignal = RunService.Heartbeat,
 }
 
 function Timer.IsTimer(self)
@@ -62,10 +64,10 @@ function Timer.new(timer, customUpdateSignal)
 	end
 
 	local self = setmetatable({
-		OnTimerTick = Signal.new(),
-		_customUpdateSignal = customUpdateSignal or RunService.Heartbeat,
+		OnTick = Signal.new(),
+		_customUpdateSignal = customUpdateSignal or LocalConstants.DefaultUpdateSignal,
 		_maid = Maid.new(),
-		_stopMaid = Maid.new(),
+		_timerUpdateMaid = Maid.new(),
 		_timer = timer,
 		_isPaused = false,
 		_isDestroyed = false,
@@ -73,16 +75,13 @@ function Timer.new(timer, customUpdateSignal)
 		_currentTimerTickDeltaTime = 0,
 	}, Timer)
 
-	self._maid:AddTask(self.OnTimerTick)
-	self._maid:AddTask(self._stopMaid)
+	self._maid:AddTask(self.OnTick)
 	self._maid:AddTask(function()
-		for key, _ in pairs(self) do
-			self[key] = nil
-		end
-
+		self:Stop()
 		self._isDestroyed = true
 	end)
-	self._stopMaid:AddTask(function()
+	self._maid:AddTask(self._timerUpdateMaid)
+	self._timerUpdateMaid:AddTask(function()
 		self._isPaused = false
 		self._isStopped = true
 	end)
@@ -94,14 +93,13 @@ function Timer:Start()
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
 	self._isStopped = false
-
-	self._stopMaid:AddTask(self._customUpdateSignal:Connect(function(deltaTime)
-		if self._isPaused or self:IsDestroyed() then
+	self._timerUpdateMaid:AddTask(self._customUpdateSignal:Connect(function(deltaTime)
+		if self._isPaused then
 			return
 		end
 
 		if self._currentTimerTickDeltaTime >= self._timer then
-			self.OnTimerTick:Fire(self._currentTimerTickDeltaTime)
+			self.OnTick:Fire(self._currentTimerTickDeltaTime)
 			self._currentTimerTickDeltaTime = 0
 		end
 
@@ -142,7 +140,7 @@ end
 function Timer:Stop()
 	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
-	self._stopMaid:Cleanup()
+	self._timerUpdateMaid:Cleanup()
 end
 
 return Timer

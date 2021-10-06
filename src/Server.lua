@@ -75,6 +75,7 @@ function Server.Start()
 		return Promise.reject(("%s Can't start Comet as it is already started"):format(SharedConstants.Comet))
 	end
 
+	Server._clientExposedServicesFolder.Name = "ClientExposedServices"
 	Server._isStarted = true
 
 	return Promise.async(function(resolve)
@@ -83,7 +84,6 @@ function Server.Start()
 	end):andThen(function()
 		-- Start all services now as we know it is safe:
 		Server._startServices()
-		Server._clientExposedServicesFolder.Name = "ClientExposedServices"
 		Server._clientExposedServicesFolder.Parent = script.Parent.Client
 	end)
 end

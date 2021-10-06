@@ -50,10 +50,6 @@ function RemoteSignal:SetRemoteEvent(remote)
 	self._remote = remote
 	self._maid:AddTask(remote)
 	self._maid:AddTask(function()
-		for key, _ in pairs(self) do
-			self[key] = nil
-		end
-
 		self._isDestroyed = true
 	end)
 end

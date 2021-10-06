@@ -69,11 +69,6 @@ function RemoteProperty:InitRemoteFunction(remoteFunction)
 	self._maid:AddTask(self._remoteFunction)
 	self._maid:AddTask(function()
 		remoteFunction.OnServerInvoke = nil
-
-		for key, _ in pairs(self) do
-			self[key] = nil
-		end
-
 		self._isDestroyed = true
 	end)
 
