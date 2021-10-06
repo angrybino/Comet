@@ -6,7 +6,6 @@
 -- I would be using BindableEvents, but they don't like cyclic tables (part of OOP objects with __index)
 
 -- Inject types
-local TypeDefs = require(script.Parent.TypeDefinitions)
 type CanPierceFunction = TypeDefs.CanPierceFunction
 type GenericTable = TypeDefs.GenericTable
 type Caster = TypeDefs.Caster

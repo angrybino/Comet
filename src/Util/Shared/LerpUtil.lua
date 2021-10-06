@@ -9,23 +9,26 @@
 
 local LerpUtil = {}
 
-local comet = script:FindFirstAncestor("Comet")
-local SharedConstants = require(comet.SharedConstants)
+local LocalConstants = {
+	ErrorMessages = {
+		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",
+	},
+}
 
 function LerpUtil.Lerp(initialValue, goalValue, alpha)
 	assert(
 		typeof(initialValue) == "number",
-		SharedConstants.ErrorMessages.InvalidArgument:format(1, "LerpUtil.Lerp()", "number", typeof(initialValue))
+		LocalConstants.ErrorMessages.InvalidArgument:format(1, "LerpUtil.Lerp()", "number", typeof(initialValue))
 	)
 
 	assert(
 		typeof(goalValue) == "number",
-		SharedConstants.ErrorMessages.InvalidArgument:format(2, "LerpUtil.Lerp()", "number", typeof(goalValue))
+		LocalConstants.ErrorMessages.InvalidArgument:format(2, "LerpUtil.Lerp()", "number", typeof(goalValue))
 	)
 
 	assert(
 		typeof(alpha) == "number",
-		SharedConstants.ErrorMessages.InvalidArgument:format(3, "LerpUtil.Lerp()", "number", typeof(alpha))
+		LocalConstants.ErrorMessages.InvalidArgument:format(3, "LerpUtil.Lerp()", "number", typeof(alpha))
 	)
 
 	return initialValue + (goalValue - initialValue) * alpha
@@ -34,7 +37,7 @@ end
 function LerpUtil.QuadraticLerp(initialValue, goalValue, alpha)
 	assert(
 		typeof(initialValue) == "number",
-		SharedConstants.ErrorMessages.InvalidArgument:format(
+		LocalConstants.ErrorMessages.InvalidArgument:format(
 			1,
 			"LerpUtil.QuadraticLerp()",
 			"number",
@@ -44,12 +47,12 @@ function LerpUtil.QuadraticLerp(initialValue, goalValue, alpha)
 
 	assert(
 		typeof(goalValue) == "number",
-		SharedConstants.ErrorMessages.InvalidArgument:format(2, "LerpUtil.QuadraticLerp()", "number", typeof(goalValue))
+		LocalConstants.ErrorMessages.InvalidArgument:format(2, "LerpUtil.QuadraticLerp()", "number", typeof(goalValue))
 	)
 
 	assert(
 		typeof(alpha) == "number",
-		SharedConstants.ErrorMessages.InvalidArgument:format(3, "LerpUtil.QuadraticLerp()", "number", typeof(alpha))
+		LocalConstants.ErrorMessages.InvalidArgument:format(3, "LerpUtil.QuadraticLerp()", "number", typeof(alpha))
 	)
 
 	return (initialValue - goalValue) * alpha * (alpha - 2) + initialValue

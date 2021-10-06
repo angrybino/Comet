@@ -15,30 +15,41 @@
 
 local SafeWaitUtil = {}
 
-local Signal = require(script.Parent.Signal)
-local Maid = require(script.Parent.Maid)
-local Timer = require(script.Parent.Timer)
-local comet = script:FindFirstAncestor("Comet")
-local SharedConstants = require(comet.SharedConstants)
+local Signal = require(script.Signal)
+local Maid = require(script.Maid)
 
-function SafeWaitUtil.WaitForChild(instance, childName, timeOut)
+local LocalConstants = {
+	ErrorMessages = {
+		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",
+	},
+}
+
+local function DeferredFireSignalOnTimeout(timeout, signal)
+	task.delay(timeout, function()
+		if not signal:IsDestroyed() then
+			signal:DeferredFire(nil)
+		end
+	end)
+end
+
+function SafeWaitUtil.WaitForChild(instance, childName, timeout)
 	assert(
 		typeof(instance) == "Instance",
-		SharedConstants.ErrorMessages.InvalidArgument:format(1, "SafeWaitForChild()", "instance", typeof(instance))
+		LocalConstants.ErrorMessages.InvalidArgument:format(1, "SafeWaitForChild()", "instance", typeof(instance))
 	)
 	assert(
 		typeof(childName) == "string",
-		SharedConstants.ErrorMessages.InvalidArgument:format(2, "SafeWaitForChild()", "string", typeof(childName))
+		LocalConstants.ErrorMessages.InvalidArgument:format(2, "SafeWaitForChild()", "string", typeof(childName))
 	)
 
-	if timeOut then
+	if timeout then
 		assert(
-			typeof(timeOut) == "number",
-			SharedConstants.ErrorMessages.InvalidArgument:format(
+			typeof(timeout) == "number",
+			LocalConstants.ErrorMessages.InvalidArgument:format(
 				3,
 				"SafeWaitUtil.WaitForChild()",
 				"number or nil",
-				typeof(timeOut)
+				typeof(timeout)
 			)
 		)
 	end
@@ -65,16 +76,8 @@ function SafeWaitUtil.WaitForChild(instance, childName, timeOut)
 		end
 	end))
 
-	if timeOut then
-		local timer = maid:AddTask(Timer.new(timeOut))
-
-		timer.OnTick:Connect(function()
-			if not onChildAdded:IsDestroyed() then
-				onChildAdded:DeferredFire(nil)
-			end
-		end)
-
-		timer:Start()
+	if timeout then
+		DeferredFireSignalOnTimeout(timeout, onChildAdded)
 	end
 
 	local child = onChildAdded:Wait()
@@ -85,10 +88,10 @@ function SafeWaitUtil.WaitForChild(instance, childName, timeOut)
 	return child
 end
 
-function SafeWaitUtil.WaitForFirstChildWhichIsA(instance, class, timeOut)
+function SafeWaitUtil.WaitForFirstChildWhichIsA(instance, class, timeout)
 	assert(
 		typeof(instance) == "Instance",
-		SharedConstants.ErrorMessages.InvalidArgument:format(
+		LocalConstants.ErrorMessages.InvalidArgument:format(
 			1,
 			"SafeWaitUtil.WaitForFirstChildWhichIsA()",
 			"instance",
@@ -97,21 +100,21 @@ function SafeWaitUtil.WaitForFirstChildWhichIsA(instance, class, timeOut)
 	)
 	assert(
 		typeof(class) == "string",
-		SharedConstants.ErrorMessages.InvalidArgument:format(
+		LocalConstants.ErrorMessages.InvalidArgument:format(
 			2,
 			"SafeWaitUtil.WaitForFirstChildWhichIsA()",
 			"string",
 			typeof(class)
 		)
 	)
-	if timeOut then
+	if timeout then
 		assert(
-			typeof(timeOut) == "number",
-			SharedConstants.ErrorMessages.InvalidArgument:format(
+			typeof(timeout) == "number",
+			LocalConstants.ErrorMessages.InvalidArgument:format(
 				3,
 				"SafeWaitUtil.WaitForFirstChildWhichIsA()",
 				"number or nil",
-				typeof(timeOut)
+				typeof(timeout)
 			)
 		)
 	end
@@ -138,16 +141,8 @@ function SafeWaitUtil.WaitForFirstChildWhichIsA(instance, class, timeOut)
 		end
 	end))
 
-	if timeOut then
-		local timer = maid:AddTask(Timer.new(timeOut))
-
-		timer.OnTick:Connect(function()
-			if not onChildAdded:IsDestroyed() then
-				onChildAdded:DeferredFire(nil)
-			end
-		end)
-
-		timer:Start()
+	if timeout then
+		DeferredFireSignalOnTimeout(timeout, onChildAdded)
 	end
 
 	local child = onChildAdded:Wait()
@@ -158,10 +153,10 @@ function SafeWaitUtil.WaitForFirstChildWhichIsA(instance, class, timeOut)
 	return child
 end
 
-function SafeWaitUtil.WaitForFirstChildOfClass(instance, class, timeOut)
+function SafeWaitUtil.WaitForFirstChildOfClass(instance, class, timeout)
 	assert(
 		typeof(instance) == "Instance",
-		SharedConstants.ErrorMessages.InvalidArgument:format(
+		LocalConstants.ErrorMessages.InvalidArgument:format(
 			1,
 			"SafeWaitUtil.WaitForFirstChildOfClass()",
 			"instance",
@@ -170,21 +165,21 @@ function SafeWaitUtil.WaitForFirstChildOfClass(instance, class, timeOut)
 	)
 	assert(
 		typeof(class) == "string",
-		SharedConstants.ErrorMessages.InvalidArgument:format(
+		LocalConstants.ErrorMessages.InvalidArgument:format(
 			2,
 			"SafeWaitUtil.WaitForFirstChildOfClass()",
 			"string",
 			typeof(class)
 		)
 	)
-	if timeOut then
+	if timeout then
 		assert(
-			typeof(timeOut) == "number",
-			SharedConstants.ErrorMessages.InvalidArgument:format(
+			typeof(timeout) == "number",
+			LocalConstants.ErrorMessages.InvalidArgument:format(
 				3,
 				"SafeWaitUtil.WaitForFirstChildOfClass()",
 				"number or nil",
-				typeof(timeOut)
+				typeof(timeout)
 			)
 		)
 	end
@@ -211,15 +206,8 @@ function SafeWaitUtil.WaitForFirstChildOfClass(instance, class, timeOut)
 		end
 	end))
 
-	if timeOut then
-		local timer = maid:AddTask(Timer.new(timeOut))
-		timer.OnTick:Connect(function()
-			if not onChildAdded:IsDestroyed() then
-				onChildAdded:DeferredFire(nil)
-			end
-		end)
-
-		timer:Start()
+	if timeout then
+		DeferredFireSignalOnTimeout(timeout, onChildAdded)
 	end
 
 	local child = onChildAdded:Wait()

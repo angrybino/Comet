@@ -59,9 +59,8 @@ local UserInput = {
 local LocalizationService = game:GetService("LocalizationService")
 local UserInputService = game:GetService("UserInputService")
 
-local comet = script:FindFirstAncestor("Comet")
-local Signal = require(comet.Util.Shared.Signal)
-local SharedConstants = require(comet.SharedConstants)
+local Signal = require(script.Signal)
+local SharedConstants = require(script.SharedConstants)
 
 function UserInput.GetCurrentInputType()
 	local enumInputType = UserInputService:GetLastInputType()

@@ -19,8 +19,6 @@
 local ClientRemoteSignal = {}
 ClientRemoteSignal.__index = ClientRemoteSignal
 
-local RunService = game:GetService("RunService")
-
 local comet = script:FindFirstAncestor("Comet")
 local SharedConstants = require(comet.SharedConstants)
 local Maid = require(comet.Util.Shared.Maid)

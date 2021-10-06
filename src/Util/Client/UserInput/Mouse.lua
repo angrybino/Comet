@@ -42,9 +42,8 @@ local LocalConstants = {
 	MinDelta = 1e-5,
 }
 
-local comet = script:FindFirstAncestor("Comet")
-local Signal = require(comet.Util.Shared.Signal)
-local SharedConstants = require(comet.SharedConstants)
+local Signal = require(script.Parent.Signal)
+local SharedConstants = require(script.Parent.SharedConstants)
 
 setmetatable(Mouse, {
 	__index = function(_, key)

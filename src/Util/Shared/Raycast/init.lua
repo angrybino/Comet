@@ -36,14 +36,13 @@ Raycast.__index = Raycast
 local Workspace = game:GetService("Workspace")
 local RunService = game:GetService("RunService")
 
-local Signal = require(script.Parent.Signal)
-local Maid = require(script.Parent.Maid)
-local comet = script:FindFirstAncestor("Comet")
-local SharedConstants = require(comet.SharedConstants)
+local Signal = require(script.Signal)
+local Maid = require(script.Maid)
 
 local LocalConstants = {
 	ErrorMessages = {
 		Destroyed = "Ray object is destroyed",
+		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",
 	},
 
 	Surfaces = {
@@ -67,17 +66,17 @@ end
 function Raycast.new(origin, direction, params)
 	assert(
 		typeof(origin) == "Vector3",
-		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Raycast.new()", "Vector3", typeof(origin))
+		LocalConstants.ErrorMessages.InvalidArgument:format(1, "Raycast.new()", "Vector3", typeof(origin))
 	)
 	assert(
 		typeof(origin) == "Vector3",
-		SharedConstants.ErrorMessages.InvalidArgument:format(2, "Raycast.new()", "Vector3", typeof(direction))
+		LocalConstants.ErrorMessages.InvalidArgument:format(2, "Raycast.new()", "Vector3", typeof(direction))
 	)
 
 	if params then
 		assert(
 			typeof(params) == "RaycastParams",
-			SharedConstants.ErrorMessages.InvalidArgument:format(
+			LocalConstants.ErrorMessages.InvalidArgument:format(
 				3,
 				"Raycast.new()",
 				"RaycastParams or nil",
@@ -130,7 +129,7 @@ function Raycast:SetVisualizerThickness(thickness)
 
 	assert(
 		typeof(thickness) == "number",
-		SharedConstants.ErrorMessages.InvalidArgument:format(
+		LocalConstants.ErrorMessages.InvalidArgument:format(
 			1,
 			"Raycast:SetVisualizerThickness()",
 			"number",
@@ -153,7 +152,7 @@ function Raycast:GetTouchingParts(maxTouchingParts)
 	if maxTouchingParts then
 		assert(
 			typeof(maxTouchingParts) == "number",
-			SharedConstants.ErrorMessages.InvalidArgument:format(
+			LocalConstants.ErrorMessages.InvalidArgument:format(
 				1,
 				"RayCast:GetTouchingParts()",
 				"number or nil",
@@ -183,8 +182,6 @@ function Raycast:GetTouchingParts(maxTouchingParts)
 			break
 		end
 
-		local instance = ray.Instance
-
 		table.insert(capturedInstances, ray.Instance)
 		touchingInstances[ray.Instance] = Raycast._getRayHitSurface(ray)
 
@@ -199,7 +196,7 @@ function Raycast:Resize(size)
 
 	assert(
 		typeof(size) == "number",
-		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Raycast:Resize()", "number", typeof(size))
+		LocalConstants.ErrorMessages.InvalidArgument:format(1, "Raycast:Resize()", "number", typeof(size))
 	)
 
 	local finalPosition = (self.Origin + self.Direction)
@@ -265,7 +262,6 @@ function Raycast:_updateVisualizerPosition()
 end
 
 function Raycast:_updateVisualizerSize(size)
-	local finalPosition = (self.Origin + self.Direction)
 	local visualizer = self.Visualizer
 
 	visualizer.Size = Vector3.new(visualizer.Size.X, visualizer.Size.Y, size)

@@ -28,14 +28,13 @@ Timer.__index = Timer
 
 local RunService = game:GetService("RunService")
 
-local Signal = require(script.Parent.Signal)
-local Maid = require(script.Parent.Maid)
-local comet = script:FindFirstAncestor("Comet")
-local SharedConstants = require(comet.SharedConstants)
+local Signal = require(script.Signal)
+local Maid = require(script.Maid)
 
 local LocalConstants = {
 	ErrorMessages = {
 		Destroyed = "Timer object is destroyed",
+		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",
 	},
 
 	DefaultUpdateSignal = RunService.Heartbeat,
@@ -48,13 +47,13 @@ end
 function Timer.new(timer, customUpdateSignal)
 	assert(
 		typeof(timer) == "number",
-		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Timer.new()", "number", typeof(timer))
+		LocalConstants.ErrorMessages.InvalidArgument:format(1, "Timer.new()", "number", typeof(timer))
 	)
 
 	if customUpdateSignal then
 		assert(
 			typeof(customUpdateSignal) == "RBXScriptSignal",
-			SharedConstants.ErrorMessages.InvalidArgument:format(
+			LocalConstants.ErrorMessages.InvalidArgument:format(
 				2,
 				"Timer.new()",
 				"RBXScriptSignal or nil",
@@ -76,8 +75,8 @@ function Timer.new(timer, customUpdateSignal)
 	}, Timer)
 
 	self._maid:AddTask(self.OnTick)
+	self._maid:AddTask(self._timerUpdateMaid)
 	self._maid:AddTask(function()
-		self:Stop()
 		self._isDestroyed = true
 	end)
 	self._timerUpdateMaid:AddTask(function()

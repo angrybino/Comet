@@ -14,13 +14,16 @@
 
 local TableUtil = {}
 
-local comet = script:FindFirstAncestor("Comet")
-local SharedConstants = require(comet.SharedConstants)
+local LocalConstants = {
+	ErrorMessages = {
+		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",
+	},
+}
 
 function TableUtil.DeepCopyTable(tabl)
 	assert(
 		typeof(tabl) == "table",
-		SharedConstants.ErrorMessages.InvalidArgument:format(1, "TableUtil.DeepCopyTable()", "table", typeof(tabl))
+		LocalConstants.ErrorMessages.InvalidArgument:format(1, "TableUtil.DeepCopyTable()", "table", typeof(tabl))
 	)
 
 	local deepCopiedTable = {}
@@ -39,7 +42,7 @@ end
 function TableUtil.ShallowCopyTable(tabl)
 	assert(
 		typeof(tabl) == "table",
-		SharedConstants.ErrorMessages.InvalidArgument:format(1, "TableUtil.ShallowCopyTable()", "table", typeof(tabl))
+		LocalConstants.ErrorMessages.InvalidArgument:format(1, "TableUtil.ShallowCopyTable()", "table", typeof(tabl))
 	)
 
 	local copiedTable = {}
@@ -54,12 +57,12 @@ end
 function TableUtil.ReconcileTable(tabl, templateTable)
 	assert(
 		typeof(tabl) == "table",
-		SharedConstants.ErrorMessages.InvalidArgument:format(1, "TableUtil.ReconcileTable()", "table", typeof(tabl))
+		LocalConstants.ErrorMessages.InvalidArgument:format(1, "TableUtil.ReconcileTable()", "table", typeof(tabl))
 	)
 
 	assert(
 		typeof(templateTable) == "table",
-		SharedConstants.ErrorMessages.InvalidArgument:format(
+		LocalConstants.ErrorMessages.InvalidArgument:format(
 			2,
 			"TableUtil.ReconcileTable()",
 			"table",
@@ -83,13 +86,13 @@ end
 function TableUtil.ShuffleTable(tabl, randomObject)
 	assert(
 		typeof(tabl) == "table",
-		SharedConstants.ErrorMessages.InvalidArgument:format(1, "TableUtil.ShuffleTable()", "table", typeof(tabl))
+		LocalConstants.ErrorMessages.InvalidArgument:format(1, "TableUtil.ShuffleTable()", "table", typeof(tabl))
 	)
 
 	if randomObject then
 		assert(
 			typeof(randomObject) == "Random",
-			SharedConstants.ErrorMessages.InvalidArgument:format(
+			LocalConstants.ErrorMessages.InvalidArgument:format(
 				2,
 				"TableUtil.ShuffleTable()",
 				"Random object or nil",
@@ -113,7 +116,7 @@ end
 function TableUtil.IsTableEmpty(tabl)
 	assert(
 		typeof(tabl) == "table",
-		SharedConstants.ErrorMessages.InvalidArgument:format(1, "TableUtil.IsTableEmpty()", "table", typeof(tabl))
+		LocalConstants.ErrorMessages.InvalidArgument:format(1, "TableUtil.IsTableEmpty()", "table", typeof(tabl))
 	)
 
 	return not next(tabl)
@@ -122,12 +125,12 @@ end
 function TableUtil.SyncTable(tabl, templateSyncTable)
 	assert(
 		typeof(tabl) == "table",
-		SharedConstants.ErrorMessages.InvalidArgument:format(1, "TableUtil.SyncTable()", "table", typeof(tabl))
+		LocalConstants.ErrorMessages.InvalidArgument:format(1, "TableUtil.SyncTable()", "table", typeof(tabl))
 	)
 
 	assert(
 		typeof(templateSyncTable) == "table",
-		SharedConstants.ErrorMessages.InvalidArgument:format(
+		LocalConstants.ErrorMessages.InvalidArgument:format(
 			2,
 			"TableUtil.SyncTable()",
 			"table",
@@ -169,12 +172,12 @@ end
 function TableUtil.Map(tabl, callback)
 	assert(
 		typeof(tabl) == "table",
-		SharedConstants.ErrorMessages.InvalidArgument:format(1, "TableUtil.Map()", "table", typeof(tabl))
+		LocalConstants.ErrorMessages.InvalidArgument:format(1, "TableUtil.Map()", "table", typeof(tabl))
 	)
 
 	assert(
 		typeof(callback) == "function",
-		SharedConstants.ErrorMessages.InvalidArgument:format(2, "TableUtil.Map()", "function", typeof(callback))
+		LocalConstants.ErrorMessages.InvalidArgument:format(2, "TableUtil.Map()", "function", typeof(callback))
 	)
 
 	for key, value in pairs(tabl) do
