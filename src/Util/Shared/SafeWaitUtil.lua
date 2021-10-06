@@ -53,27 +53,32 @@ function SafeWaitUtil.WaitForChild(instance, childName, timeOut)
 	local maid = Maid.new()
 	local onChildAdded = Signal.new()
 
-	maid:AddTask(onChildAdded)
+	maid:AddTask(function()
+		onChildAdded:DeferredFire(nil)
+		onChildAdded:Destroy()
+	end)
 	maid:LinkToInstances({ instance })
 
 	maid:AddTask(instance.ChildAdded:Connect(function(child)
 		if child.Name == childName and not onChildAdded:IsDestroyed() then
-			onChildAdded:Fire(child)
+			onChildAdded:DeferredFire(child)
 		end
 	end))
 
 	if timeOut then
 		local timer = maid:AddTask(Timer.new(timeOut))
 
-		timer.OnTimerTick:Connect(function()
+		timer.OnTick:Connect(function()
 			if not timer:IsDestroyed() then
-				onChildAdded:Fire(nil)
+				onChildAdded:DeferredFire(nil)
 			end
 		end)
 	end
 
 	local child = onChildAdded:Wait()
-	maid:Destroy()
+	if not maid:IsDestroyed() then
+		maid:Destroy()
+	end
 
 	return child
 end
@@ -119,27 +124,32 @@ function SafeWaitUtil.WaitForFirstChildWhichIsA(instance, class, timeOut)
 	local maid = Maid.new()
 	local onChildAdded = Signal.new()
 
-	maid:AddTask(onChildAdded)
+	maid:AddTask(function()
+		onChildAdded:DeferredFire(nil)
+		onChildAdded:Destroy()
+	end)
 	maid:LinkToInstances({ instance })
 
 	maid:AddTask(instance.ChildAdded:Connect(function(child)
 		if child:IsA(class) and not onChildAdded:IsDestroyed() then
-			onChildAdded:Fire(child)
+			onChildAdded:DeferredFire(child)
 		end
 	end))
 
 	if timeOut then
 		local timer = maid:AddTask(Timer.new(timeOut))
 
-		timer.OnTimerTick:Connect(function()
+		timer.OnTick:Connect(function()
 			if not timer:IsDestroyed() then
-				onChildAdded:Fire(nil)
+				onChildAdded:DeferredFire(nil)
 			end
 		end)
 	end
 
 	local child = onChildAdded:Wait()
-	maid:Destroy()
+	if not maid:IsDestroyed() then
+		maid:Destroy()
+	end
 
 	return child
 end
@@ -185,27 +195,32 @@ function SafeWaitUtil.WaitForFirstChildOfClass(instance, class, timeOut)
 	local maid = Maid.new()
 	local onChildAdded = Signal.new()
 
-	maid:AddTask(onChildAdded)
+	maid:AddTask(function()
+		onChildAdded:DeferredFire(nil)
+		onChildAdded:Destroy()
+	end)
 	maid:LinkToInstances({ instance })
 
 	maid:AddTask(instance.ChildAdded:Connect(function(child)
 		if child.ClassName == class and not onChildAdded:IsDestroyed() then
-			onChildAdded:Fire(child)
+			onChildAdded:DeferredFire(child)
 		end
 	end))
 
 	if timeOut then
 		local timer = maid:AddTask(Timer.new(timeOut))
 
-		timer.OnTimerTick:Connect(function()
+		timer.OnTick:Connect(function()
 			if not timer:IsDestroyed() then
-				onChildAdded:Fire(nil)
+				onChildAdded:DeferredFire(nil)
 			end
 		end)
 	end
 
 	local child = onChildAdded:Wait()
-	maid:Destroy()
+	if not maid:IsDestroyed() then
+		maid:Destroy()
+	end
 
 	return child
 end

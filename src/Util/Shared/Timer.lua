@@ -80,7 +80,6 @@ function Timer.new(timer, customUpdateSignal)
 		self:Stop()
 		self._isDestroyed = true
 	end)
-	self._maid:AddTask(self._timerUpdateMaid)
 	self._timerUpdateMaid:AddTask(function()
 		self._isPaused = false
 		self._isStopped = true
