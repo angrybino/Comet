@@ -110,6 +110,16 @@ function Maid:LinkToInstances(instances)
 		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Maid:LinkToInstances()", "table", typeof(instances))
 	)
 
+	local function TrackInstanceConnection(instance, connection)
+		while connection.Connected and not instance.Parent do
+			task.wait()
+		end
+
+		if not self:IsDestroyed() and not connection.Connected then
+			self:Destroy()
+		end
+	end
+
 	for _, instance in ipairs(instances) do
 		-- If the instance was parented to nil, then destroy the maid because its possible
 		-- that the instance may have already been destroyed:
@@ -127,10 +137,17 @@ function Maid:LinkToInstances(instances)
 					-- Destroy():
 					if not self:IsDestroyed() and not instanceParentChangedConnection.Connected then
 						self:Destroy()
+					else
+						-- The instance was just parented to nil:
+						TrackInstanceConnection(instance, instanceParentChangedConnection)
 					end
 				end)
 			end
 		end))
+
+		if not instance.Parent then
+			task.spawn(TrackInstanceConnection, instance, instanceParentChangedConnection)
+		end
 	end
 
 	return instances
