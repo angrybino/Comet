@@ -69,7 +69,7 @@ function SafeWaitUtil.WaitForChild(instance, childName, timeOut)
 		local timer = maid:AddTask(Timer.new(timeOut))
 
 		timer.OnTick:Connect(function()
-			if not timer:IsDestroyed() then
+			if not onChildAdded:IsDestroyed() then
 				onChildAdded:DeferredFire(nil)
 			end
 		end)
@@ -140,7 +140,7 @@ function SafeWaitUtil.WaitForFirstChildWhichIsA(instance, class, timeOut)
 		local timer = maid:AddTask(Timer.new(timeOut))
 
 		timer.OnTick:Connect(function()
-			if not timer:IsDestroyed() then
+			if not onChildAdded:IsDestroyed() then
 				onChildAdded:DeferredFire(nil)
 			end
 		end)
@@ -211,7 +211,7 @@ function SafeWaitUtil.WaitForFirstChildOfClass(instance, class, timeOut)
 		local timer = maid:AddTask(Timer.new(timeOut))
 
 		timer.OnTick:Connect(function()
-			if not timer:IsDestroyed() then
+			if not onChildAdded:IsDestroyed() then
 				onChildAdded:DeferredFire(nil)
 			end
 		end)
