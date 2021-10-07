@@ -31,7 +31,7 @@ local function IsInstanceDestroyed(instance)
 		instance.Parent = instance
 	end)
 
-	return (response:find("locked") and response:find("NULL")) ~= nil
+	return (response:find("locked") and response:find("NULL") or nil) ~= nil
 end
 
 function Maid.new()
