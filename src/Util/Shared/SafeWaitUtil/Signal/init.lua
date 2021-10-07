@@ -66,6 +66,13 @@ function Signal:Connect(callback)
 end
 
 function Signal:DisconnectAllConnections()
+	local connection = self.ConnectionListHead
+	
+	while connection do
+		connection:Disconnect()
+		connection = connection.Next
+	end
+
 	self.ConnectionListHead = nil
 end
 
