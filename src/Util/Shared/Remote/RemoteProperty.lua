@@ -29,7 +29,7 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
 local shared = script:FindFirstAncestor("Shared")
-local Signal = require(script.Signal)
+local Signal = require(shared.Signal)
 local SharedConstants = require(shared.SharedConstants)
 local Maid = require(shared.Maid)
 

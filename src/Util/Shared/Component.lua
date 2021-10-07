@@ -230,7 +230,7 @@ end
 
 function Component:_stopLifeCycle()
 	self._isLifeCycleStarted = false
-	self._maid:Destroy()
+	self._maid:Cleanup()
 end
 
 function Component:_startHeartbeatUpdate()

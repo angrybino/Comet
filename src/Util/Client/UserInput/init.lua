@@ -56,7 +56,6 @@ local UserInput = {
 	_isInit = false,
 }
 
-local LocalizationService = game:GetService("LocalizationService")
 local UserInputService = game:GetService("UserInputService")
 
 local shared = script:FindFirstAncestor("Comet").Util.Shared
