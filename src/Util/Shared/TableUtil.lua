@@ -16,18 +16,22 @@ local TableUtil = {}
 
 local SharedConstants = require(script.Parent.SharedConstants)
 
-function TableUtil.DeepCopyTable(tabl)
+function TableUtil.DeepCopyTable(tabl, cache)
 	assert(
 		typeof(tabl) == "table",
 		SharedConstants.ErrorMessages.InvalidArgument:format(1, "TableUtil.DeepCopyTable()", "table", typeof(tabl))
 	)
 
+	cache = cache or {}
 	local deepCopiedTable = {}
 
 	for key, value in pairs(tabl) do
-		if typeof(value) == "table" then
-			deepCopiedTable[key] = TableUtil.DeepCopyTable(value)
-		else
+		if typeof(value) == "table" and not cache[value] then
+			cache[value] = true
+			deepCopiedTable[key] = TableUtil.DeepCopyTable(value, cache)
+		end
+
+		if not deepCopiedTable[key] then
 			deepCopiedTable[key] = value
 		end
 	end
@@ -76,6 +80,8 @@ function TableUtil.ReconcileTable(tabl, templateTable)
 		end
 	end
 
+	setmetatable(tabl, templateTable)
+
 	return tabl
 end
 
@@ -118,7 +124,7 @@ function TableUtil.IsTableEmpty(tabl)
 	return not next(tabl)
 end
 
-function TableUtil.SyncTable(tabl, templateSyncTable)
+function TableUtil.SyncTable(tabl, templateSyncTable, cache)
 	assert(
 		typeof(tabl) == "table",
 		SharedConstants.ErrorMessages.InvalidArgument:format(1, "TableUtil.SyncTable()", "table", typeof(tabl))
@@ -134,6 +140,8 @@ function TableUtil.SyncTable(tabl, templateSyncTable)
 		)
 	)
 
+	cache = cache or {}
+
 	for key, value in pairs(tabl) do
 		local templateValue = templateSyncTable[key]
 
@@ -145,8 +153,9 @@ function TableUtil.SyncTable(tabl, templateSyncTable)
 			else
 				tabl[key] = templateValue
 			end
-		elseif typeof(value) == "table" then
-			tabl[key] = TableUtil.SyncTable(value, templateValue)
+		elseif typeof(value) == "table" and not cache[value] then
+			cache[value] = true
+			tabl[key] = TableUtil.SyncTable(value, templateValue, cache)
 		end
 	end
 
