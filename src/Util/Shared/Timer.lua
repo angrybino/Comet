@@ -27,14 +27,11 @@ Timer.__index = Timer
 
 local RunService = game:GetService("RunService")
 
-local Signal = require(script.Signal)
-local Maid = require(script.Maid)
+local Signal = require(script.Parent.Signal)
+local Maid = require(script.Parent.Maid)
+local SharedConstants = require(script.Parent.SharedConstants)
 
 local LocalConstants = {
-	ErrorMessages = {
-		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",
-	},
-
 	DefaultUpdateSignal = RunService.Heartbeat,
 }
 
@@ -45,13 +42,13 @@ end
 function Timer.new(timer, customUpdateSignal)
 	assert(
 		typeof(timer) == "number",
-		LocalConstants.ErrorMessages.InvalidArgument:format(1, "Timer.new()", "number", typeof(timer))
+		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Timer.new()", "number", typeof(timer))
 	)
 
 	if customUpdateSignal then
 		assert(
 			typeof(customUpdateSignal) == "RBXScriptSignal",
-			LocalConstants.ErrorMessages.InvalidArgument:format(
+			SharedConstants.ErrorMessages.InvalidArgument:format(
 				2,
 				"Timer.new()",
 				"RBXScriptSignal or nil",
@@ -64,20 +61,15 @@ function Timer.new(timer, customUpdateSignal)
 		OnTick = Signal.new(),
 		_customUpdateSignal = customUpdateSignal or LocalConstants.DefaultUpdateSignal,
 		_maid = Maid.new(),
-		_timerUpdateMaid = Maid.new(),
 		_timer = timer,
 		_isPaused = false,
-		_isStopped = false,
+		_isStopped = true,
 		_currentTimerTickDeltaTime = 0,
 	}, Timer)
 
 	self._maid:AddTask(self.OnTick)
 	self._maid:AddTask(function()
 		self:Stop()
-	end)
-	self._timerUpdateMaid:AddTask(function()
-		self._isPaused = false
-		self._isStopped = true
 	end)
 
 	return self
@@ -88,9 +80,11 @@ function Timer:Reset()
 end
 
 function Timer:Start()
+	assert(self:IsStopped(), "Timer is already started")
+
 	self._isStopped = false
 
-	self._timerUpdateMaid:AddTask(self._customUpdateSignal:Connect(function(deltaTime)
+	self._customUpdateSignalConnection = self._customUpdateSignal:Connect(function(deltaTime)
 		if self._isPaused then
 			return
 		end
@@ -101,7 +95,7 @@ function Timer:Start()
 		end
 
 		self._currentTimerTickDeltaTime += deltaTime
-	end))
+	end)
 end
 
 function Timer:IsStopped()
@@ -109,7 +103,6 @@ function Timer:IsStopped()
 end
 
 function Timer:Pause()
-	self._isStopped = false
 	self._isPaused = true
 end
 
@@ -123,10 +116,21 @@ end
 
 function Timer:Destroy()
 	self._maid:Destroy()
+
+	setmetatable(self, nil)
+
+	for key, _ in pairs(self) do
+		self[key] = nil
+	end
 end
 
 function Timer:Stop()
-	self._timerUpdateMaid:Destroy()
+	if self._customUpdateSignalConnection then
+		self._customUpdateSignalConnection:Disconnect()
+		self._customUpdateSignalConnection = nil
+	end
+
+	self._isStopped = true
 end
 
 return Timer

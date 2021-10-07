@@ -35,13 +35,11 @@ Raycast.__index = Raycast
 local Workspace = game:GetService("Workspace")
 local RunService = game:GetService("RunService")
 
-local Signal = require(script.Signal)
-local Maid = require(script.Maid)
+local Signal = require(script.Parent.Signal)
+local Maid = require(script.Parent.Maid)
+local SharedConstants = require(script.Parent.SharedConstants)
 
 local LocalConstants = {
-	ErrorMessages = {
-		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",
-	},
 
 	Surfaces = {
 		TopSurface = Vector3.new(0, 1, 0),
@@ -64,17 +62,17 @@ end
 function Raycast.new(origin, direction, params)
 	assert(
 		typeof(origin) == "Vector3",
-		LocalConstants.ErrorMessages.InvalidArgument:format(1, "Raycast.new()", "Vector3", typeof(origin))
+		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Raycast.new()", "Vector3", typeof(origin))
 	)
 	assert(
 		typeof(origin) == "Vector3",
-		LocalConstants.ErrorMessages.InvalidArgument:format(2, "Raycast.new()", "Vector3", typeof(direction))
+		SharedConstants.ErrorMessages.InvalidArgument:format(2, "Raycast.new()", "Vector3", typeof(direction))
 	)
 
 	if params then
 		assert(
 			typeof(params) == "RaycastParams",
-			LocalConstants.ErrorMessages.InvalidArgument:format(
+			SharedConstants.ErrorMessages.InvalidArgument:format(
 				3,
 				"Raycast.new()",
 				"RaycastParams or nil",
@@ -117,7 +115,7 @@ end
 function Raycast:SetVisualizerThickness(thickness)
 	assert(
 		typeof(thickness) == "number",
-		LocalConstants.ErrorMessages.InvalidArgument:format(
+		SharedConstants.ErrorMessages.InvalidArgument:format(
 			1,
 			"Raycast:SetVisualizerThickness()",
 			"number",
@@ -178,7 +176,7 @@ end
 function Raycast:Resize(size)
 	assert(
 		typeof(size) == "number",
-		LocalConstants.ErrorMessages.InvalidArgument:format(1, "Raycast:Resize()", "number", typeof(size))
+		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Raycast:Resize()", "number", typeof(size))
 	)
 
 	local finalPosition = (self.Origin + self.Direction)
@@ -194,6 +192,12 @@ end
 
 function Raycast:Destroy()
 	self._maid:Destroy()
+
+	for key, _ in pairs(self) do
+		self[key] = nil
+	end
+
+	setmetatable(self, nil)
 end
 
 function Raycast:_updateResults()
@@ -210,10 +214,9 @@ function Raycast:_updateResults()
 end
 
 function Raycast:_init()
-	self.Size = (self.Origin - (self.Origin + self.Direction)).Magnitude
-
 	self:_updateResults()
 	self:_setupRayVisualizer()
+	self.Size = self.Visualizer.Size.Magnitude
 
 	self._maid:AddTask(RunService.Heartbeat:Connect(function()
 		local ray = Workspace:Raycast(self.Origin, self.Direction, self._params)
@@ -253,9 +256,8 @@ function Raycast:_setupRayVisualizer()
 
 	visualizer.Anchored = true
 	visualizer.CanCollide = false
-	-- Hide the visualizer initially:
-	visualizer.Transparency = 1
 	visualizer.CanQuery = false
+	visualizer.Transparency = 1
 	self:SetVisualizerThickness(LocalConstants.DefaultRayVisualizerThickness)
 	self:_updateVisualizerSize(distance)
 	self:_updateVisualizerPosition()

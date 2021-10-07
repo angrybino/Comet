@@ -18,21 +18,19 @@ local RunService = game:GetService("RunService")
 local CollectionService = game:GetService("CollectionService")
 local Workspace = game:GetService("Workspace")
 
-local Maid = require(script.Maid)
-local Signal = require(script.Signal)
+local Maid = require(script.Parent.Maid)
+local Signal = require(script.Parent.Signal)
+local SharedConstants = require(script.Parent.SharedConstants)
 
 local LocalConstants = {
 	WhitelistedServices = { Workspace },
 	DefaultRenderUpdatePriority = Enum.RenderPriority.Last.Value,
-	ErrorMessages = {
-		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",
-	},
 }
 
 function Component.GetFromInstance(instance)
 	assert(
 		typeof(instance) == "Instance",
-		LocalConstants.ErrorMessages.InvalidArgument:format(
+		SharedConstants.ErrorMessages.InvalidArgument:format(
 			1,
 			"Component.GetFromInstance()",
 			"Instance",
@@ -54,7 +52,7 @@ function Component.GetAll(instance)
 	if instance then
 		assert(
 			typeof(instance) == "Instance",
-			LocalConstants.ErrorMessages.InvalidArgument:format(1, "Component.GetAll()", "Instance", typeof(instance))
+			SharedConstants.ErrorMessages.InvalidArgument:format(1, "Component.GetAll()", "Instance", typeof(instance))
 		)
 	end
 
@@ -76,7 +74,7 @@ end
 function Component.SetComponentsFolder(componentsFolder)
 	assert(
 		typeof(componentsFolder) == "Instance" and componentsFolder:IsA("Folder"),
-		LocalConstants.ErrorMessages.InvalidArgument:format(
+		SharedConstants.ErrorMessages.InvalidArgument:format(
 			1,
 			"Component.SetComponentsFolder()",
 			"Folder",

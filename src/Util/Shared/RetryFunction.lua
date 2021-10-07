@@ -13,33 +13,36 @@
 local LocalConstants = {
 	DefaultFailedPcallTries = 5,
 	DefaultFailedPcallRetryInterval = 5,
-
-	ErrorMessages = {
-		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",
-	},
 }
+
+local SharedConstants = require(script.Parent.SharedConstants)
 
 return function(callBack, arguments, maxTries, retryInterval)
 	assert(
 		typeof(callBack) == "function",
-		LocalConstants.ErrorMessages.InvalidArgument:format(1, "RetryFunction()", "function", typeof(callBack))
+		SharedConstants.ErrorMessages.InvalidArgument:format(1, "RetryFunction()", "function", typeof(callBack))
 	)
 	assert(
 		typeof(arguments) == "table",
-		LocalConstants.ErrorMessages.InvalidArgument:format(2, "RetryFunction()", "table", typeof(arguments))
+		SharedConstants.ErrorMessages.InvalidArgument:format(2, "RetryFunction()", "table", typeof(arguments))
 	)
 
 	if maxTries then
 		assert(
 			typeof(maxTries) == "number",
-			LocalConstants.ErrorMessages.InvalidArgument:format(3, "RetryFunction()", "number or nil", typeof(maxTries))
+			SharedConstants.ErrorMessages.InvalidArgument:format(
+				3,
+				"RetryFunction()",
+				"number or nil",
+				typeof(maxTries)
+			)
 		)
 	end
 
 	if retryInterval then
 		assert(
 			typeof(retryInterval) == "number",
-			LocalConstants.ErrorMessages.InvalidArgument:format(
+			SharedConstants.ErrorMessages.InvalidArgument:format(
 				4,
 				"RetryFunction()",
 				"number or nil",

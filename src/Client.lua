@@ -26,7 +26,7 @@ local Players = game:GetService("Players")
 local Promise = require(Client.Util.Shared.Promise)
 local ClientRemoteSignal = require(Client.Util.Shared.Remote.ClientRemoteSignal)
 local ClientRemoteProperty = require(Client.Util.Shared.Remote.ClientRemoteProperty)
-local SharedConstants = require(script.Parent.SharedConstants)
+local SharedConstants = require(Client.Util.Shared.SharedConstants)
 local SafeWaitUtil = require(Client.Util.Shared.SafeWaitUtil)
 local Signal = require(Client.Util.Shared.Signal)
 

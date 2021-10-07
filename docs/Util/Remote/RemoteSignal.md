@@ -59,7 +59,7 @@ RemoteSignal:FireAllClients(...)
 
 Exactly like `RemoteSignal._remoteEvent:FireAllClients(...)`
 
-### `Destroy()`
+### Destroy()
 
 ```lua
 RemoteSignal:Destroy()

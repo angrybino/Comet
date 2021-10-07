@@ -18,9 +18,9 @@
 local ClientRemoteSignal = {}
 ClientRemoteSignal.__index = ClientRemoteSignal
 
-local comet = script:FindFirstAncestor("Comet")
-local SharedConstants = require(comet.SharedConstants)
-local Maid = require(comet.Util.Shared.Maid)
+local shared = script:FindFirstAncestor("Shared")
+local SharedConstants = require(shared.SharedConstants)
+local Maid = require(shared.Maid)
 
 function ClientRemoteSignal.IsClientRemoteSignal(self)
 	return getmetatable(self) == ClientRemoteSignal
@@ -57,6 +57,12 @@ end
 
 function ClientRemoteSignal:Destroy()
 	self._maid:Destroy()
+
+	for key, _ in pairs(self) do
+		self[key] = nil
+	end
+
+	setmetatable(self, nil)
 end
 
 function ClientRemoteSignal:Wait()

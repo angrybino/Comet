@@ -22,15 +22,9 @@ RemoteSignal.__index = RemoteSignal
 
 local RunService = game:GetService("RunService")
 
-local comet = script:FindFirstAncestor("Comet")
-local SharedConstants = require(comet.SharedConstants)
-local Maid = require(comet.Util.Shared.Maid)
-
-local LocalConstants = {
-	ErrorMessages = {
-		Destroyed = "RemoteSignal object is destroyed",
-	},
-}
+local shared = script:FindFirstAncestor("Shared")
+local SharedConstants = require(shared.SharedConstants)
+local Maid = require(shared.Maid)
 
 function RemoteSignal.IsRemoteSignal(self)
 	return getmetatable(self) == RemoteSignal
@@ -51,6 +45,12 @@ end
 
 function RemoteSignal:Destroy()
 	self._maid:Destroy()
+
+	for key, _ in pairs(self) do
+		self[key] = nil
+	end
+
+	setmetatable(self, nil)
 end
 
 function RemoteSignal:Connect(callback)

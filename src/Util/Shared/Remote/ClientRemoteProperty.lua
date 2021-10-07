@@ -24,9 +24,9 @@ ClientRemoteProperty.__index = ClientRemoteProperty
 
 local RunService = game:GetService("RunService")
 
-local comet = script:FindFirstAncestor("Comet")
-local Signal = require(comet.Util.Shared.Signal)
-local Maid = require(comet.Util.Shared.Maid)
+local shared = script:FindFirstAncestor("Shared")
+local Signal = require(shared.Signal)
+local Maid = require(shared.Maid)
 
 function ClientRemoteProperty.IsClientRemoteProperty(self)
 	return getmetatable(self) == ClientRemoteProperty
@@ -57,6 +57,12 @@ end
 
 function ClientRemoteProperty:Destroy()
 	self._maid:Destroy()
+
+	for key, _ in pairs(self) do
+		self[key] = nil
+	end
+
+	setmetatable(self, nil)
 end
 
 function ClientRemoteProperty:SetValue(newValue)

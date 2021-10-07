@@ -28,10 +28,10 @@ RemoteProperty.__index = RemoteProperty
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
-local comet = script:FindFirstAncestor("Comet")
-local Signal = require(comet.Util.Shared.Signal)
-local SharedConstants = require(comet.SharedConstants)
-local Maid = require(comet.Util.Shared.Maid)
+local shared = script:FindFirstAncestor("Shared")
+local Signal = require(script.Signal)
+local SharedConstants = require(shared.SharedConstants)
+local Maid = require(shared.Maid)
 
 function RemoteProperty.IsRemoteProperty(self)
 	return getmetatable(self) == RemoteProperty
@@ -66,6 +66,12 @@ end
 
 function RemoteProperty:Destroy()
 	self._maid:Destroy()
+
+	for key, _ in pairs(self) do
+		self[key] = nil
+	end
+
+	setmetatable(self, nil)
 end
 
 function RemoteProperty:GetPlayerValue(player)

@@ -2,7 +2,7 @@
 -- ClampAbosoluteValue
 -- September 26, 2021
 
--- Clamps a value to 0 if it's abosolute form is < maxAbsoluteValue or 0.01 by default.
+-- Clamps a value to 0 if it's abosolute form is < maxAbsoluteValue or 1e-5 by default.
 
 --[[
     ClampAbosoluteValue(value : number, maxAbsoluteValue : number ?) --> number [ClampedNumber]
@@ -12,7 +12,7 @@ local comet = script:FindFirstAncestor("Comet")
 local SharedConstants = require(comet.SharedConstants)
 
 local LocalConstants = {
-	DefaultMaxAbosluteNumber = 0.01,
+	DefaultMaxAbosluteNumber = 1e-5,
 }
 
 return function(value, maxAbsoluteValue)

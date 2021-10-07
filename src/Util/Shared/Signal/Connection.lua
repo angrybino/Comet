@@ -32,6 +32,8 @@ function Connection.new(signal, callBack)
 end
 
 function Connection:Disconnect()
+	assert(self:IsConnected(), "Connection is already disconnected")
+
 	self._isConnected = false
 	self._signal.ConnectedConnectionCount -= 1
 

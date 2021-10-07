@@ -19,9 +19,8 @@
 	Signal:DeferredFire(tuple : any) --> void []
 	Signal:Wait() --> any [tuple]
 	Signal:WaitUntilArgumentsPassed(tuple : any) --> any [tuple]
-	Signal:DisconnectAllConnections() --> void []
-
-	Signal.Destroy = Signal.DisconnectAllConnections (Alias)
+	Signal:CleanupConnections() --> void []
+	Signal:Destroy() --> void []
 ]]
 
 local Signal = {}
@@ -65,15 +64,26 @@ function Signal:Connect(callback)
 	return connection
 end
 
-function Signal:DisconnectAllConnections()
+function Signal:CleanupConnections()
 	local connection = self.ConnectionListHead
-	
+
 	while connection do
-		connection:Disconnect()
+		if connection:IsConnected() then
+			connection:Disconnect()
+		end
+
 		connection = connection.Next
 	end
+end
 
-	self.ConnectionListHead = nil
+function Signal:Destroy()
+	self:CleanupConnections()
+
+	for key, _ in pairs(self) do
+		self[key] = nil
+	end
+
+	setmetatable(self, nil)
 end
 
 function Signal:Wait()
@@ -171,7 +181,5 @@ function Signal._runEventHandlerInFreeThread(...)
 		Signal._acquireRunnerThreadAndCallEventHandler(coroutine.yield())
 	end
 end
-
-Signal.Destroy = Signal.DisconnectAllConnections
 
 return Signal

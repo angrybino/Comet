@@ -14,8 +14,7 @@
 	Maid:Cleanup() --> void []
 	Maid:RemoveTask(task : table | function | RBXScriptConnection | Instance) --> void []
 	Maid:LinkToInstances(instances : table) --> instances []
-
-	Maid.Destroy = Maid.Cleanup (Alias)
+	Maid:Destroy() --> void []
 ]]
 
 local Maid = {}
@@ -32,7 +31,7 @@ local function IsInstanceDestroyed(instance)
 		instance.Parent = instance
 	end)
 
-	return response:find("locked") ~= nil
+	return (response:find("locked") and response:find("NULL")) ~= nil
 end
 
 function Maid.new()
@@ -95,7 +94,7 @@ function Maid:LinkToInstances(instances)
 		end
 
 		if not connection.Connected then
-			self:Cleanup()
+			self:Destroy()
 		end
 	end
 
@@ -103,7 +102,7 @@ function Maid:LinkToInstances(instances)
 		-- If the instance was parented to nil, then destroy the maid because its possible
 		-- that the instance may have already been destroyed:
 		if IsInstanceDestroyed(instance) then
-			self:Cleanup()
+			self:Destroy()
 			break
 		end
 
@@ -115,7 +114,7 @@ function Maid:LinkToInstances(instances)
 					-- guaranteed that the instance has been destroyed through
 					-- Destroy():
 					if not instanceParentChangedConnection.Connected then
-						self:Cleanup()
+						self:Destroy()
 					else
 						-- The instance was just parented to nil:
 						TrackInstanceConnectionForCleanup(instance, instanceParentChangedConnection)
@@ -155,6 +154,14 @@ function Maid:Cleanup()
 	end
 end
 
-Maid.Destroy = Maid.Cleanup
+function Maid:Destroy()
+	self:Cleanup()
+
+	for key, _ in pairs(self) do
+		self[key] = nil
+	end
+
+	setmetatable(self, nil)
+end
 
 return Maid
