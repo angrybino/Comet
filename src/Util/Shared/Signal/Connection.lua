@@ -17,12 +17,6 @@
 local Connection = {}
 Connection.__index = Connection
 
-local LocalConstants = {
-	ErrorMessages = {
-		Disconnected = "Connection object is disconnected",
-	},
-}
-
 function Connection.IsConnection(self)
 	return getmetatable(self) == Connection
 end
@@ -38,8 +32,6 @@ function Connection.new(signal, callBack)
 end
 
 function Connection:Disconnect()
-	assert(self:IsConnected(), LocalConstants.ErrorMessages.Disconnected)
-
 	self._isConnected = false
 	self._signal.ConnectedConnectionCount -= 1
 

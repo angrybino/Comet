@@ -12,10 +12,10 @@
 	
 	Maid:AddTask(task : table | function | RBXScriptConnection | Instance) --> task []
 	Maid:Cleanup() --> void []
-	Maid:IsDestroyed() --> boolean [IsDestroyed]
 	Maid:RemoveTask(task : table | function | RBXScriptConnection | Instance) --> void []
-	Maid:Destroy() --> void []
 	Maid:LinkToInstances(instances : table) --> instances []
+
+	Maid.Destroy = Maid.Cleanup (Alias)
 ]]
 
 local Maid = {}
@@ -23,20 +23,9 @@ Maid.__index = Maid
 
 local LocalConstants = {
 	ErrorMessages = {
-		Destroyed = "Maid object is destroyed",
 		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",
 	},
 }
-
-local function ShallowCopyTable(tabl)
-	local copiedTable = {}
-
-	for key, value in pairs(tabl) do
-		copiedTable[key] = value
-	end
-
-	return copiedTable
-end
 
 local function IsInstanceDestroyed(instance)
 	local _, response = pcall(function()
@@ -49,7 +38,6 @@ end
 function Maid.new()
 	return setmetatable({
 		_tasks = {},
-		_isDestroyed = false,
 	}, Maid)
 end
 
@@ -58,8 +46,6 @@ function Maid.IsMaid(self)
 end
 
 function Maid:AddTask(task)
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
-
 	assert(
 		typeof(task) == "function"
 			or typeof(task) == "RBXScriptConnection"
@@ -80,8 +66,6 @@ function Maid:AddTask(task)
 end
 
 function Maid:RemoveTask(task)
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
-
 	assert(
 		typeof(task) == "function"
 			or typeof(task) == "RBXScriptConnection"
@@ -99,32 +83,19 @@ function Maid:RemoveTask(task)
 	self._tasks[task] = nil
 end
 
-function Maid:IsDestroyed()
-	return self._isDestroyed
-end
-
-function Maid:Destroy()
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
-
-	self:Cleanup()
-	self._isDestroyed = true
-end
-
 function Maid:LinkToInstances(instances)
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
-
 	assert(
 		typeof(instances) == "table",
 		LocalConstants.ErrorMessages.InvalidArgument:format(1, "Maid:LinkToInstances()", "table", typeof(instances))
 	)
 
-	local function TrackInstanceConnection(instance, connection)
+	local function TrackInstanceConnectionForCleanup(instance, connection)
 		while connection.Connected and not instance.Parent do
 			task.wait()
 		end
 
-		if not self:IsDestroyed() and not connection.Connected then
-			self:Destroy()
+		if not connection.Connected then
+			self:Cleanup()
 		end
 	end
 
@@ -132,7 +103,7 @@ function Maid:LinkToInstances(instances)
 		-- If the instance was parented to nil, then destroy the maid because its possible
 		-- that the instance may have already been destroyed:
 		if IsInstanceDestroyed(instance) then
-			self:Destroy()
+			self:Cleanup()
 			break
 		end
 
@@ -143,18 +114,18 @@ function Maid:LinkToInstances(instances)
 					-- If the connection has also been disconnected, then its
 					-- guaranteed that the instance has been destroyed through
 					-- Destroy():
-					if not self:IsDestroyed() and not instanceParentChangedConnection.Connected then
-						self:Destroy()
+					if not instanceParentChangedConnection.Connected then
+						self:Cleanup()
 					else
 						-- The instance was just parented to nil:
-						TrackInstanceConnection(instance, instanceParentChangedConnection)
+						TrackInstanceConnectionForCleanup(instance, instanceParentChangedConnection)
 					end
 				end)
 			end
 		end))
 
 		if not instance.Parent then
-			task.spawn(TrackInstanceConnection, instance, instanceParentChangedConnection)
+			task.defer(TrackInstanceConnectionForCleanup, instance, instanceParentChangedConnection)
 		end
 	end
 
@@ -162,9 +133,7 @@ function Maid:LinkToInstances(instances)
 end
 
 function Maid:Cleanup()
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
-
-	local tasks = ShallowCopyTable(self._tasks)
+	local tasks = self._tasks
 	self._tasks = {}
 
 	for _, task in pairs(tasks) do
@@ -185,5 +154,7 @@ function Maid:Cleanup()
 		end
 	end
 end
+
+Maid.Destroy = Maid.Cleanup
 
 return Maid

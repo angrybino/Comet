@@ -19,9 +19,9 @@
 	Signal:DeferredFire(tuple : any) --> void []
 	Signal:Wait() --> any [tuple]
 	Signal:WaitUntilArgumentsPassed(tuple : any) --> any [tuple]
-    Signal:DisconnectAllConnections() --> void []
-	Signal:Destroy() -->  void []
-	Signal:IsDestroyed() --> boolean [IsDestroyed]
+	Signal:DisconnectAllConnections() --> void []
+
+	Signal.Destroy = Signal.DisconnectAllConnections (Alias)
 ]]
 
 local Signal = {}
@@ -33,7 +33,6 @@ local LocalConstants = {
 	MinArgumentCount = 1,
 
 	ErrorMessages = {
-		Destroyed = "Signal object is destroyed",
 		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",
 	},
 }
@@ -43,17 +42,12 @@ function Signal.IsSignal(self)
 end
 
 function Signal.new()
-	local self = setmetatable({
+	return setmetatable({
 		ConnectedConnectionCount = 0,
-		_isDestroyed = false,
 	}, Signal)
-
-	return self
 end
 
 function Signal:Connect(callback)
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
-
 	assert(
 		typeof(callback) == "function",
 		LocalConstants.ErrorMessages.InvalidArgument:format(1, "Signal:Connect", "function", typeof(callback))
@@ -72,25 +66,10 @@ function Signal:Connect(callback)
 end
 
 function Signal:DisconnectAllConnections()
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
-
 	self.ConnectionListHead = nil
 end
 
-function Signal:IsDestroyed()
-	return self._isDestroyed
-end
-
-function Signal:Destroy()
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
-
-	self:DisconnectAllConnections()
-	self._isDestroyed = true
-end
-
 function Signal:Wait()
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
-
 	-- This method of resuming a yielded coroutine is efficient as it doesn't
 	-- cause any internal script errors (when resuming a yielded coroutine directly):
 	local yieldedCoroutine = coroutine.running()
@@ -105,8 +84,6 @@ function Signal:Wait()
 end
 
 function Signal:WaitUntilArgumentsPassed(...)
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
-
 	local expectedArguments = { ... }
 
 	while true do
@@ -138,8 +115,6 @@ function Signal:WaitUntilArgumentsPassed(...)
 end
 
 function Signal:Fire(...)
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
-
 	-- Call handlers in reverse order (end - start):
 	local connection = self.ConnectionListHead
 
@@ -157,8 +132,6 @@ function Signal:Fire(...)
 end
 
 function Signal:DeferredFire(...)
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
-
 	-- Call handlers in reverse order (end - start), except at a very slightly later
 	-- time (next engine step):
 	local connection = self.ConnectionListHead
@@ -191,5 +164,7 @@ function Signal._runEventHandlerInFreeThread(...)
 		Signal._acquireRunnerThreadAndCallEventHandler(coroutine.yield())
 	end
 end
+
+Signal.Destroy = Signal.DisconnectAllConnections
 
 return Signal

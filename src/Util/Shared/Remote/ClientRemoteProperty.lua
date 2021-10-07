@@ -14,7 +14,6 @@
 
 	-- Instance methods:
 
-	ClientRemoteProperty:IsDestroyed() --> boolean [IsDestroyed]
     ClientRemoteProperty:Destroy() --> void []
     ClientRemoteProperty:SetValue() --> void []
     ClientRemoteProperty:GetValue() --> any [value]
@@ -29,12 +28,6 @@ local comet = script:FindFirstAncestor("Comet")
 local Signal = require(comet.Util.Shared.Signal)
 local Maid = require(comet.Util.Shared.Maid)
 
-local LocalConstants = {
-	ErrorMessages = {
-		Destroyed = "ClientRemoteProperty object is destroyed",
-	},
-}
-
 function ClientRemoteProperty.IsClientRemoteProperty(self)
 	return getmetatable(self) == ClientRemoteProperty
 end
@@ -46,7 +39,6 @@ function ClientRemoteProperty.new(currentValue)
 		OnValueUpdate = Signal.new(),
 		_maid = Maid.new(),
 		_currentValue = currentValue,
-		_isDestroyed = false,
 	}, ClientRemoteProperty)
 
 	self._maid:AddTask(self.OnValueUpdate)
@@ -57,10 +49,9 @@ end
 function ClientRemoteProperty:InitRemoteFunction(remoteFunction)
 	self._remoteFunction = remoteFunction
 
-	self._maid:AddTask(remoteFunction)
 	self._maid:AddTask(function()
 		remoteFunction.OnClientInvoke = nil
-		self._isDestroyed = true
+		remoteFunction:Destroy()
 	end)
 
 	function remoteFunction.OnClientInvoke(newValue)
@@ -69,8 +60,6 @@ function ClientRemoteProperty:InitRemoteFunction(remoteFunction)
 end
 
 function ClientRemoteProperty:Destroy()
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
-
 	self._maid:Destroy()
 end
 
@@ -79,7 +68,6 @@ function ClientRemoteProperty:SetValue(newValue)
 		not self._remoteFunction,
 		"Can't call ClientRemoteProperty:SetValue() on client as the current remote property is bound by the Server"
 	)
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 
 	if self._currentValue ~= newValue then
 		self._currentValue = newValue
@@ -88,17 +76,11 @@ function ClientRemoteProperty:SetValue(newValue)
 end
 
 function ClientRemoteProperty:GetValue()
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
-
 	if self._remoteFunction then
 		return self._remoteFunction:InvokeServer()
 	else
 		return self._currentValue
 	end
-end
-
-function ClientRemoteProperty:IsDestroyed()
-	return self._isDestroyed
 end
 
 return ClientRemoteProperty

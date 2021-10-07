@@ -25,11 +25,7 @@ local LocalConstants = {
 }
 
 local function DeferredFireSignalOnTimeout(timeout, signal)
-	task.delay(timeout, function()
-		if not signal:IsDestroyed() then
-			signal:DeferredFire(nil)
-		end
-	end)
+	task.delay(timeout, signal.DeferredFire, signal, nil)
 end
 
 function SafeWaitUtil.WaitForChild(instance, childName, timeout)
@@ -71,7 +67,7 @@ function SafeWaitUtil.WaitForChild(instance, childName, timeout)
 	maid:LinkToInstances({ instance })
 
 	maid:AddTask(instance.ChildAdded:Connect(function(child)
-		if child.Name == childName and not onChildAdded:IsDestroyed() then
+		if child.Name == childName then
 			onChildAdded:DeferredFire(child)
 		end
 	end))
@@ -81,9 +77,7 @@ function SafeWaitUtil.WaitForChild(instance, childName, timeout)
 	end
 
 	local child = onChildAdded:Wait()
-	if not maid:IsDestroyed() then
-		maid:Destroy()
-	end
+	maid:Destroy()
 
 	return child
 end
@@ -136,7 +130,7 @@ function SafeWaitUtil.WaitForFirstChildWhichIsA(instance, class, timeout)
 	maid:LinkToInstances({ instance })
 
 	maid:AddTask(instance.ChildAdded:Connect(function(child)
-		if child:IsA(class) and not onChildAdded:IsDestroyed() then
+		if child:IsA(class) then
 			onChildAdded:DeferredFire(child)
 		end
 	end))
@@ -146,9 +140,7 @@ function SafeWaitUtil.WaitForFirstChildWhichIsA(instance, class, timeout)
 	end
 
 	local child = onChildAdded:Wait()
-	if not maid:IsDestroyed() then
-		maid:Destroy()
-	end
+	maid:Destroy()
 
 	return child
 end
@@ -201,7 +193,7 @@ function SafeWaitUtil.WaitForFirstChildOfClass(instance, class, timeout)
 	maid:LinkToInstances({ instance })
 
 	maid:AddTask(instance.ChildAdded:Connect(function(child)
-		if child.ClassName == class and not onChildAdded:IsDestroyed() then
+		if child.ClassName == class then
 			onChildAdded:DeferredFire(child)
 		end
 	end))
@@ -211,9 +203,7 @@ function SafeWaitUtil.WaitForFirstChildOfClass(instance, class, timeout)
 	end
 
 	local child = onChildAdded:Wait()
-	if not maid:IsDestroyed() then
-		maid:Destroy()
-	end
+	maid:Destroy()
 
 	return child
 end

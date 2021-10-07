@@ -11,7 +11,6 @@
     -- Instance methods:
 
 	RemoteSignal:Connect(callback : function) --> RBXScriptConnection []
-	RemoteSignal:IsDestroyed() --> boolean [IsDestroyed]
     RemoteSignal:Destroy() --> void []
     RemoteSignal:FireClient(client : Player, ... : any) --> void []
     RemoteSignal:FireAllClients(... : any) --> void []
@@ -41,7 +40,6 @@ function RemoteSignal.new()
 	assert(RunService:IsServer(), "RemoteSignal can only be created on the server")
 
 	return setmetatable({
-		_isDestroyed = false,
 		_maid = Maid.new(),
 	}, RemoteSignal)
 end
@@ -49,14 +47,9 @@ end
 function RemoteSignal:SetRemoteEvent(remote)
 	self._remote = remote
 	self._maid:AddTask(remote)
-	self._maid:AddTask(function()
-		self._isDestroyed = true
-	end)
 end
 
 function RemoteSignal:Destroy()
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
-
 	self._maid:Destroy()
 end
 
@@ -70,7 +63,6 @@ function RemoteSignal:Connect(callback)
 end
 
 function RemoteSignal:FireClient(client, ...)
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 	assert(
 		typeof(client) == "Instance" and client:IsA("Player"),
 		SharedConstants.ErrorMessages.InvalidArgument:format(1, "RemoteSignal:FireClient()", "Player", typeof(client))
@@ -80,13 +72,10 @@ function RemoteSignal:FireClient(client, ...)
 end
 
 function RemoteSignal:FireAllClients(...)
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
-
 	self._remote:FireAllClients(...)
 end
 
 function RemoteSignal:FireClients(clients, ...)
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
 	assert(
 		typeof(clients) == "table",
 		SharedConstants.ErrorMessages.InvalidArgument:format(1, "RemoteSignal:FireClients()", "table", typeof(clients))
@@ -95,10 +84,6 @@ function RemoteSignal:FireClients(clients, ...)
 	for _, client in ipairs(clients) do
 		self:FireClient(client, ...)
 	end
-end
-
-function RemoteSignal:IsDestroyed()
-	return self._isDestroyed
 end
 
 return RemoteSignal

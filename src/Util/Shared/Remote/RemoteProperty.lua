@@ -15,7 +15,6 @@
 
 	-- Instance methods:
 
-	RemoteProperty:IsDestroyed() --> boolean [IsDestroyed]
 	RemoteProperty:GetDefaultValue() --> any [DefaultValue]
     RemoteProperty:Destroy() --> void []
     RemoteProperty:SetValue(value : any, specificPlayers : table ?) --> void []
@@ -34,12 +33,6 @@ local Signal = require(comet.Util.Shared.Signal)
 local SharedConstants = require(comet.SharedConstants)
 local Maid = require(comet.Util.Shared.Maid)
 
-local LocalConstants = {
-	ErrorMessages = {
-		Destroyed = "RemoteProperty object is destroyed",
-	},
-}
-
 function RemoteProperty.IsRemoteProperty(self)
 	return getmetatable(self) == RemoteProperty
 end
@@ -54,7 +47,6 @@ function RemoteProperty.new(defaultValue)
 		_defaultValue = defaultValue,
 		_currentValue = defaultValue,
 		_playerSpecificValues = {},
-		_isDestroyed = false,
 	}, RemoteProperty)
 
 	self._maid:AddTask(self.OnPlayerValueUpdate)
@@ -65,12 +57,7 @@ end
 
 function RemoteProperty:InitRemoteFunction(remoteFunction)
 	self._remoteFunction = remoteFunction
-
-	self._maid:AddTask(self._remoteFunction)
-	self._maid:AddTask(function()
-		remoteFunction.OnServerInvoke = nil
-		self._isDestroyed = true
-	end)
+	self._maid:AddTask(remoteFunction)
 
 	function remoteFunction.OnServerInvoke(player)
 		return self._playerSpecificValues[player.UserId] or self._defaultValue
@@ -78,14 +65,10 @@ function RemoteProperty:InitRemoteFunction(remoteFunction)
 end
 
 function RemoteProperty:Destroy()
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
-
 	self._maid:Destroy()
 end
 
 function RemoteProperty:GetPlayerValue(player)
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
-
 	assert(
 		typeof(player) == "Instance" and player:IsA("Player"),
 		SharedConstants.ErrorMessages.InvalidArgument:format(
@@ -100,14 +83,10 @@ function RemoteProperty:GetPlayerValue(player)
 end
 
 function RemoteProperty:GetDefaultValue()
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
-
 	return self._defaultValue
 end
 
 function RemoteProperty:SetValue(newValue, specificPlayers)
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
-
 	if specificPlayers then
 		assert(
 			typeof(specificPlayers) == "table",
@@ -140,13 +119,7 @@ function RemoteProperty:SetValue(newValue, specificPlayers)
 	end
 end
 
-function RemoteProperty:IsDestroyed()
-	return self._isDestroyed
-end
-
 function RemoteProperty:GetValue()
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
-
 	return self._currentValue
 end
 

@@ -21,21 +21,13 @@ Returns a boolean indicating if `self` is a `RemoteSignal` object.
 
 ## Instance methods
 
-### IsDestroyed()
-
-```lua
-RemoteSignal:IsDestroyed() --> boolean [IsDestroyed]
-```
-	
-Returns a boolean indicating if the `RemoteSignal` object is destroyed.
-
 ### Connect()
 
 ```lua
 RemoteSignal:Connect(callback : function) --> RBXScriptConnection []
 ```
 	
-Exactly like `remoteEvent.OnServerEvent:Connect(callback)`.
+Exactly like `RemoteSignal._remoteEvent.OnServerEvent:Connect(callback)`.
 
 ### FireClient()
 
@@ -43,7 +35,7 @@ Exactly like `remoteEvent.OnServerEvent:Connect(callback)`.
 RemoteSignal:FireClient(client : Player, ... : any) --> void []
 ```
 	
-Exactly like `remoteEvent:FireClient(client, ...)`.
+Exactly like `RemoteSignal._remoteEvent:FireClient(client, ...)`.
 
 ### FireClients()
 
@@ -62,7 +54,15 @@ end
 ### FireAllClients()
 
 ```lua
-RemoteSignal.FireAllClients(...)
+RemoteSignal:FireAllClients(...)
 ```
 
-Exactly like `remoteEvent:FireAllClients(...)`
+Exactly like `RemoteSignal._remoteEvent:FireAllClients(...)`
+
+### `Destroy()`
+
+```lua
+RemoteSignal:Destroy()
+```
+
+Exactly like `RemoteSignal._remoteEvent:Destroy()`.

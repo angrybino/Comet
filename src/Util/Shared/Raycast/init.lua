@@ -21,7 +21,6 @@
 	-- Instance methods:
 
 	Raycast:Reverse() --> void []
-	Raycast:IsDestroyed() --> boolean [IsDestroyed]
     Raycast:Visualize() --> void []
 	Raycast:Unvisualize() --> void []
 	Raycast:SetVisualizerThickness(thickness : number) --> void []
@@ -41,7 +40,6 @@ local Maid = require(script.Maid)
 
 local LocalConstants = {
 	ErrorMessages = {
-		Destroyed = "Ray object is destroyed",
 		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",
 	},
 
@@ -98,18 +96,12 @@ function Raycast.new(origin, direction, params)
 
 	self._maid:AddTask(self.Visualizer)
 	self._maid:AddTask(self.OnInstanceHit)
-	self._maid:AddTask(function()
-		self._isDestroyed = true
-	end)
-
 	self:_init()
 
 	return self
 end
 
 function Raycast:Reverse()
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
-
 	self.Direction = -self.Direction
 	self.Unit = self.Direction.Unit
 	self.Origin += -self.Direction
@@ -119,14 +111,10 @@ function Raycast:Reverse()
 end
 
 function Raycast:Visualize()
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
-
 	self.Visualizer.Transparency = 0
 end
 
 function Raycast:SetVisualizerThickness(thickness)
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
-
 	assert(
 		typeof(thickness) == "number",
 		LocalConstants.ErrorMessages.InvalidArgument:format(
@@ -141,14 +129,10 @@ function Raycast:SetVisualizerThickness(thickness)
 end
 
 function Raycast:Unvisualize()
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
-
 	self.Visualizer.Transparency = 1
 end
 
 function Raycast:GetTouchingParts(maxTouchingParts)
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
-
 	if maxTouchingParts then
 		assert(
 			typeof(maxTouchingParts) == "number",
@@ -192,8 +176,6 @@ function Raycast:GetTouchingParts(maxTouchingParts)
 end
 
 function Raycast:Resize(size)
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
-
 	assert(
 		typeof(size) == "number",
 		LocalConstants.ErrorMessages.InvalidArgument:format(1, "Raycast:Resize()", "number", typeof(size))
@@ -210,13 +192,7 @@ function Raycast:Resize(size)
 	self:_updateVisualizerPosition()
 end
 
-function Raycast:IsDestroyed()
-	return self._isDestroyed
-end
-
 function Raycast:Destroy()
-	assert(not self:IsDestroyed(), LocalConstants.ErrorMessages.Destroyed)
-
 	self._maid:Destroy()
 end
 
