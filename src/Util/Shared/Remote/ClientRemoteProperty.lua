@@ -48,11 +48,7 @@ end
 
 function ClientRemoteProperty:InitRemoteFunction(remoteFunction)
 	self._remoteFunction = remoteFunction
-
-	self._maid:AddTask(function()
-		remoteFunction.OnClientInvoke = nil
-		remoteFunction:Destroy()
-	end)
+	self._maid:AddTask(remoteFunction)
 
 	function remoteFunction.OnClientInvoke(newValue)
 		self.OnValueUpdate:Fire(newValue)
