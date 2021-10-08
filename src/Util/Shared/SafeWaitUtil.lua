@@ -18,6 +18,7 @@ local SafeWaitUtil = {}
 local Signal = require(script.Parent.Signal)
 local Maid = require(script.Parent.Maid)
 local SharedConstants = require(script.Parent.SharedConstants)
+local Timer = require(script.Parent.Timer)
 
 function SafeWaitUtil.WaitForChild(instance, childName, timeout)
 	assert(
@@ -50,7 +51,7 @@ function SafeWaitUtil.WaitForChild(instance, childName, timeout)
 	local onChildAdded = Signal.new()
 
 	maid:AddTask(function()
-		onChildAdded:DeferredFire(child)
+		onChildAdded:DeferredFire(nil)
 	end)
 
 	maid:AddTask(instance.ChildAdded:Connect(function(childAdded)
@@ -62,12 +63,19 @@ function SafeWaitUtil.WaitForChild(instance, childName, timeout)
 	maid:LinkToInstance(instance)
 
 	if timeout then
-		task.delay(timeout, maid.Cleanup, maid)
+		local timer = Timer.new(timeout)
+		maid:AddTask(timer)
+
+		timer.OnTick:Connect(function()
+			maid:Cleanup()
+		end)
+
+		timer:Start()
 	end
 
 	local child = onChildAdded:Wait()
-	onChildAdded:Destroy()
 	maid:Destroy()
+	onChildAdded:Destroy()
 
 	return child
 end
@@ -112,7 +120,7 @@ function SafeWaitUtil.WaitForFirstChildWhichIsA(instance, class, timeout)
 	local onChildAdded = Signal.new()
 
 	maid:AddTask(function()
-		onChildAdded:DeferredFire(child)
+		onChildAdded:DeferredFire(nil)
 	end)
 
 	maid:AddTask(instance.ChildAdded:Connect(function(childAdded)
@@ -124,12 +132,19 @@ function SafeWaitUtil.WaitForFirstChildWhichIsA(instance, class, timeout)
 	maid:LinkToInstance(instance)
 
 	if timeout then
-		task.delay(timeout, maid.Cleanup, maid)
+		local timer = Timer.new(timeout)
+		maid:AddTask(timer)
+
+		timer.OnTick:Connect(function()
+			maid:Cleanup()
+		end)
+
+		timer:Start()
 	end
 
 	local child = onChildAdded:Wait()
-	onChildAdded:Destroy()
 	maid:Destroy()
+	onChildAdded:Destroy()
 
 	return child
 end
@@ -173,7 +188,7 @@ function SafeWaitUtil.WaitForFirstChildOfClass(instance, class, timeout)
 	local onChildAdded = Signal.new()
 
 	maid:AddTask(function()
-		onChildAdded:DeferredFire(child)
+		onChildAdded:DeferredFire(nil)
 	end)
 
 	maid:AddTask(instance.ChildAdded:Connect(function(childAdded)
@@ -185,12 +200,19 @@ function SafeWaitUtil.WaitForFirstChildOfClass(instance, class, timeout)
 	maid:LinkToInstance(instance)
 
 	if timeout then
-		task.delay(timeout, maid.Cleanup, maid)
+		local timer = Timer.new(timeout)
+		maid:AddTask(timer)
+
+		timer.OnTick:Connect(function()
+			maid:Cleanup()
+		end)
+
+		timer:Start()
 	end
 
 	local child = onChildAdded:Wait()
-	onChildAdded:Destroy()
 	maid:Destroy()
+	onChildAdded:Destroy()
 
 	return child
 end
