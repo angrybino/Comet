@@ -59,7 +59,7 @@ function SafeWaitUtil.WaitForChild(instance, childName, timeout)
 		end
 	end))
 
-	maid:LinkToInstances({ instance })
+	maid:LinkToInstance(instance)
 
 	if timeout then
 		task.delay(timeout, maid.Cleanup, maid)
@@ -120,7 +120,7 @@ function SafeWaitUtil.WaitForFirstChildWhichIsA(instance, class, timeout)
 		end
 	end))
 
-	maid:LinkToInstances({ instance })
+	maid:LinkToInstance(instance)
 
 	if timeout then
 		task.delay(timeout, maid.Cleanup, maid)
@@ -180,7 +180,7 @@ function SafeWaitUtil.WaitForFirstChildOfClass(instance, class, timeout)
 		end
 	end))
 
-	maid:LinkToInstances({ instance })
+	maid:LinkToInstance(instance)
 
 	if timeout then
 		task.delay(timeout, maid.Cleanup, maid)
