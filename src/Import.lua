@@ -55,7 +55,7 @@ return function(name, instance)
 					RunService:IsClient(),
 					("Can't import %s on the server as it is client sided"):format(descendant.Name)
 				)
-			elseif descendant:IsDescendantOf(script.Parent.Utill.Server) then
+			elseif descendant:IsDescendantOf(script.Parent.Util.Server) then
 				assert(
 					RunService:IsServer(),
 					("Can't import %s on the client as it is server sided"):format(descendant.Name)
