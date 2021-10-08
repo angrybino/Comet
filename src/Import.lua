@@ -9,10 +9,6 @@
 local Maid = require(script.Parent.Util.Shared.Maid)
 local SharedConstants = require(script.Parent.Util.Shared.SharedConstants)
 
-local LocalConstants = {
-	DefaultInstance = script.Parent.Util,
-}
-
 local cachedLookups = {}
 local maids = {}
 
@@ -29,7 +25,7 @@ return function(name, instance)
 		)
 	end
 
-	instance = instance or LocalConstants.DefaultInstance
+	instance = instance or script.Parent.Util
 	local cachedInstanceLookups = cachedLookups[instance]
 
 	if cachedInstanceLookups and cachedInstanceLookups[name] then
