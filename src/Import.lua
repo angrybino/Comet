@@ -3,7 +3,7 @@
 -- October 07, 2021
 
 --[[
-    Import(name : string, instance : Instance ?) --> Instance ? []
+    Import(name : string) --> Instance ? []
 ]]
 
 local RunService = game:GetService("RunService")
@@ -14,20 +14,13 @@ local SharedConstants = require(script.Parent.Util.Shared.SharedConstants)
 local cachedLookups = {}
 local maids = {}
 
-return function(name, instance)
+return function(name)
 	assert(
 		typeof(name) == "string",
 		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Import()", "string", typeof(name))
 	)
 
-	if instance then
-		assert(
-			typeof(instance) == "Instance",
-			SharedConstants.ErrorMessages.InvalidArgument:format(2, "Import()", "Instance or nil", typeof(instance))
-		)
-	end
-
-	instance = instance or script.Parent.Util
+	local instance = script.Parent.Util
 	local cachedInstanceLookups = cachedLookups[instance]
 
 	if cachedInstanceLookups and cachedInstanceLookups[name] then
@@ -48,26 +41,42 @@ return function(name, instance)
 
 	cachedLookups[instance] = cachedLookups[instance] or {}
 
-	for _, descendant in ipairs(instance:GetDescendants()) do
-		if descendant.Name == name then
-			if descendant:IsDescendantOf(script.Parent.Util.Client) then
-				assert(
-					RunService:IsClient(),
-					("Can't import %s on the server as it is client sided"):format(descendant.Name)
-				)
-			elseif descendant:IsDescendantOf(script.Parent.Util.Server) then
-				assert(
-					RunService:IsServer(),
-					("Can't import %s on the client as it is server sided"):format(descendant.Name)
-				)
-			end
+	for _, child in ipairs(instance.Client:GetChildren()) do
+		if child.Name == name then
+			assert(RunService:IsClient(), ("Can't import %s on the server as it is client sided"):format(child.Name))
 
-			cachedLookups[instance][name] = descendant
+			cachedLookups[instance][name] = child
 
-			if descendant:IsA("ModuleScript") then
-				return require(descendant)
+			if child:IsA("ModuleScript") then
+				return require(child)
 			else
-				return descendant
+				return child
+			end
+		end
+	end
+
+	for _, child in ipairs(instance.Server:GetChildren()) do
+		if child.Name == name then
+			assert(RunService:IsServer(), ("Can't import %s on the client as it is server sided"):format(child.Name))
+
+			cachedLookups[instance][name] = child
+
+			if child:IsA("ModuleScript") then
+				return require(child)
+			else
+				return child
+			end
+		end
+	end
+
+	for _, child in ipairs(instance.Shared:GetChildren()) do
+		if child.Name == name then
+			cachedLookups[instance][name] = child
+
+			if child:IsA("ModuleScript") then
+				return require(child)
+			else
+				return child
 			end
 		end
 	end
