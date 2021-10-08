@@ -13,14 +13,18 @@
 	Maid:AddTask(task : table | function | RBXScriptConnection | Instance) --> task []
 	Maid:Cleanup() --> void []
 	Maid:RemoveTask(task : table | function | RBXScriptConnection | Instance) --> void []
-	Maid:LinkToInstances(instances : table) --> instances []
+	Maid:LinkToInstance(instance : Instance) --> (instance, ManualConnection) []
 	Maid:Destroy() --> void []
 ]]
 
 local Maid = {}
 Maid.__index = Maid
 
-local SharedConstants = require(script.Parent.SharedConstants)
+local LocalConstants = {
+	ErrorMessages = {
+		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",
+	},
+}
 
 local function IsInstanceDestroyed(instance)
 	local _, response = pcall(function()
@@ -47,7 +51,7 @@ function Maid:AddTask(task)
 			or typeof(task) == "table" and (typeof(task.Destroy) == "function" or typeof(task.Disconnect) == "function")
 			or typeof(task) == "Instance",
 
-		SharedConstants.ErrorMessages.InvalidArgument:format(
+		LocalConstants.ErrorMessages.InvalidArgument:format(
 			1,
 			"Maid:AddTask()",
 			"function or RBXScriptConnection or table with Destroy or Disconnect method or Instance",
@@ -67,7 +71,7 @@ function Maid:RemoveTask(task)
 			or typeof(task) == "table" and (typeof(task.Destroy) == "function" or typeof(task.Disconnect) == "function")
 			or typeof(task) == "Instance",
 
-		SharedConstants.ErrorMessages.InvalidArgument:format(
+		LocalConstants.ErrorMessages.InvalidArgument:format(
 			1,
 			"Maid:RemoveTask()",
 			"function or RBXScriptConnection or table with Destroy or Disconnect method or Instance",
@@ -76,55 +80,6 @@ function Maid:RemoveTask(task)
 	)
 
 	self._tasks[task] = nil
-end
-
-function Maid:LinkToInstances(instances)
-	assert(
-		typeof(instances) == "table",
-		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Maid:LinkToInstances()", "table", typeof(instances))
-	)
-
-	local function TrackInstanceConnectionForCleanup(instance, connection)
-		while connection.Connected and not instance.Parent do
-			task.wait()
-		end
-
-		if not instance.Parent then
-			self:Cleanup()
-		end
-	end
-
-	for _, instance in ipairs(instances) do
-		-- If the instance was parented to nil, then destroy the maid because its possible
-		-- that the instance may have already been destroyed:
-		if IsInstanceDestroyed(instance) then
-			self:Cleanup()
-			break
-		end
-
-		local instanceParentChangedConnection
-		instanceParentChangedConnection = self:AddTask(instance:GetPropertyChangedSignal("Parent"):Connect(function()
-			if not instance.Parent then
-				task.defer(function()
-					-- If the connection has also been disconnected, then its
-					-- guaranteed that the instance has been destroyed through
-					-- Destroy():
-					if not instanceParentChangedConnection.Connected then
-						self:Cleanup()
-					else
-						-- The instance was just parented to nil:
-						TrackInstanceConnectionForCleanup(instance, instanceParentChangedConnection)
-					end
-				end)
-			end
-		end))
-
-		if not instance.Parent then
-			task.defer(TrackInstanceConnectionForCleanup, instance, instanceParentChangedConnection)
-		end
-	end
-
-	return instances
 end
 
 function Maid:Cleanup()
@@ -158,6 +113,78 @@ function Maid:Destroy()
 	end
 
 	setmetatable(self, nil)
+end
+
+local ManualConnection = {}
+ManualConnection.__index = ManualConnection
+
+do
+	function ManualConnection.new()
+		return setmetatable({ _isConnected = true }, ManualConnection)
+	end
+
+	function ManualConnection:Disconnect()
+		self._isConnected = false
+	end
+
+	function ManualConnection:IsConnected()
+		return self._isConnected
+	end
+end
+
+function Maid:LinkToInstance(instance)
+	assert(
+		typeof(instance) == "Instance",
+		LocalConstants.ErrorMessages.InvalidArgument:format(1, "Maid:LinkToInstance()", "Instance", typeof(instance))
+	)
+
+	local mainConnection
+	local manualConnection = ManualConnection.new()
+
+	local function TrackInstanceConnectionForCleanup()
+		while mainConnection.Connected and not instance.Parent and manualConnection:IsConnected() do
+			task.wait()
+		end
+
+		if not instance.Parent and manualConnection:IsConnected() then
+			self:Cleanup()
+		end
+	end
+
+	mainConnection = self:AddTask(instance:GetPropertyChangedSignal("Parent"):Connect(function()
+		if not instance.Parent then
+			task.defer(function()
+				if not manualConnection:IsConnected() then
+					return
+				end
+
+				-- If the connection has also been disconnected, then its
+				-- guaranteed that the instance has been destroyed through
+				-- Destroy():
+				if not mainConnection.Connected then
+					self:Cleanup()
+				else
+					-- The instance was just parented to nil:
+					TrackInstanceConnectionForCleanup()
+				end
+			end)
+		end
+	end))
+
+	self:AddTask(function()
+		manualConnection:Disconnect()
+		mainConnection:Disconnect()
+	end)
+
+	if not instance.Parent then
+		TrackInstanceConnectionForCleanup()
+	end
+
+	if IsInstanceDestroyed(instance) then
+		self:Cleanup()
+	end
+
+	return manualConnection
 end
 
 return Maid

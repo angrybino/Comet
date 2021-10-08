@@ -37,9 +37,11 @@ local RunService = game:GetService("RunService")
 
 local Signal = require(script.Parent.Signal)
 local Maid = require(script.Parent.Maid)
-local SharedConstants = require(script.Parent.SharedConstants)
 
 local LocalConstants = {
+	ErrorMessages = {
+		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",
+	},
 
 	Surfaces = {
 		TopSurface = Vector3.new(0, 1, 0),
@@ -62,17 +64,17 @@ end
 function Raycast.new(origin, direction, params)
 	assert(
 		typeof(origin) == "Vector3",
-		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Raycast.new()", "Vector3", typeof(origin))
+		LocalConstants.ErrorMessages.InvalidArgument:format(1, "Raycast.new()", "Vector3", typeof(origin))
 	)
 	assert(
 		typeof(origin) == "Vector3",
-		SharedConstants.ErrorMessages.InvalidArgument:format(2, "Raycast.new()", "Vector3", typeof(direction))
+		LocalConstants.ErrorMessages.InvalidArgument:format(2, "Raycast.new()", "Vector3", typeof(direction))
 	)
 
 	if params then
 		assert(
 			typeof(params) == "RaycastParams",
-			SharedConstants.ErrorMessages.InvalidArgument:format(
+			LocalConstants.ErrorMessages.InvalidArgument:format(
 				3,
 				"Raycast.new()",
 				"RaycastParams or nil",
@@ -115,7 +117,7 @@ end
 function Raycast:SetVisualizerThickness(thickness)
 	assert(
 		typeof(thickness) == "number",
-		SharedConstants.ErrorMessages.InvalidArgument:format(
+		LocalConstants.ErrorMessages.InvalidArgument:format(
 			1,
 			"Raycast:SetVisualizerThickness()",
 			"number",
@@ -176,7 +178,7 @@ end
 function Raycast:Resize(size)
 	assert(
 		typeof(size) == "number",
-		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Raycast:Resize()", "number", typeof(size))
+		LocalConstants.ErrorMessages.InvalidArgument:format(1, "Raycast:Resize()", "number", typeof(size))
 	)
 
 	local finalPosition = (self.Origin + self.Direction)
