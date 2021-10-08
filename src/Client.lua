@@ -130,7 +130,6 @@ function Client.Start()
 end
 
 function Client._startControllers()
-	-- Init all controllers:
 	for _, requiredController in pairs(Client.Controllers) do
 		if typeof(requiredController.Start) == "function" then
 			task.spawn(requiredController.Start)
@@ -141,7 +140,6 @@ end
 function Client._initControllers()
 	local promises = {}
 
-	-- Init all controllers:
 	for _, requiredController in pairs(Client.Controllers) do
 		requiredController.Comet = Client
 
