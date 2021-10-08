@@ -48,31 +48,27 @@ function SafeWaitUtil.WaitForChild(instance, childName, timeout)
 
 	local maid = Maid.new()
 	local onChildAdded = Signal.new()
-	local childFound = false
 
 	maid:AddTask(function()
-		childFound = true
 		onChildAdded:DeferredFire(child)
 	end)
 
 	maid:AddTask(instance.ChildAdded:Connect(function(childAdded)
 		if childAdded.Name == childName then
-			child = childAdded
-			maid:Destroy()
+			onChildAdded:DeferredFire(childAdded)
 		end
 	end))
 
 	maid:LinkToInstances({ instance })
 
 	if timeout then
-		task.delay(timeout, function()
-			if not childFound then
-				maid:Destroy()
-			end
-		end)
+		task.delay(timeout, maid.Cleanup, maid)
 	end
 
-	return onChildAdded:Wait()
+	local child = onChildAdded:Wait()
+	maid:Destroy()
+
+	return child
 end
 
 function SafeWaitUtil.WaitForFirstChildWhichIsA(instance, class, timeout)
@@ -106,38 +102,34 @@ function SafeWaitUtil.WaitForFirstChildWhichIsA(instance, class, timeout)
 		)
 	end
 
-	local child = instance:FindFirstChild(class)
+	local child = instance:FindFirstChildWhichIsA(class)
 	if child then
 		return child
 	end
 
 	local maid = Maid.new()
 	local onChildAdded = Signal.new()
-	local childFound = false
 
 	maid:AddTask(function()
-		childFound = true
 		onChildAdded:DeferredFire(child)
 	end)
 
 	maid:AddTask(instance.ChildAdded:Connect(function(childAdded)
-		if child:IsA(class) then
-			child = childAdded
-			maid:Destroy()
+		if childAdded:IsA(class) then
+			onChildAdded:DeferredFire(childAdded)
 		end
 	end))
 
 	maid:LinkToInstances({ instance })
 
 	if timeout then
-		task.delay(timeout, function()
-			if not childFound then
-				maid:Destroy()
-			end
-		end)
+		task.delay(timeout, maid.Cleanup, maid)
 	end
 
-	return onChildAdded:Wait()
+	local child = onChildAdded:Wait()
+	maid:Destroy()
+
+	return child
 end
 
 function SafeWaitUtil.WaitForFirstChildOfClass(instance, class, timeout)
@@ -170,7 +162,6 @@ function SafeWaitUtil.WaitForFirstChildOfClass(instance, class, timeout)
 			)
 		)
 	end
-
 	local child = instance:FindFirstChildOfClass(class)
 	if child then
 		return child
@@ -178,31 +169,27 @@ function SafeWaitUtil.WaitForFirstChildOfClass(instance, class, timeout)
 
 	local maid = Maid.new()
 	local onChildAdded = Signal.new()
-	local childFound = false
 
 	maid:AddTask(function()
-		childFound = true
 		onChildAdded:DeferredFire(child)
 	end)
 
 	maid:AddTask(instance.ChildAdded:Connect(function(childAdded)
 		if childAdded.ClassName == class then
-			child = childAdded
-			maid:Destroy()
+			onChildAdded:DeferredFire(childAdded)
 		end
 	end))
 
 	maid:LinkToInstances({ instance })
 
 	if timeout then
-		task.delay(timeout, function()
-			if not childFound then
-				maid:Destroy()
-			end
-		end)
+		task.delay(timeout, maid.Cleanup, maid)
 	end
 
-	return onChildAdded:Wait()
+	local child = onChildAdded:Wait()
+	maid:Destroy()
+
+	return child
 end
 
 function SafeWaitUtil.WaitForDescendant(instance, childName, timeout)
