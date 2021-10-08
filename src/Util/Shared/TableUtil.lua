@@ -10,11 +10,31 @@
     TableUtil.SyncTable(tabl : table, templateSyncTable  : table) --> table [SyncedTable]
     TableUtil.IsTableEmpty(tabl : table) --> boolean [IsTableEmpty]
     TableUtil.Map(tabl : table, callback : function) --> table [MappedTable]
+	TableUtil.DeepFreezeTable(tabl : table) --> void []
 ]]
 
 local TableUtil = {}
 
 local SharedConstants = require(script.Parent.SharedConstants)
+
+function TableUtil.DeepFreezeTable(tabl)
+	assert(
+		typeof(tabl) == "table",
+		SharedConstants.ErrorMessages.InvalidArgument:format(1, "TableUtil.DeepFreezeTable()", "table", typeof(tabl))
+	)
+
+	table.freeze(tabl)
+
+	for key, value in pairs(tabl) do
+		if typeof(value) == "table" and not table.isFrozen(value) then
+			DeepFreezeTable(value)
+		end
+
+		if typeof(key) == "table" and not table.isFrozen(key) then
+			DeepFreezeTable(key)
+		end
+	end
+end
 
 function TableUtil.DeepCopyTable(tabl, cache)
 	assert(
