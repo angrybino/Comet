@@ -66,6 +66,7 @@ function SafeWaitUtil.WaitForChild(instance, childName, timeout)
 	end
 
 	local child = onChildAdded:Wait()
+	onChildAdded:Destroy()
 	maid:Destroy()
 
 	return child
@@ -127,6 +128,7 @@ function SafeWaitUtil.WaitForFirstChildWhichIsA(instance, class, timeout)
 	end
 
 	local child = onChildAdded:Wait()
+	onChildAdded:Destroy()
 	maid:Destroy()
 
 	return child
@@ -187,49 +189,10 @@ function SafeWaitUtil.WaitForFirstChildOfClass(instance, class, timeout)
 	end
 
 	local child = onChildAdded:Wait()
+	onChildAdded:Destroy()
 	maid:Destroy()
 
 	return child
-end
-
-function SafeWaitUtil.WaitForDescendant(instance, childName, timeout)
-	assert(
-		typeof(instance) == "Instance",
-		SharedConstants.ErrorMessages.InvalidArgument:format(
-			1,
-			"SafeWaitUtil.WaitForDescendant()",
-			"instance",
-			typeof(instance)
-		)
-	)
-	assert(
-		typeof(childName) == "string",
-		SharedConstants.ErrorMessages.InvalidArgument:format(
-			2,
-			"SafeWaitUtil.WaitForDescendant()",
-			"string",
-			typeof(childName)
-		)
-	)
-	if timeout then
-		assert(
-			typeof(timeout) == "number",
-			SharedConstants.ErrorMessages.InvalidArgument:format(
-				3,
-				"SafeWaitUtil.WaitForDescendant()",
-				"number or nil",
-				typeof(timeout)
-			)
-		)
-	end
-
-	while true do
-		local child = SafeWaitUtil.WaitForChild(instance, childName, timeout)
-
-		if child:IsDescendantOf(instance) then
-			return child
-		end
-	end
 end
 
 return SafeWaitUtil
