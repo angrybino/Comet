@@ -6,6 +6,8 @@
 	Client.Util : Folder
 	Client.Controllers : table
 	Client.Version : string
+
+	Client.OnStart : Signal ()
 	
 	Client.SetControllersFolder(controllersFolder : Folder) --> void []
 	Client.Start() --> Promise []
@@ -34,6 +36,7 @@ local servicesFolder = SafeWaitUtil.WaitForChild(script, "ClientExposedServices"
 
 Client.Version = SharedConstants.Version
 Client.LocalPlayer = Players.LocalPlayer
+Client.OnStart = Signal.new()
 
 function Client.GetService(serviceName)
 	assert(
@@ -124,6 +127,7 @@ function Client.Start()
 	end):andThen(function()
 		-- Start all controllers now as we know it is safe:
 		Client._startControllers()
+		Client.OnStart:Fire()
 	end)
 end
 

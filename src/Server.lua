@@ -6,6 +6,8 @@
 	Server.Util : Folder
 	Server.Services : table
 	Server.Version : string
+	
+	Server.OnStart : Signal ()
 
 	Server.SetServicesFolder(servicesFolder : Folder) --> void []
 	Server.GetService(serviceName : string) --> table [Service]
@@ -27,6 +29,7 @@ local Signal = require(Server.Util.Shared.Signal)
 local RemoteProperty = require(Server.Util.Shared.Remote.RemoteProperty)
 
 Server.Version = SharedConstants.Version
+Server.OnStart = Signal.new()
 
 function Server.SetServicesFolder(servicesFolder)
 	assert(
@@ -85,6 +88,7 @@ function Server.Start()
 		-- Start all services now as we know it is safe:
 		Server._startServices()
 		Server._clientExposedServicesFolder.Parent = script.Parent.Client
+		Server.OnStart:Fire()
 	end)
 end
 
