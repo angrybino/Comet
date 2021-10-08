@@ -117,20 +117,20 @@ end
 function Timer:Destroy()
 	self._maid:Destroy()
 
-	setmetatable(self, nil)
-
 	for key, _ in pairs(self) do
 		self[key] = nil
 	end
+
+	setmetatable(self, nil)
 end
 
 function Timer:Stop()
+	self._isStopped = true
+
 	if self._customUpdateSignalConnection then
 		self._customUpdateSignalConnection:Disconnect()
 		self._customUpdateSignalConnection = nil
 	end
-
-	self._isStopped = true
 end
 
 return Timer
