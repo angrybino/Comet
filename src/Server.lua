@@ -25,10 +25,8 @@ local RemoteSignal = require(Server.Util.Shared.Remote.RemoteSignal)
 local SharedConstants = require(Server.Util.Shared.SharedConstants)
 local Signal = require(Server.Util.Shared.Signal)
 local RemoteProperty = require(Server.Util.Shared.Remote.RemoteProperty)
-local Import = require(script.Parent.Import)
 
 Server.Version = SharedConstants.Version
-Server.Import = Import
 
 function Server.SetServicesFolder(servicesFolder)
 	assert(
