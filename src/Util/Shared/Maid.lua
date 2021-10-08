@@ -27,6 +27,9 @@ local LocalConstants = {
 }
 
 local function IsInstanceDestroyed(instance)
+	-- This function call is used to determine if an instance is ALREADY destroyed,
+	-- and has been edited to be more reliable but still quite hacky due to Roblox
+	-- not giving us a method to determine if an instance is already destroyed
 	local _, response = pcall(function()
 		instance.Parent = instance
 	end)
