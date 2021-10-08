@@ -20,11 +20,7 @@
 local Maid = {}
 Maid.__index = Maid
 
-local LocalConstants = {
-	ErrorMessages = {
-		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",
-	},
-}
+local SharedConstants = require(script.Parent.SharedConstants)
 
 local function IsInstanceDestroyed(instance)
 	local _, response = pcall(function()
@@ -51,7 +47,7 @@ function Maid:AddTask(task)
 			or typeof(task) == "table" and (typeof(task.Destroy) == "function" or typeof(task.Disconnect) == "function")
 			or typeof(task) == "Instance",
 
-		LocalConstants.ErrorMessages.InvalidArgument:format(
+		SharedConstants.ErrorMessages.InvalidArgument:format(
 			1,
 			"Maid:AddTask()",
 			"function or RBXScriptConnection or table with Destroy or Disconnect method or Instance",
@@ -71,7 +67,7 @@ function Maid:RemoveTask(task)
 			or typeof(task) == "table" and (typeof(task.Destroy) == "function" or typeof(task.Disconnect) == "function")
 			or typeof(task) == "Instance",
 
-		LocalConstants.ErrorMessages.InvalidArgument:format(
+		SharedConstants.ErrorMessages.InvalidArgument:format(
 			1,
 			"Maid:RemoveTask()",
 			"function or RBXScriptConnection or table with Destroy or Disconnect method or Instance",
@@ -85,7 +81,7 @@ end
 function Maid:LinkToInstances(instances)
 	assert(
 		typeof(instances) == "table",
-		LocalConstants.ErrorMessages.InvalidArgument:format(1, "Maid:LinkToInstances()", "table", typeof(instances))
+		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Maid:LinkToInstances()", "table", typeof(instances))
 	)
 
 	local function TrackInstanceConnectionForCleanup(instance, connection)
@@ -93,8 +89,8 @@ function Maid:LinkToInstances(instances)
 			task.wait()
 		end
 
-		if not connection.Connected then
-			self:Destroy()
+		if not instance.Parent then
+			self:Cleanup()
 		end
 	end
 
@@ -102,7 +98,7 @@ function Maid:LinkToInstances(instances)
 		-- If the instance was parented to nil, then destroy the maid because its possible
 		-- that the instance may have already been destroyed:
 		if IsInstanceDestroyed(instance) then
-			self:Destroy()
+			self:Cleanup()
 			break
 		end
 
@@ -114,7 +110,7 @@ function Maid:LinkToInstances(instances)
 					-- guaranteed that the instance has been destroyed through
 					-- Destroy():
 					if not instanceParentChangedConnection.Connected then
-						self:Destroy()
+						self:Cleanup()
 					else
 						-- The instance was just parented to nil:
 						TrackInstanceConnectionForCleanup(instance, instanceParentChangedConnection)
