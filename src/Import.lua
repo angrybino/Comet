@@ -3,8 +3,10 @@
 -- October 07, 2021
 
 --[[
-    Import(instance : Instance, name : string) --> Instance ? []
+    Import(name : string, instance : Instance ?) --> Instance ? []
 ]]
+
+local RunService = game:GetService("RunService")
 
 local Maid = require(script.Parent.Util.Shared.Maid)
 local SharedConstants = require(script.Parent.Util.Shared.SharedConstants)
@@ -48,8 +50,25 @@ return function(name, instance)
 
 	for _, descendant in ipairs(instance:GetDescendants()) do
 		if descendant.Name == name then
+			if descendant:IsDescendantOf(script.Parent.Util.Client) then
+				assert(
+					RunService:IsClient(),
+					("Can't import %s on the server as it is client sided"):format(descendant.Name)
+				)
+			elseif descendant:IsDescendantOf(script.Parent.Utill.Server) then
+				assert(
+					RunService:IsServer(),
+					("Can't import %s on the client as it is server sided"):format(descendant.Name)
+				)
+			end
+
 			cachedLookups[instance][name] = descendant
-			return descendant
+
+			if descendant:IsA("ModuleScript") then
+				return require(descendant)
+			else
+				return descendant
+			end
 		end
 	end
 end
