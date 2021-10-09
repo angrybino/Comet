@@ -17,33 +17,25 @@ local SafeWaitUtil = {}
 
 local RunService = game:GetService("RunService")
 
-local Maid = require(script.Maid)
-local Timer = require(script.Timer)
-
-local LocalConstants = {
-	ErrorMessages = {
-		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",
-	},
-}
-
-local function DeferredFireBindable(bindable, ...)
-	task.defer(bindable.Fire, bindable, ...)
-end
+local Maid = require(script.Parent.Maid)
+local Timer = require(script.Parent.Timer)
+local Signal = require(script.Parent.Signal)
+local SharedConstants = require(script.Parent.SharedConstants)
 
 function SafeWaitUtil.WaitForChild(instance, childName, timeout)
 	assert(
 		typeof(instance) == "Instance",
-		LocalConstants.ErrorMessages.InvalidArgument:format(1, "SafeWaitForChild()", "instance", typeof(instance))
+		SharedConstants.ErrorMessages.InvalidArgument:format(1, "SafeWaitForChild()", "instance", typeof(instance))
 	)
 	assert(
 		typeof(childName) == "string",
-		LocalConstants.ErrorMessages.InvalidArgument:format(2, "SafeWaitForChild()", "string", typeof(childName))
+		SharedConstants.ErrorMessages.InvalidArgument:format(2, "SafeWaitForChild()", "string", typeof(childName))
 	)
 
 	if timeout then
 		assert(
 			typeof(timeout) == "number",
-			LocalConstants.ErrorMessages.InvalidArgument:format(
+			SharedConstants.ErrorMessages.InvalidArgument:format(
 				3,
 				"SafeWaitUtil.WaitForChild()",
 				"number or nil",
@@ -58,15 +50,15 @@ function SafeWaitUtil.WaitForChild(instance, childName, timeout)
 	end
 
 	local maid = Maid.new()
-	local onChildAdded = Instance.new("BindableEvent")
+	local onChildAdded = Signal.new()
 
 	maid:AddTask(function()
-		DeferredFireBindable(onChildAdded, nil)
+		onChildAdded:DeferredFire(nil)
 	end)
 
 	maid:AddTask(instance.ChildAdded:Connect(function(childAdded)
 		if childAdded.Name == childName then
-			DeferredFireBindable(onChildAdded, childAdded)
+			onChildAdded:DeferredFire(childAdded)
 		end
 	end))
 
@@ -83,7 +75,7 @@ function SafeWaitUtil.WaitForChild(instance, childName, timeout)
 		timer:Start()
 	end
 
-	local child = onChildAdded.Event:Wait()
+	local child = onChildAdded:Wait()
 	maid:Destroy()
 	onChildAdded:Destroy()
 
@@ -93,7 +85,7 @@ end
 function SafeWaitUtil.WaitForFirstChildWhichIsA(instance, class, timeout)
 	assert(
 		typeof(instance) == "Instance",
-		LocalConstants.ErrorMessages.InvalidArgument:format(
+		SharedConstants.ErrorMessages.InvalidArgument:format(
 			1,
 			"SafeWaitUtil.WaitForFirstChildWhichIsA()",
 			"instance",
@@ -102,7 +94,7 @@ function SafeWaitUtil.WaitForFirstChildWhichIsA(instance, class, timeout)
 	)
 	assert(
 		typeof(class) == "string",
-		LocalConstants.ErrorMessages.InvalidArgument:format(
+		SharedConstants.ErrorMessages.InvalidArgument:format(
 			2,
 			"SafeWaitUtil.WaitForFirstChildWhichIsA()",
 			"string",
@@ -112,7 +104,7 @@ function SafeWaitUtil.WaitForFirstChildWhichIsA(instance, class, timeout)
 	if timeout then
 		assert(
 			typeof(timeout) == "number",
-			LocalConstants.ErrorMessages.InvalidArgument:format(
+			SharedConstants.ErrorMessages.InvalidArgument:format(
 				3,
 				"SafeWaitUtil.WaitForFirstChildWhichIsA()",
 				"number or nil",
@@ -127,15 +119,15 @@ function SafeWaitUtil.WaitForFirstChildWhichIsA(instance, class, timeout)
 	end
 
 	local maid = Maid.new()
-	local onChildAdded = Instance.new("BindableEvent")
+	local onChildAdded = Signal.new()
 
 	maid:AddTask(function()
-		DeferredFireBindable(onChildAdded, nil)
+		onChildAdded:DeferredFire(nil)
 	end)
 
 	maid:AddTask(instance.ChildAdded:Connect(function(childAdded)
 		if childAdded:IsA(class) then
-			DeferredFireBindable(onChildAdded, childAdded)
+			onChildAdded:DeferredFire(childAdded)
 		end
 	end))
 
@@ -152,7 +144,7 @@ function SafeWaitUtil.WaitForFirstChildWhichIsA(instance, class, timeout)
 		timer:Start()
 	end
 
-	local child = onChildAdded.Event:Wait()
+	local child = onChildAdded:Wait()
 	maid:Destroy()
 	onChildAdded:Destroy()
 
@@ -162,7 +154,7 @@ end
 function SafeWaitUtil.WaitForFirstChildOfClass(instance, class, timeout)
 	assert(
 		typeof(instance) == "Instance",
-		LocalConstants.ErrorMessages.InvalidArgument:format(
+		SharedConstants.ErrorMessages.InvalidArgument:format(
 			1,
 			"SafeWaitUtil.WaitForFirstChildOfClass()",
 			"instance",
@@ -171,7 +163,7 @@ function SafeWaitUtil.WaitForFirstChildOfClass(instance, class, timeout)
 	)
 	assert(
 		typeof(class) == "string",
-		LocalConstants.ErrorMessages.InvalidArgument:format(
+		SharedConstants.ErrorMessages.InvalidArgument:format(
 			2,
 			"SafeWaitUtil.WaitForFirstChildOfClass()",
 			"string",
@@ -181,7 +173,7 @@ function SafeWaitUtil.WaitForFirstChildOfClass(instance, class, timeout)
 	if timeout then
 		assert(
 			typeof(timeout) == "number",
-			LocalConstants.ErrorMessages.InvalidArgument:format(
+			SharedConstants.ErrorMessages.InvalidArgument:format(
 				3,
 				"SafeWaitUtil.WaitForFirstChildOfClass()",
 				"number or nil",
@@ -195,15 +187,15 @@ function SafeWaitUtil.WaitForFirstChildOfClass(instance, class, timeout)
 	end
 
 	local maid = Maid.new()
-	local onChildAdded = Instance.new("BindableEvent")
+	local onChildAdded = Signal.new()
 
 	maid:AddTask(function()
-		DeferredFireBindable(onChildAdded, nil)
+		onChildAdded:DeferredFire(nil)
 	end)
 
 	maid:AddTask(instance.ChildAdded:Connect(function(childAdded)
 		if childAdded.ClassName == class then
-			DeferredFireBindable(onChildAdded, childAdded)
+			onChildAdded:DeferredFire(childAdded)
 		end
 	end))
 
@@ -220,7 +212,7 @@ function SafeWaitUtil.WaitForFirstChildOfClass(instance, class, timeout)
 		timer:Start()
 	end
 
-	local child = onChildAdded.Event:Wait()
+	local child = onChildAdded:Wait()
 	maid:Destroy()
 	onChildAdded:Destroy()
 

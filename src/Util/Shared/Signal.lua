@@ -26,12 +26,11 @@
 local Signal = {}
 Signal.__index = Signal
 
+local SharedConstants = require(script.Parent.SharedConstants)
+local Maid = require(script.Parent.Maid)
+
 local LocalConstants = {
 	MinArgumentCount = 1,
-
-	ErrorMessages = {
-		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",
-	},
 }
 
 function Signal.IsSignal(self)
@@ -39,9 +38,22 @@ function Signal.IsSignal(self)
 end
 
 function Signal.new()
-	return setmetatable({
+	local self = setmetatable({
 		ConnectedConnectionCount = 0,
+		_maid = Maid.new(),
 	}, Signal)
+
+	self._maid:AddTask(function()
+		self:CleanupConnections()
+
+		setmetatable(self, nil)
+
+		for key, _ in pairs(self) do
+			self[key] = nil
+		end
+	end)
+
+	return self
 end
 
 local Connection = {}
@@ -90,7 +102,7 @@ end
 function Signal:Connect(callback)
 	assert(
 		typeof(callback) == "function",
-		LocalConstants.ErrorMessages.InvalidArgument:format(1, "Signal:Connect", "function", typeof(callback))
+		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Signal:Connect", "function", typeof(callback))
 	)
 
 	local connection = Connection.new(self, callback)
@@ -118,13 +130,7 @@ function Signal:CleanupConnections()
 end
 
 function Signal:Destroy()
-	self:CleanupConnections()
-
-	for key, _ in pairs(self) do
-		self[key] = nil
-	end
-
-	setmetatable(self, nil)
+	self._maid:Destroy()
 end
 
 function Signal:Wait()

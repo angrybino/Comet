@@ -36,13 +36,14 @@ local Workspace = game:GetService("Workspace")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 
+local shared = script:FindFirstAncestor("Util").Shared
+local Signal = require(shared.Signal)
+local SharedConstants = require(shared.SharedConstants)
+
 local LocalConstants = {
 	DefaultMouseRayDistance = 15000,
 	MinDelta = 1e-5,
 }
-
-local Signal = require(script.Parent.Signal)
-local SharedConstants = require(script.Parent.SharedConstants)
 
 setmetatable(Mouse, {
 	__index = function(_, key)
@@ -77,18 +78,21 @@ function Mouse.CastRay(rayCastParams, distance)
 		)
 	)
 
-	assert(
-		typeof(distance) == "number" or distance == nil,
-		SharedConstants.ErrorMessages.InvalidArgument:format(2, "Mouse.CastRay()", "number or nil", typeof(distance))
-	)
+	if distance then
+		assert(
+			typeof(distance) == "number",
+			SharedConstants.ErrorMessages.InvalidArgument:format(
+				2,
+				"Mouse.CastRay()",
+				"number or nil",
+				typeof(distance)
+			)
+		)
+	end
 
+	distance = distance or LocalConstants.DefaultMouseRayDistance
 	local ray = Mouse._getViewPointToRay()
-
-	return Workspace:Raycast(
-		ray.Origin,
-		ray.Direction * (distance or LocalConstants.DefaultMouseRayDistance),
-		rayCastParams
-	)
+	return Workspace:Raycast(ray.Origin, ray.Direction * distance, rayCastParams)
 end
 
 function Mouse.LockCurrentPosition()

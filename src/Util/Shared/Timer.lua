@@ -27,14 +27,12 @@ Timer.__index = Timer
 
 local RunService = game:GetService("RunService")
 
-local Signal = require(script.Signal)
+local Signal = require(script.Parent.Signal)
+local SharedConstants = require(script.Parent.SharedConstants)
+local Maid = require(script.Parent.Maid)
 
 local LocalConstants = {
 	DefaultUpdateSignal = RunService.Heartbeat,
-
-	ErrorMessages = {
-		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",
-	},
 }
 
 function Timer.IsTimer(self)
@@ -44,13 +42,13 @@ end
 function Timer.new(timer, customUpdateSignal)
 	assert(
 		typeof(timer) == "number",
-		LocalConstants.ErrorMessages.InvalidArgument:format(1, "Timer.new()", "number", typeof(timer))
+		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Timer.new()", "number", typeof(timer))
 	)
 
 	if customUpdateSignal then
 		assert(
 			typeof(customUpdateSignal) == "RBXScriptSignal",
-			LocalConstants.ErrorMessages.InvalidArgument:format(
+			SharedConstants.ErrorMessages.InvalidArgument:format(
 				2,
 				"Timer.new()",
 				"RBXScriptSignal or nil",
@@ -59,14 +57,28 @@ function Timer.new(timer, customUpdateSignal)
 		)
 	end
 
-	return setmetatable({
+	local self = setmetatable({
 		OnTick = Signal.new(),
+		_maid = Maid.new(),
 		_customUpdateSignal = customUpdateSignal or LocalConstants.DefaultUpdateSignal,
 		_timer = timer,
 		_isPaused = false,
 		_isStopped = true,
 		_currentTimerTickDeltaTime = 0,
 	}, Timer)
+
+	self._maid:AddTask(self.OnTick)
+	self._maid:AddTask(function()
+		self:Stop()
+
+		for key, _ in pairs(self) do
+			self[key] = nil
+		end
+
+		setmetatable(self, nil)
+	end)
+
+	return self
 end
 
 function Timer:Reset()
@@ -109,14 +121,7 @@ function Timer:IsPaused()
 end
 
 function Timer:Destroy()
-	self:Stop()
-	self.OnTick:Destroy()
-
-	for key, _ in pairs(self) do
-		self[key] = nil
-	end
-
-	setmetatable(self, nil)
+	self._maid:Destroy()
 end
 
 function Timer:Stop()

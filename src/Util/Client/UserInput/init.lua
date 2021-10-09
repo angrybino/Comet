@@ -58,8 +58,9 @@ local UserInput = {
 
 local UserInputService = game:GetService("UserInputService")
 
-local Signal = require(script.Signal)
-local SharedConstants = require(script.SharedConstants)
+local shared = script:FindFirstAncestor("Util").Shared
+local Signal = require(shared.Signal)
+local SharedConstants = require(shared.SharedConstants)
 
 function UserInput.GetCurrentInputType()
 	local enumInputType = UserInputService:GetLastInputType()
