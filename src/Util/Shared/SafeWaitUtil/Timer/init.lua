@@ -28,7 +28,6 @@ Timer.__index = Timer
 local RunService = game:GetService("RunService")
 
 local Signal = require(script.Signal)
-local Maid = require(script.Maid)
 
 local LocalConstants = {
 	DefaultUpdateSignal = RunService.Heartbeat,
@@ -60,22 +59,14 @@ function Timer.new(timer, customUpdateSignal)
 		)
 	end
 
-	local self = setmetatable({
+	return setmetatable({
 		OnTick = Signal.new(),
 		_customUpdateSignal = customUpdateSignal or LocalConstants.DefaultUpdateSignal,
-		_maid = Maid.new(),
 		_timer = timer,
 		_isPaused = false,
 		_isStopped = true,
 		_currentTimerTickDeltaTime = 0,
 	}, Timer)
-
-	self._maid:AddTask(self.OnTick)
-	self._maid:AddTask(function()
-		self:Stop()
-	end)
-
-	return self
 end
 
 function Timer:Reset()
@@ -118,7 +109,8 @@ function Timer:IsPaused()
 end
 
 function Timer:Destroy()
-	self._maid:Destroy()
+	self:Stop()
+	self.OnTick:Destroy()
 
 	for key, _ in pairs(self) do
 		self[key] = nil

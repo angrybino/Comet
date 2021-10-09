@@ -15,8 +15,9 @@
 
 local SafeWaitUtil = {}
 
+local RunService = game:GetService("RunService")
+
 local Maid = require(script.Maid)
-local Signal = require(script.Signal)
 local Timer = require(script.Timer)
 
 local LocalConstants = {
@@ -24,6 +25,10 @@ local LocalConstants = {
 		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",
 	},
 }
+
+local function DeferredFireBindable(bindable, ...)
+	task.defer(bindable.Fire, bindable, ...)
+end
 
 function SafeWaitUtil.WaitForChild(instance, childName, timeout)
 	assert(
@@ -53,15 +58,15 @@ function SafeWaitUtil.WaitForChild(instance, childName, timeout)
 	end
 
 	local maid = Maid.new()
-	local onChildAdded = Signal.new()
+	local onChildAdded = Instance.new("BindableEvent")
 
 	maid:AddTask(function()
-		onChildAdded:DeferredFire(nil)
+		DeferredFireBindable(onChildAdded, nil)
 	end)
 
 	maid:AddTask(instance.ChildAdded:Connect(function(childAdded)
 		if childAdded.Name == childName then
-			onChildAdded:DeferredFire(childAdded)
+			DeferredFireBindable(onChildAdded, childAdded)
 		end
 	end))
 
@@ -78,7 +83,7 @@ function SafeWaitUtil.WaitForChild(instance, childName, timeout)
 		timer:Start()
 	end
 
-	local child = onChildAdded:Wait()
+	local child = onChildAdded.Event:Wait()
 	maid:Destroy()
 	onChildAdded:Destroy()
 
@@ -122,15 +127,15 @@ function SafeWaitUtil.WaitForFirstChildWhichIsA(instance, class, timeout)
 	end
 
 	local maid = Maid.new()
-	local onChildAdded = Signal.new()
+	local onChildAdded = Instance.new("BindableEvent")
 
 	maid:AddTask(function()
-		onChildAdded:DeferredFire(nil)
+		DeferredFireBindable(onChildAdded, nil)
 	end)
 
 	maid:AddTask(instance.ChildAdded:Connect(function(childAdded)
 		if childAdded:IsA(class) then
-			onChildAdded:DeferredFire(childAdded)
+			DeferredFireBindable(onChildAdded, childAdded)
 		end
 	end))
 
@@ -147,7 +152,7 @@ function SafeWaitUtil.WaitForFirstChildWhichIsA(instance, class, timeout)
 		timer:Start()
 	end
 
-	local child = onChildAdded:Wait()
+	local child = onChildAdded.Event:Wait()
 	maid:Destroy()
 	onChildAdded:Destroy()
 
@@ -190,15 +195,15 @@ function SafeWaitUtil.WaitForFirstChildOfClass(instance, class, timeout)
 	end
 
 	local maid = Maid.new()
-	local onChildAdded = Signal.new()
+	local onChildAdded = Instance.new("BindableEvent")
 
 	maid:AddTask(function()
-		onChildAdded:DeferredFire(nil)
+		DeferredFireBindable(onChildAdded, nil)
 	end)
 
 	maid:AddTask(instance.ChildAdded:Connect(function(childAdded)
 		if childAdded.ClassName == class then
-			onChildAdded:DeferredFire(childAdded)
+			DeferredFireBindable(onChildAdded, childAdded)
 		end
 	end))
 
@@ -215,7 +220,7 @@ function SafeWaitUtil.WaitForFirstChildOfClass(instance, class, timeout)
 		timer:Start()
 	end
 
-	local child = onChildAdded:Wait()
+	local child = onChildAdded.Event:Wait()
 	maid:Destroy()
 	onChildAdded:Destroy()
 
