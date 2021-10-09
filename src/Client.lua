@@ -35,7 +35,7 @@ local Get = require(script.Parent.Get)
 local Debug = require(script.Parent.Debug)
 
 local LocalConstants = {
-	MaxClientExposedServicesFolderYieldTimeout = 5,
+	MaxClientExposedServicesFolderYieldTimeout = 10,
 }
 
 local servicesFolder = SafeWaitUtil.WaitForChild(
