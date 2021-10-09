@@ -40,7 +40,6 @@ local Maid = require(script.Parent.Maid)
 local SharedConstants = require(script.Parent.SharedConstants)
 
 local LocalConstants = {
-
 	Surfaces = {
 		TopSurface = Vector3.new(0, 1, 0),
 		BottomSurface = Vector3.new(0, -1, 0),
@@ -154,12 +153,8 @@ function Raycast:GetTouchingParts(maxTouchingParts)
 
 	local params = RaycastParams.new()
 	params.FilterDescendantsInstances = {}
-
-	if self._params then
-		params.FilterDescendantsInstances = self._params.FilterDescendantsInstances
-	end
-
-	local capturedInstances = { self.Visualizer }
+	local filteredInstances = self._params and self._params.FilterDescendantsInstances
+	local capturedInstances = { self.Visualizer, table.unpack(filteredInstances or {}) }
 	local touchingInstances = {}
 
 	-- Keep on adding all the touching parts to the table unless there are none:

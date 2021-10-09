@@ -20,11 +20,7 @@
 local Maid = {}
 Maid.__index = Maid
 
-local LocalConstants = {
-	ErrorMessages = {
-		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",
-	},
-}
+local SharedConstants = require(script.Parent.SharedConstants)
 
 local function IsInstanceDestroyed(instance)
 	-- This function call is used to determine if an instance is ALREADY destroyed,
@@ -54,7 +50,7 @@ function Maid:AddTask(task)
 			or typeof(task) == "table" and (typeof(task.Destroy) == "function" or typeof(task.Disconnect) == "function")
 			or typeof(task) == "Instance",
 
-		LocalConstants.ErrorMessages.InvalidArgument:format(
+		SharedConstants.ErrorMessages.InvalidArgument:format(
 			1,
 			"Maid:AddTask()",
 			"function or RBXScriptConnection or table with Destroy or Disconnect method or Instance",
@@ -74,7 +70,7 @@ function Maid:RemoveTask(task)
 			or typeof(task) == "table" and (typeof(task.Destroy) == "function" or typeof(task.Disconnect) == "function")
 			or typeof(task) == "Instance",
 
-		LocalConstants.ErrorMessages.InvalidArgument:format(
+		SharedConstants.ErrorMessages.InvalidArgument:format(
 			1,
 			"Maid:RemoveTask()",
 			"function or RBXScriptConnection or table with Destroy or Disconnect method or Instance",
@@ -138,7 +134,7 @@ end
 function Maid:LinkToInstance(instance)
 	assert(
 		typeof(instance) == "Instance",
-		LocalConstants.ErrorMessages.InvalidArgument:format(1, "Maid:LinkToInstance()", "Instance", typeof(instance))
+		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Maid:LinkToInstance()", "Instance", typeof(instance))
 	)
 
 	local mainConnection
