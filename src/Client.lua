@@ -31,11 +31,27 @@ local ClientRemoteProperty = require(Client.Util.Shared.Remote.ClientRemotePrope
 local SharedConstants = require(Client.Util.Shared.SharedConstants)
 local SafeWaitUtil = require(Client.Util.Shared.SafeWaitUtil)
 local Signal = require(Client.Util.Shared.Signal)
+local Get = require(script.Parent.Get)
+local Debug = require(script.Parent.Debug)
 
-local servicesFolder = SafeWaitUtil.WaitForChild(script, "ClientExposedServices")
+local LocalConstants = {
+	MaxClientExposedServicesFolderYieldTimeout = 5,
+}
+
+local servicesFolder = SafeWaitUtil.WaitForChild(
+	script,
+	"ClientExposedServices",
+	LocalConstants.MaxClientExposedServicesFolderYieldTimeout
+)
+
+if not servicesFolder then
+	-- Is Comet started on the server?
+	Debug(("ClientExposedServices folder not found, make sure Comet is started on the server!"):format())
+end
 
 Client.Version = SharedConstants.Version
 Client.LocalPlayer = Players.LocalPlayer
+Client.Get = Get
 Client.OnStart = Signal.new()
 
 function Client.GetService(serviceName)
@@ -96,7 +112,7 @@ function Client.SetControllersFolder(controllersFolder)
 			end
 
 			if controllerNames[controller.Name] then
-				warn(
+				Debug(
 					("%s Controller with duplicate name [%s] found in: %s"):format(
 						SharedConstants.Comet,
 						controller.Name,

@@ -22,6 +22,40 @@ local Timer = require(script.Parent.Timer)
 local Signal = require(script.Parent.Signal)
 local SharedConstants = require(script.Parent.SharedConstants)
 
+local LocalConstants = {
+	PossibleInfiniteYieldInterval = 10,
+}
+
+local function WaitAndThenRegisterForPossibleInfiniteYield(callInfo, yieldData)
+	local secondaryTimer = Timer.new(LocalConstants.PossibleInfiniteYieldInterval)
+	secondaryTimer.OnTick:Connect(function()
+		secondaryTimer:Destroy()
+
+		if yieldData.YieldFinished then
+			return
+		end
+
+		warn(("Infinite yield possible on %s"):format(callInfo))
+	end)
+
+	secondaryTimer:Start()
+end
+
+local function StartTimeoutTimer(timeout, maid)
+	if not timeout then
+		return
+	end
+
+	local timer = Timer.new(timeout)
+	maid:AddTask(timer)
+
+	timer.OnTick:Connect(function()
+		maid:Cleanup()
+	end)
+
+	timer:Start()
+end
+
 function SafeWaitUtil.WaitForChild(instance, childName, timeout)
 	assert(
 		typeof(instance) == "Instance",
@@ -51,8 +85,10 @@ function SafeWaitUtil.WaitForChild(instance, childName, timeout)
 
 	local maid = Maid.new()
 	local onChildAdded = Signal.new()
+	local yieldData = {}
 
 	maid:AddTask(function()
+		yieldData.YieldFinished = true
 		onChildAdded:DeferredFire(nil)
 	end)
 
@@ -63,17 +99,11 @@ function SafeWaitUtil.WaitForChild(instance, childName, timeout)
 	end))
 
 	maid:LinkToInstance(instance)
-
-	if timeout then
-		local timer = Timer.new(timeout)
-		maid:AddTask(timer)
-
-		timer.OnTick:Connect(function()
-			maid:Cleanup()
-		end)
-
-		timer:Start()
-	end
+	StartTimeoutTimer(timeout, maid)
+	WaitAndThenRegisterForPossibleInfiniteYield(
+		("SafeWaitUtil.SafeWaitForChild(%s, %s)"):format(instance.Name, childName),
+		yieldData
+	)
 
 	local child = onChildAdded:Wait()
 	maid:Destroy()
@@ -120,8 +150,10 @@ function SafeWaitUtil.WaitForFirstChildWhichIsA(instance, class, timeout)
 
 	local maid = Maid.new()
 	local onChildAdded = Signal.new()
+	local yieldData = {}
 
 	maid:AddTask(function()
+		yieldData.YieldFinished = true
 		onChildAdded:DeferredFire(nil)
 	end)
 
@@ -132,17 +164,11 @@ function SafeWaitUtil.WaitForFirstChildWhichIsA(instance, class, timeout)
 	end))
 
 	maid:LinkToInstance(instance)
-
-	if timeout then
-		local timer = Timer.new(timeout)
-		maid:AddTask(timer)
-
-		timer.OnTick:Connect(function()
-			maid:Cleanup()
-		end)
-
-		timer:Start()
-	end
+	StartTimeoutTimer(timeout, maid)
+	WaitAndThenRegisterForPossibleInfiniteYield(
+		("SafeWaitUtil.WaitForFirstChildWhichIsA(%s, %s)"):format(instance.Name, class),
+		yieldData
+	)
 
 	local child = onChildAdded:Wait()
 	maid:Destroy()
@@ -188,8 +214,10 @@ function SafeWaitUtil.WaitForFirstChildOfClass(instance, class, timeout)
 
 	local maid = Maid.new()
 	local onChildAdded = Signal.new()
+	local yieldData = {}
 
 	maid:AddTask(function()
+		yieldData.YieldFinished = true
 		onChildAdded:DeferredFire(nil)
 	end)
 
@@ -200,17 +228,11 @@ function SafeWaitUtil.WaitForFirstChildOfClass(instance, class, timeout)
 	end))
 
 	maid:LinkToInstance(instance)
-
-	if timeout then
-		local timer = Timer.new(timeout)
-		maid:AddTask(timer)
-
-		timer.OnTick:Connect(function()
-			maid:Cleanup()
-		end)
-
-		timer:Start()
-	end
+	StartTimeoutTimer(timeout, maid)
+	WaitAndThenRegisterForPossibleInfiniteYield(
+		("SafeWaitUtil.WaitForFirstChildOfClass(%s, %s)"):format(instance.Name, class),
+		yieldData
+	)
 
 	local child = onChildAdded:Wait()
 	maid:Destroy()

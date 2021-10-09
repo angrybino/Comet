@@ -1,6 +1,14 @@
 {
-	"name": "Comet",
-	"tree": {
-		"$path": "src"
-	}
+  "name": "Comet",
+  "tree": {
+    "$className": "DataModel",
+
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+
+      "Comet": {
+        "$path": "src"
+      }
+    }
+  }
 }
