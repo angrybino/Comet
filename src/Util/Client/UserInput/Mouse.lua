@@ -41,9 +41,8 @@ local LocalConstants = {
 	MinDelta = 1e-5,
 }
 
-local shared = script:FindFirstAncestor("Util").Shared
-local Signal = require(shared.Signal)
-local SharedConstants = require(shared.SharedConstants)
+local Signal = require(script.Parent.Signal)
+local SharedConstants = require(script.Parent.SharedConstants)
 
 setmetatable(Mouse, {
 	__index = function(_, key)

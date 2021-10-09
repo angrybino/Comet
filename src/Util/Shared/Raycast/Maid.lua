@@ -144,17 +144,23 @@ function Maid:LinkToInstance(instance)
 	local mainConnection
 	local manualConnection = ManualConnection.new()
 
+	local function Cleanup()
+		self:Cleanup()
+		mainConnection:Disconnect()
+		manualConnection:Disconnect()
+	end
+
 	local function TrackInstanceConnectionForCleanup()
 		while mainConnection.Connected and not instance.Parent and manualConnection:IsConnected() do
 			task.wait()
 		end
 
 		if not instance.Parent and manualConnection:IsConnected() then
-			self:Cleanup()
+			Cleanup()
 		end
 	end
 
-	mainConnection = self:AddTask(instance:GetPropertyChangedSignal("Parent"):Connect(function()
+	mainConnection = instance:GetPropertyChangedSignal("Parent"):Connect(function()
 		if not instance.Parent then
 			task.defer(function()
 				if not manualConnection:IsConnected() then
@@ -165,22 +171,21 @@ function Maid:LinkToInstance(instance)
 				-- guaranteed that the instance has been destroyed through
 				-- Destroy():
 				if not mainConnection.Connected then
-					self:Cleanup()
+					Cleanup()
 				else
 					-- The instance was just parented to nil:
 					TrackInstanceConnectionForCleanup()
 				end
 			end)
 		end
-	end))
-	self:AddTask(manualConnection)
+	end)
 
 	if not instance.Parent then
 		TrackInstanceConnectionForCleanup()
 	end
 
 	if IsInstanceDestroyed(instance) then
-		self:Cleanup()
+		Cleanup()
 	end
 
 	return manualConnection

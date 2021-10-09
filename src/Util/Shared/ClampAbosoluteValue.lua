@@ -8,23 +8,23 @@
     ClampAbosoluteValue(value : number, maxAbsoluteValue : number ?) --> number [ClampedNumber]
 ]]
 
-local comet = script:FindFirstAncestor("Comet")
-local SharedConstants = require(comet.SharedConstants)
-
 local LocalConstants = {
 	DefaultMaxAbosluteNumber = 1e-5,
+	ErrorMessages = {
+		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",
+	},
 }
 
 return function(value, maxAbsoluteValue)
 	assert(
 		typeof(value) == "number",
-		SharedConstants.ErrorMessages.InvalidArgument:format(1, "ClampAbosoluteValue()", "number", typeof(value))
+		LocalConstants.ErrorMessages.InvalidArgument:format(1, "ClampAbosoluteValue()", "number", typeof(value))
 	)
 
 	if maxAbsoluteValue then
 		assert(
 			typeof(maxAbsoluteValue) == "number",
-			SharedConstants.ErrorMessages.InvalidArgument:format(
+			LocalConstants.ErrorMessages.InvalidArgument:format(
 				2,
 				"ClampAbosoluteValue()",
 				"number or nil",

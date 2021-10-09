@@ -27,12 +27,15 @@ Timer.__index = Timer
 
 local RunService = game:GetService("RunService")
 
-local Signal = require(script.Parent.Signal)
-local Maid = require(script.Parent.Maid)
-local SharedConstants = require(script.Parent.SharedConstants)
+local Signal = require(script.Signal)
+local Maid = require(script.Maid)
 
 local LocalConstants = {
 	DefaultUpdateSignal = RunService.Heartbeat,
+
+	ErrorMessages = {
+		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",
+	},
 }
 
 function Timer.IsTimer(self)
@@ -42,13 +45,13 @@ end
 function Timer.new(timer, customUpdateSignal)
 	assert(
 		typeof(timer) == "number",
-		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Timer.new()", "number", typeof(timer))
+		LocalConstants.ErrorMessages.InvalidArgument:format(1, "Timer.new()", "number", typeof(timer))
 	)
 
 	if customUpdateSignal then
 		assert(
 			typeof(customUpdateSignal) == "RBXScriptSignal",
-			SharedConstants.ErrorMessages.InvalidArgument:format(
+			LocalConstants.ErrorMessages.InvalidArgument:format(
 				2,
 				"Timer.new()",
 				"RBXScriptSignal or nil",
