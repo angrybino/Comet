@@ -1,6 +1,6 @@
 -- angrybino
--- init
--- September 26, 2021
+-- Signal
+-- October 09, 2021
 
 --[[
 	-- Static methods:
