@@ -29,17 +29,14 @@ local Promise = require(Client.Util.Shared.Promise)
 local ClientRemoteSignal = require(Client.Util.Shared.Remote.ClientRemoteSignal)
 local ClientRemoteProperty = require(Client.Util.Shared.Remote.ClientRemoteProperty)
 local SharedConstants = require(script.Parent.SharedConstants)
-local SafeWaitUtil = require(Client.Util.Shared.SafeWaitUtil)
 local Signal = require(Client.Util.Shared.Signal)
 local DebugLog = require(script.Parent.DebugLog)
 
 local LocalConstants = {
-	MaxYieldIntervalForServicesToLoad = 5,
-	MaxYieldIntervalForCometToLoadServerside = 5,
+	MaxYieldIntervalForCometToFullyLoadServerside = 5,
 }
 
 local servicesFolder = script.ExposedServices
-
 
 do
 	local function WaitAndThenRegisterForPossibleInfiniteYield(timeout, message, yieldData)
@@ -48,7 +45,7 @@ do
 				return
 			end
 
-			DebugLog(message)
+			DebugLog(("Infinite yield possible on %s"):format(message))
 		end)
 	end
 
@@ -57,8 +54,8 @@ do
 	if not isCometFullyStarted then
 		local cometServersideFullyStartYieldData = { YieldFinished = false }
 		WaitAndThenRegisterForPossibleInfiniteYield(
-			LocalConstants.MaxYieldIntervalForCometToLoadServerside,
-			"Possible infinite yield on waiting for Comet to fully to start on the server",
+			LocalConstants.MaxYieldIntervalForCometToFullyLoadServerside,
+			"waiting for Comet to fully to start on the server",
 			cometServersideFullyStartYieldData
 		)
 
@@ -91,12 +88,7 @@ end
 function Client.GetController(controllerName)
 	assert(
 		typeof(controllerName) == "string",
-		SharedConstants.ErrorMessages.InvalidArgument:format(
-			1,
-			"Client.GetController()",
-			"string",
-			typeof(controllerName)
-		)
+		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Client.GetController()", "string", typeof(controllerName))
 	)
 
 	local controller = Client.Controllers[controllerName]

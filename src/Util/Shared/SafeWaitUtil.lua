@@ -15,8 +15,6 @@
 
 local SafeWaitUtil = {}
 
-local RunService = game:GetService("RunService")
-
 local Maid = require(script.Parent.Maid)
 local Timer = require(script.Parent.Timer)
 local Signal = require(script.Parent.Signal)
