@@ -24,7 +24,7 @@ local comet = script:FindFirstAncestor("Comet")
 local SharedConstants = require(comet.SharedConstants)
 
 local LocalConstants = {
-	PossibleInfiniteYieldInterval = 10,
+	PossibleInfiniteYieldInterval = 5,
 }
 
 local function WaitAndThenRegisterForPossibleInfiniteYield(callInfo, yieldData)

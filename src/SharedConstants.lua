@@ -4,7 +4,7 @@
 
 return {
 	Version = "v0.3-Beta",
-	Comet = "[Comet] [Debug]:",
+	DebugLogging = true,
 
 	ErrorMessages = {
 		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",

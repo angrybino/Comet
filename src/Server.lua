@@ -26,7 +26,7 @@ local RemoteSignal = require(Server.Util.Shared.Remote.RemoteSignal)
 local SharedConstants = require(script.Parent.SharedConstants)
 local Signal = require(Server.Util.Shared.Signal)
 local RemoteProperty = require(Server.Util.Shared.Remote.RemoteProperty)
-local Debug = require(script.Parent.Debug)
+local DebugLog = require(script.Parent.DebugLog)
 
 Server.Version = SharedConstants.Version
 Server.OnStart = Signal.new()
@@ -56,7 +56,7 @@ function Server.SetServicesFolder(servicesFolder)
 			end
 
 			if serviceNames[service.Name] then
-				Debug(("Service with duplicate name [%s] found in: %s"):format(service.Name, service:GetFullName()))
+				DebugLog(("Service with duplicate name [%s] found in: %s"):format(service.Name, service:GetFullName()))
 			end
 
 			local requiredService = require(service)
@@ -152,9 +152,9 @@ function Server._initServices()
 					clientExposedRemotePropertiesFolder
 				)
 			elseif getmetatable(value) then
-				Debug(("Service [%s] attempted to expose a value [%s] with a metatable"):format(serviceName, key))
+				DebugLog(("Service [%s] attempted to expose a value [%s] to the client with a metatable"):format(serviceName, key))
 			elseif Signal.IsSignal(value) then
-				Debug(
+				DebugLog(
 					("Service [%s] attempted to expose a signal [%s] to the client rather than a RemoteSignal"):format(
 						serviceName,
 						key

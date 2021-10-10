@@ -1,9 +1,9 @@
 -- angrybino
--- Debug
--- October 09, 2021
+-- DebugLog
+-- October 10, 2021
 
 local SharedConstants = require(script.Parent.SharedConstants)
 
 return function(message)
-	warn(("%s %s"):format(SharedConstants.Comet, message))
+	warn(("[Comet] [Debug]: %s"):format(message))
 end

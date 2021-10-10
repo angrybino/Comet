@@ -31,45 +31,66 @@ local ClientRemoteProperty = require(Client.Util.Shared.Remote.ClientRemotePrope
 local SharedConstants = require(script.Parent.SharedConstants)
 local SafeWaitUtil = require(Client.Util.Shared.SafeWaitUtil)
 local Signal = require(Client.Util.Shared.Signal)
-local Debug = require(script.Parent.Debug)
+local DebugLog = require(script.Parent.DebugLog)
 
 local LocalConstants = {
-	MaxYieldIntervalForServicesToLoad = 10,
+	MaxYieldIntervalForServicesToLoad = 5,
+	MaxYieldIntervalForCometToLoadServerside = 5,
 }
 
 local servicesFolder = script.ExposedServices
 local server = script.Parent.Server
 
 do
+	local function WaitAndThenRegisterForPossibleInfiniteYield(timeout, message, yieldData)
+		task.delay(timeout, function()
+			if yieldData.YieldFinished then
+				return
+			end
+
+			DebugLog(message)
+		end)
+	end
+
 	local isCometStarted = server:GetAttribute("IsStarted")
 	local areServicesLoaded = servicesFolder:GetAttribute("IsLoaded")
 
 	if not isCometStarted then
 		local signal = Signal.new()
 
-		task.delay(LocalConstants.MaxYieldIntervalForServicesToLoad, function()
-			isCometStarted = server:GetAttribute("IsStarted")
-			areServicesLoaded = servicesFolder:GetAttribute("IsLoaded")
-
-			if not isCometStarted then
-				Debug(
-					"Max timeout reached on waiting for Comet to start on the server, are you sure that Comet is started on the server?"
-				)
+		local attributeChangedConnection
+		attributeChangedConnection = servicesFolder:GetAttributeChangedSignal("IsLoaded"):Connect(function()
+			if not attributeChangedConnection.Connected then
+				return
 			end
 
-			signal:Fire(isCometStarted)
+			signal:Fire()
+			attributeChangedConnection:Disconnect()
 		end)
 
-		local isCometStarted = signal:Wait()
-        
-		if not isCometStarted then
-			-- Comet still not started after timeout, assume services are loaded to prevent thread leak:
-			areServicesLoaded = true
-		end
+		local cometServersideStartYieldData = { YieldFinished = false }
+		WaitAndThenRegisterForPossibleInfiniteYield(
+			LocalConstants.MaxYieldIntervalForCometToLoadServerside,
+			"Possible infinite yield on waiting for Comet to start on the server",
+			cometServersideStartYieldData
+		)
+
+		signal:Wait()
+		cometServersideStartYieldData.YieldFinished = true
+		areServicesLoaded = servicesFolder:GetAttribute("IsLoaded")
 	end
 
 	if not areServicesLoaded then
+		local servicesStartYieldData = { YieldFinished = false }
+
+		WaitAndThenRegisterForPossibleInfiniteYield(
+			LocalConstants.MaxYieldIntervalForCometToLoadServerside,
+			"Possible infinite yield on waiting for services to load",
+			servicesStartYieldData
+		)
+
 		servicesFolder:GetAttributeChangedSignal("IsLoaded"):Wait()
+		servicesStartYieldData.YieldFinished = true
 	end
 end
 
@@ -135,7 +156,7 @@ function Client.SetControllersFolder(controllersFolder)
 			end
 
 			if controllerNames[controller.Name] then
-				Debug(
+				DebugLog(
 					("%s Controller with duplicate name [%s] found in: %s"):format(
 						SharedConstants.Comet,
 						controller.Name,
