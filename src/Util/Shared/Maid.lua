@@ -153,8 +153,6 @@ function Maid:LinkToInstance(instance)
 		end
 	end
 
-	-- Special case for players as they are destroyed late:
-
 	mainConnection = self:AddTask(instance:GetPropertyChangedSignal("Parent"):Connect(function()
 		if not instance.Parent then
 			task.defer(function()
@@ -175,6 +173,7 @@ function Maid:LinkToInstance(instance)
 		end
 	end))
 
+	-- Special case for players as they are destroyed late when they leave:
 	if instance:IsA("Player") then
 		self:AddTask(Players.PlayerRemoving:Connect(function(playerRemoved)
 			if instance == playerRemoved and manualConnection:IsConnected() then
