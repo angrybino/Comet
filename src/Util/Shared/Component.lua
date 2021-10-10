@@ -31,12 +31,7 @@ local LocalConstants = {
 function Component.GetFromInstance(instance)
 	assert(
 		typeof(instance) == "Instance",
-		SharedConstants.ErrorMessages.InvalidArgument:format(
-			1,
-			"Component.GetFromInstance()",
-			"Instance",
-			typeof(instance)
-		)
+		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Component.GetFromInstance()", "Instance", typeof(instance))
 	)
 
 	for _, component in ipairs(Component._components) do
@@ -264,6 +259,9 @@ function Component:_createAndSetupComponentObject(instance)
 	end
 
 	local componentObject = self._requiredComponent.new(instance)
+	if not componentObject then
+		return
+	end
 
 	if self._hasInitMethod then
 		componentObject:Init()
