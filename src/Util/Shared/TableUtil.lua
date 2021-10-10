@@ -43,7 +43,9 @@ function TableUtil.DeepCopyTable(tabl, cache)
 		SharedConstants.ErrorMessages.InvalidArgument:format(1, "TableUtil.DeepCopyTable()", "table", typeof(tabl))
 	)
 
-	cache = cache or {}
+	cache = cache or {
+		[tabl] = true,
+	}
 	local deepCopiedTable = {}
 
 	for key, value in pairs(tabl) do
@@ -161,7 +163,9 @@ function TableUtil.SyncTable(tabl, templateSyncTable, cache)
 		)
 	)
 
-	cache = cache or {}
+	cache = cache or {
+		[tabl] = true,
+	}
 
 	for key, value in pairs(tabl) do
 		local templateValue = templateSyncTable[key]

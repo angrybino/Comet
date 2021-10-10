@@ -4,13 +4,13 @@
 
 --[[
 	SafeWaitUtil.WaitForChild(instance : Instance, childName : string, timeOut : number ?) 
-    --> Instance ? [Child]
+    --> Instance ? []
 
 	SafeWaitUtil.WaitForFirstChildWhichIsA(instance : Instance, class : string, timeOut : number  ?) 
-    --> Instance ? [Child]
+    --> Instance ? []
 
 	SafeWaitUtil.WaitForFirstChildOfClass(instance : Instance, class : string, timeOut : number  ?) 
-    --> Instance ? [Child]
+    --> Instance ? []
 ]]
 
 local SafeWaitUtil = {}
