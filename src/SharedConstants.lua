@@ -5,7 +5,6 @@
 return {
 	Version = "v0.3-Beta",
 	Comet = "[Comet] [Debug]:",
-	ClientExposedServicesFolderName = "ExposedServices",
 
 	ErrorMessages = {
 		InvalidArgument = "Invalid argument#%d to %s: expected %s, got %s",

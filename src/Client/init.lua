@@ -34,18 +34,43 @@ local Signal = require(Client.Util.Shared.Signal)
 local Debug = require(script.Parent.Debug)
 
 local LocalConstants = {
-	MaxClientExposedServicesFolderYieldTimeout = 10,
+	MaxYieldIntervalForServicesToLoad = 10,
 }
 
-local servicesFolder = SafeWaitUtil.WaitForChild(
-	script,
-	SharedConstants.ClientExposedServicesFolderName,
-	LocalConstants.MaxClientExposedServicesFolderYieldTimeout
-)
+local servicesFolder = script.ExposedServices
+local server = script.Parent.Server
 
-if not servicesFolder then
-	-- Is Comet started on the server?..
-	Debug(("ClientExposedServices folder not found, are you sure that Comet is started on the server?"):format())
+do
+	local isCometStarted = server:GetAttribute("IsStarted")
+	local areServicesLoaded = servicesFolder:GetAttribute("IsLoaded")
+
+	if not isCometStarted then
+		local signal = Signal.new()
+
+		task.delay(LocalConstants.MaxYieldIntervalForServicesToLoad, function()
+			isCometStarted = server:GetAttribute("IsStarted")
+			areServicesLoaded = servicesFolder:GetAttribute("IsLoaded")
+
+			if not isCometStarted then
+				Debug(
+					"Max timeout reached on waiting for Comet to start on the server, are you sure that Comet is started on the server?"
+				)
+			end
+
+			signal:Fire(isCometStarted)
+		end)
+
+		local isCometStarted = signal:Wait()
+        
+		if not isCometStarted then
+			-- Comet still not started after timeout, assume services are loaded to prevent thread leak:
+			areServicesLoaded = true
+		end
+	end
+
+	if not areServicesLoaded then
+		servicesFolder:GetAttributeChangedSignal("IsLoaded"):Wait()
+	end
 end
 
 Client.Version = SharedConstants.Version

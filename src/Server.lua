@@ -30,12 +30,7 @@ local Debug = require(script.Parent.Debug)
 
 Server.Version = SharedConstants.Version
 Server.OnStart = Signal.new()
-
-local function CreateClientExposedServicesFolder()
-	local folder = Instance.new("Folder")
-	folder.Name = SharedConstants.ClientExposedServicesFolderName
-	return folder
-end
+Server._clientExposedServicesFolder = script.Parent.Client.ExposedServices
 
 function Server.SetServicesFolder(servicesFolder)
 	assert(
@@ -78,8 +73,8 @@ function Server.Start()
 		return Promise.reject(("%s Can't start Comet as it is already started"):format(SharedConstants.Comet))
 	end
 
-	Server._clientExposedServicesFolder = CreateClientExposedServicesFolder()
 	Server._isStarted = true
+	script:SetAttribute("IsStarted", Server._isStarted)
 
 	return Promise.async(function(resolve)
 		local promises = Server._initServices()
@@ -87,7 +82,7 @@ function Server.Start()
 	end):andThen(function()
 		-- Start all services now as we know it is safe:
 		Server._startServices()
-		Server._clientExposedServicesFolder.Parent = script.Parent.Client
+		Server._clientExposedServicesFolder:SetAttribute("IsLoaded", true)
 		Server.OnStart:Fire()
 	end)
 end
