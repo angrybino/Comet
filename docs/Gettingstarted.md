@@ -11,9 +11,6 @@ There are currently two ways to install Comet in your game, either by grabbing t
 
 ## With Rojo
 
-- Install the latest release from [releases](https://github.com/angrybino/Comet/releases).
-- Extract the binary source.
-- Rename the `src` folder to `Comet`, and move the `src` folder to your game's repository.
-- Have Rojo point `Comet` to ReplicatedStorage.
-
-# Basic usage
+- Fork the repository.
+- Rename the `src` folder to `Comet`, and move it to your game's project.
+- Have Rojo point it to ReplicatedStorage.

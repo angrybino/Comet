@@ -27,7 +27,9 @@ local SharedConstants = require(script.Parent.SharedConstants)
 local Signal = require(Server.Util.Shared.Signal)
 local RemoteProperty = require(Server.Util.Shared.Remote.RemoteProperty)
 local DebugLog = require(script.Parent.DebugLog)
+local Get = require(script.Parent.Get)
 
+Server.Get = Get 
 Server.Version = SharedConstants.Version
 Server.OnStart = Signal.new()
 Server._clientExposedServicesFolder = script.Parent.Client.ExposedServices

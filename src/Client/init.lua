@@ -31,6 +31,7 @@ local ClientRemoteProperty = require(Client.Util.Shared.Remote.ClientRemotePrope
 local SharedConstants = require(script.Parent.SharedConstants)
 local Signal = require(Client.Util.Shared.Signal)
 local DebugLog = require(script.Parent.DebugLog)
+local Get = require(script.Parent.Get)
 
 local LocalConstants = {
 	MaxYieldIntervalForCometToFullyLoadServerside = 5,
@@ -64,6 +65,7 @@ do
 	end
 end
 
+Client.Get = Get
 Client.Version = SharedConstants.Version
 Client.LocalPlayer = Players.LocalPlayer
 Client.OnStart = Signal.new()
@@ -88,7 +90,12 @@ end
 function Client.GetController(controllerName)
 	assert(
 		typeof(controllerName) == "string",
-		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Client.GetController()", "string", typeof(controllerName))
+		SharedConstants.ErrorMessages.InvalidArgument:format(
+			1,
+			"Client.GetController()",
+			"string",
+			typeof(controllerName)
+		)
 	)
 
 	local controller = Client.Controllers[controllerName]
