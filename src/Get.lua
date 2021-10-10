@@ -6,6 +6,8 @@
     Get(util : string).From(utilFolderName : string) --> Instance []
 ]]
 
+local RunService = game:GetService("RunService")
+
 local SharedConstants = require(script.Parent.SharedConstants)
 
 return function(util)
@@ -22,11 +24,26 @@ return function(util)
 			)
 
 			local finalInstance = script.Parent.Util
+
 			for _, value in ipairs(utilFolderName:split("/")) do
 				finalInstance = finalInstance[value]
 			end
 
-			return require(finalInstance[util])
+			local module = finalInstance[util]
+
+			if RunService:IsServer() then
+				assert(
+					not module:IsDescendantOf(script.Parent.Util.Client),
+					("Can only get module [%s] on the client"):format(module.Name)
+				)
+			else
+				assert(
+					not module:IsDescendantOf(script.Parent.Util.Server),
+					("Can only get module [%s] on the server"):format(module.Name)
+				)
+			end
+
+			return require(module)
 		end,
 	}
 end
