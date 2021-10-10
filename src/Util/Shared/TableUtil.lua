@@ -11,6 +11,7 @@
     TableUtil.IsTableEmpty(tabl : table) --> boolean [IsTableEmpty]
     TableUtil.Map(tabl : table, callback : function) --> table [MappedTable]
 	TableUtil.DeepFreezeTable(tabl : table) --> void []
+	TableUtil.ConvertTableIndicesToStartFrom(tabl : table, index : number) --> tabl []
 ]]
 
 local TableUtil = {}
@@ -214,6 +215,32 @@ function TableUtil.Map(tabl, callback)
 		tabl[key] = callback(key, value, tabl)
 	end
 
+	return tabl
+end
+
+function TableUtil.ConvertTableIndicesToStartFrom(tabl, index, cache)
+	cache = cache or {[tabl] = true}
+	local currentIndex = index - 1
+ 
+	for key, value in pairs(tabl) do
+		if typeof(value) == "table" and not cache[value] then
+			cache[value] = true
+			TableUtil.ConvertTableIndicesToStartFrom(tabl, index, cache)
+		end
+ 
+		if typeof(key) == "table" and not cache[key] then
+			cache[key] = true
+			TableUtil.ConvertTableIndicesToStartFrom(tabl, index, cache)
+		end
+
+		if typeof(key) ~= "number" then
+			continue
+		end
+
+		currentIndex += 1
+		tabl[currentIndex] = value
+	end
+	
 	return tabl
 end
 
