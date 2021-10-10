@@ -36,9 +36,9 @@ local Workspace = game:GetService("Workspace")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 
-local shared = script:FindFirstAncestor("Util").Shared
-local Signal = require(shared.Signal)
-local SharedConstants = require(shared.SharedConstants)
+local comet = script:FindFirstAncestor("Comet")
+local Signal = require(comet.Util.Shared.Signal)
+local SharedConstants = require(comet.SharedConstants)
 
 local LocalConstants = {
 	DefaultMouseRayDistance = 15000,

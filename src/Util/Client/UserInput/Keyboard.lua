@@ -15,8 +15,8 @@ local Keyboard = {}
 
 local UserInputService = game:GetService("UserInputService")
 
-local shared = script:FindFirstAncestor("Util").Shared
-local Signal = require(shared.Signal)
+local comet = script:FindFirstAncestor("Comet")
+local Signal = require(comet.Util.Shared.Signal)
 
 function Keyboard.Init()
 	Keyboard.OnKeyHold = Signal.new()

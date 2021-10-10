@@ -9,7 +9,8 @@
 
 local LerpUtil = {}
 
-local SharedConstants = require(script.Parent.SharedConstants)
+local comet = script:FindFirstAncestor("Comet")
+local SharedConstants = require(comet.SharedConstants)
 
 function LerpUtil.Lerp(initialValue, goalValue, alpha)
 	assert(

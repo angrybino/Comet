@@ -28,8 +28,9 @@ Timer.__index = Timer
 local RunService = game:GetService("RunService")
 
 local Signal = require(script.Parent.Signal)
-local SharedConstants = require(script.Parent.SharedConstants)
 local Maid = require(script.Parent.Maid)
+local comet = script:FindFirstAncestor("Comet")
+local SharedConstants = require(comet.SharedConstants)
 
 local LocalConstants = {
 	DefaultUpdateSignal = RunService.Heartbeat,

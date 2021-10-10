@@ -20,7 +20,8 @@
 local Maid = {}
 Maid.__index = Maid
 
-local SharedConstants = require(script.Parent.SharedConstants)
+local comet = script:FindFirstAncestor("Comet")
+local SharedConstants = require(comet.SharedConstants)
 
 local function IsInstanceDestroyed(instance)
 	-- This function call is used to determine if an instance is ALREADY destroyed,

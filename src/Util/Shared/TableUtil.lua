@@ -15,7 +15,8 @@
 
 local TableUtil = {}
 
-local SharedConstants = require(script.Parent.SharedConstants)
+local comet = script:FindFirstAncestor("Comet")
+local SharedConstants = require(comet.SharedConstants)
 
 function TableUtil.DeepFreezeTable(tabl)
 	assert(

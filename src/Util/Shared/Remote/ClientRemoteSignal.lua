@@ -19,7 +19,8 @@ local ClientRemoteSignal = {}
 ClientRemoteSignal.__index = ClientRemoteSignal
 
 local shared = script:FindFirstAncestor("Shared")
-local SharedConstants = require(shared.SharedConstants)
+local comet = script:FindFirstAncestor("Comet")
+local SharedConstants = require(comet.SharedConstants)
 local Maid = require(shared.Maid)
 
 function ClientRemoteSignal.IsClientRemoteSignal(self)

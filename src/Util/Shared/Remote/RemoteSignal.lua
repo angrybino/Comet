@@ -23,7 +23,8 @@ RemoteSignal.__index = RemoteSignal
 local RunService = game:GetService("RunService")
 
 local shared = script:FindFirstAncestor("Shared")
-local SharedConstants = require(shared.SharedConstants)
+local comet = script:FindFirstAncestor("Comet")
+local SharedConstants = require(comet.SharedConstants)
 local Maid = require(shared.Maid)
 
 function RemoteSignal.IsRemoteSignal(self)

@@ -20,7 +20,8 @@ local Workspace = game:GetService("Workspace")
 
 local Maid = require(script.Parent.Maid)
 local Signal = require(script.Parent.Signal)
-local SharedConstants = require(script.Parent.SharedConstants)
+local comet = script:FindFirstAncestor("Comet")
+local SharedConstants = require(comet.SharedConstants)
 
 local LocalConstants = {
 	WhitelistedServices = { Workspace },

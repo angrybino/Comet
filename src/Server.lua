@@ -18,21 +18,24 @@ local Server = {
 	Util = script.Parent.Util,
 	Services = {},
 
-	_clientExposedServicesFolder = Instance.new("Folder"),
 	_isStarted = false,
 }
 
 local Promise = require(Server.Util.Shared.Promise)
 local RemoteSignal = require(Server.Util.Shared.Remote.RemoteSignal)
-local SharedConstants = require(Server.Util.Shared.SharedConstants)
+local SharedConstants = require(script.Parent.SharedConstants)
 local Signal = require(Server.Util.Shared.Signal)
 local RemoteProperty = require(Server.Util.Shared.Remote.RemoteProperty)
-local Get = require(script.Parent.Get)
 local Debug = require(script.Parent.Debug)
 
 Server.Version = SharedConstants.Version
 Server.OnStart = Signal.new()
-Server.Get = Get
+
+local function CreateClientExposedServicesFolder()
+	local folder = Instance.new("Folder")
+	folder.Name = SharedConstants.ClientExposedServicesFolderName
+	return folder
+end
 
 function Server.SetServicesFolder(servicesFolder)
 	assert(
@@ -75,7 +78,7 @@ function Server.Start()
 		return Promise.reject(("%s Can't start Comet as it is already started"):format(SharedConstants.Comet))
 	end
 
-	Server._clientExposedServicesFolder.Name = "ClientExposedServices"
+	Server._clientExposedServicesFolder = CreateClientExposedServicesFolder()
 	Server._isStarted = true
 
 	return Promise.async(function(resolve)
@@ -153,10 +156,13 @@ function Server._initServices()
 					key,
 					clientExposedRemotePropertiesFolder
 				)
+			elseif getmetatable(value) then
+				Debug(("Service [%s] attempted to expose a value [%s] with a metatable"):format(serviceName, key))
 			elseif Signal.IsSignal(value) then
 				Debug(
-					("Service [%s] attempted to expose a signal to the client rather than a RemoteSignal"):format(
-						serviceName
+					("Service [%s] attempted to expose a signal [%s] to the client rather than a RemoteSignal"):format(
+						serviceName,
+						key
 					)
 				)
 			else

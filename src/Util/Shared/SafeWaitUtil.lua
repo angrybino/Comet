@@ -20,7 +20,8 @@ local RunService = game:GetService("RunService")
 local Maid = require(script.Parent.Maid)
 local Timer = require(script.Parent.Timer)
 local Signal = require(script.Parent.Signal)
-local SharedConstants = require(script.Parent.SharedConstants)
+local comet = script:FindFirstAncestor("Comet")
+local SharedConstants = require(comet.SharedConstants)
 
 local LocalConstants = {
 	PossibleInfiniteYieldInterval = 10,

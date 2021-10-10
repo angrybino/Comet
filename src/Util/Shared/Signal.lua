@@ -26,7 +26,8 @@
 local Signal = {}
 Signal.__index = Signal
 
-local SharedConstants = require(script.Parent.SharedConstants)
+local comet = script:FindFirstAncestor("Comet")
+local SharedConstants = require(comet.SharedConstants)
 local Maid = require(script.Parent.Maid)
 
 local LocalConstants = {

@@ -28,10 +28,9 @@ local Players = game:GetService("Players")
 local Promise = require(Client.Util.Shared.Promise)
 local ClientRemoteSignal = require(Client.Util.Shared.Remote.ClientRemoteSignal)
 local ClientRemoteProperty = require(Client.Util.Shared.Remote.ClientRemoteProperty)
-local SharedConstants = require(Client.Util.Shared.SharedConstants)
+local SharedConstants = require(script.Parent.SharedConstants)
 local SafeWaitUtil = require(Client.Util.Shared.SafeWaitUtil)
 local Signal = require(Client.Util.Shared.Signal)
-local Get = require(script.Parent.Get)
 local Debug = require(script.Parent.Debug)
 
 local LocalConstants = {
@@ -40,18 +39,17 @@ local LocalConstants = {
 
 local servicesFolder = SafeWaitUtil.WaitForChild(
 	script,
-	"ClientExposedServices",
+	SharedConstants.ClientExposedServicesFolderName,
 	LocalConstants.MaxClientExposedServicesFolderYieldTimeout
 )
 
 if not servicesFolder then
-	-- Is Comet started on the server?
-	Debug(("ClientExposedServices folder not found, make sure Comet is started on the server!"):format())
+	-- Is Comet started on the server?..
+	Debug(("ClientExposedServices folder not found, are you sure that Comet is started on the server?"):format())
 end
 
 Client.Version = SharedConstants.Version
 Client.LocalPlayer = Players.LocalPlayer
-Client.Get = Get
 Client.OnStart = Signal.new()
 
 function Client.GetService(serviceName)

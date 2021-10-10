@@ -30,7 +30,8 @@ local RunService = game:GetService("RunService")
 
 local shared = script:FindFirstAncestor("Shared")
 local Signal = require(shared.Signal)
-local SharedConstants = require(shared.SharedConstants)
+local comet = script:FindFirstAncestor("Comet")
+local SharedConstants = require(comet.SharedConstants)
 local Maid = require(shared.Maid)
 
 function RemoteProperty.IsRemoteProperty(self)
