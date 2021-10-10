@@ -28,18 +28,13 @@ local LocalConstants = {
 }
 
 local function WaitAndThenRegisterForPossibleInfiniteYield(callInfo, yieldData)
-	local secondaryTimer = Timer.new(LocalConstants.PossibleInfiniteYieldInterval)
-	secondaryTimer.OnTick:Connect(function()
-		secondaryTimer:Destroy()
-
+	task.delay(LocalConstants.PossibleInfiniteYieldInterval, function()
 		if yieldData.YieldFinished then
 			return
 		end
 
 		warn(("Infinite yield possible on %s"):format(callInfo))
 	end)
-
-	secondaryTimer:Start()
 end
 
 local function StartTimeoutTimer(timeout, maid)
