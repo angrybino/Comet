@@ -74,7 +74,6 @@ function Server.Start()
 	end
 
 	Server._isStarted = true
-	script:SetAttribute("IsStarted", Server._isStarted)
 
 	return Promise.async(function(resolve)
 		local promises = Server._initServices()
@@ -82,7 +81,7 @@ function Server.Start()
 	end):andThen(function()
 		-- Start all services now as we know it is safe:
 		Server._startServices()
-		Server._clientExposedServicesFolder:SetAttribute("IsLoaded", true)
+		script:SetAttribute("IsFullyStarted", true)
 		Server.OnStart:Fire()
 	end)
 end
@@ -152,7 +151,12 @@ function Server._initServices()
 					clientExposedRemotePropertiesFolder
 				)
 			elseif getmetatable(value) then
-				DebugLog(("Service [%s] attempted to expose a value [%s] to the client with a metatable"):format(serviceName, key))
+				DebugLog(
+					("Service [%s] attempted to expose a value [%s] to the client with a metatable"):format(
+						serviceName,
+						key
+					)
+				)
 			elseif Signal.IsSignal(value) then
 				DebugLog(
 					("Service [%s] attempted to expose a signal [%s] to the client rather than a RemoteSignal"):format(

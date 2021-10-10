@@ -39,7 +39,7 @@ local LocalConstants = {
 }
 
 local servicesFolder = script.ExposedServices
-local server = script.Parent.Server
+
 
 do
 	local function WaitAndThenRegisterForPossibleInfiniteYield(timeout, message, yieldData)
@@ -52,45 +52,18 @@ do
 		end)
 	end
 
-	local isCometStarted = server:GetAttribute("IsStarted")
-	local areServicesLoaded = servicesFolder:GetAttribute("IsLoaded")
+	local isCometFullyStarted = script.Parent.Server:GetAttribute("IsFullyStarted")
 
-	if not isCometStarted then
-		local signal = Signal.new()
-
-		local attributeChangedConnection
-		attributeChangedConnection = servicesFolder:GetAttributeChangedSignal("IsLoaded"):Connect(function()
-			if not attributeChangedConnection.Connected then
-				return
-			end
-
-			signal:Fire()
-			attributeChangedConnection:Disconnect()
-		end)
-
-		local cometServersideStartYieldData = { YieldFinished = false }
+	if not isCometFullyStarted then
+		local cometServersideFullyStartYieldData = { YieldFinished = false }
 		WaitAndThenRegisterForPossibleInfiniteYield(
 			LocalConstants.MaxYieldIntervalForCometToLoadServerside,
-			"Possible infinite yield on waiting for Comet to start on the server",
-			cometServersideStartYieldData
+			"Possible infinite yield on waiting for Comet to fully to start on the server",
+			cometServersideFullyStartYieldData
 		)
 
-		signal:Wait()
-		cometServersideStartYieldData.YieldFinished = true
-		areServicesLoaded = servicesFolder:GetAttribute("IsLoaded")
-	end
-
-	if not areServicesLoaded then
-		local servicesStartYieldData = { YieldFinished = false }
-
-		WaitAndThenRegisterForPossibleInfiniteYield(
-			LocalConstants.MaxYieldIntervalForCometToLoadServerside,
-			"Possible infinite yield on waiting for services to load",
-			servicesStartYieldData
-		)
-
-		servicesFolder:GetAttributeChangedSignal("IsLoaded"):Wait()
-		servicesStartYieldData.YieldFinished = true
+		script.Parent.Server:GetAttributeChangedSignal("IsFullyStarted"):Wait()
+		cometServersideFullyStartYieldData.YieldFinished = true
 	end
 end
 
