@@ -238,6 +238,7 @@ function TableUtil.ConvertTableIndicesToStartFrom(tabl, index, cache)
 		end
 
 		currentIndex += 1
+		tabl[key] = nil
 		tabl[currentIndex] = value
 	end
 	
