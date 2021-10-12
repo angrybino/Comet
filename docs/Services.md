@@ -213,7 +213,60 @@ end)
 
 ## Exposing properties
 
-Finally,
+Exposing a property to the client is only possible through the [RemoteProperty](https://github.com/angrybino/Comet/blob/master/src/Util/Shared/Remote/RemoteProperty.lua) module. Properties are objects which contain a getter and setter methods and contain a value which can be changed (Read more about it [here]((Util/Remote/RemoteProperty.md))).
+
+Suppose we want to tell the client the name of the player with the highest experience. First, let's create a `RemoteProperty` object `PlayerWithHighestExp` in the `Client` table:
+
+```lua
+function ExpService.Init()
+    -- Previous code --
+    local RemoteProperty = require(ExpService.Comet.Util.Shared.Remote.RemoteProperty)
+
+    ExpService.Client.PlayerWithHighestExp = RemoteProperty.new("No one")
+end
+```
+
+Now, let's update the `SetPlayerExp` method to use this newly created remote property:
+
+```lua
+function ExpService.SetPlayerExp(player, exp)
+    ExpService.PlayerExpData[player.Name] = exp
+    ExpService.OnPlayerExpSet:Fire(player.Name, exp)
+
+    ExpService.Client.OnExpSet:Fire(player, exp)
+
+    -- Get player with highets exp first:
+    local highestExp, highestExpPlayer = 0, nil
+    for playerName, exp in pairs(ExpService.PlayerExpData) do
+        if exp > highestExp then
+            highestExp = exp
+            highestExpPlayer = playerName
+        end
+    end
+
+    if highestExpPlayer and highestExpPlayer ~= ExpService._previousHighestExpPlayer then
+        ExpService._previousHighestExpPlayer = highestExpPlayer
+        ExpService.Client.PlayerWithHighestExp:SetValue(highestExpPlayer)
+    end
+end
+```
+
+On the client, we can now keep track of the name of the player who has the highest experience:
+
+```lua
+local Comet = require(game:GetService("ReplicatedStorage").Comet)
+
+local ExpService = Comet.GetService("ExpService")
+
+-- Previous code
+local playerWithHighestExp = ExpService.PlayerWithHighestExp:Get()
+ExpService.PlayerWithHighestExp.OnValueUpdate:Connect(function(highestExpPlayer)
+    playerWithHighestExp = highestExpPlayer
+    print(highestExpPlayer)
+end)
+
+print(playerWithHighestExp or "No one currently")
+```
 
 ## Completed examples
 
@@ -224,12 +277,16 @@ local ExpService = {
     Client = {}
 }
 
+ExpService.PlayerExpData = {}
+
 function ExpService.Init()
     local Signal = require(ExpService.Comet.Util.Shared.Signal)
     local RemoteSignal = require(ExpService.Comet.Util.Shared.Remote.RemoteSignal)
+    local RemoteProperty = require(ExpService.Comet.Util.Shared.Remote.RemoteProperty)
 
     ExpService.OnPlayerExpSet = Signal.new()
     ExpService.Client.OnExpSet = RemoteSignal.new()
+    ExpService.Client.PlayerWithHighestExp = RemoteProperty.new("No one")
 
     ExpService.OnPlayerExpSet:Connect(function(playerName, exp)
         print(("%s's exp was set to %d"):format(playerName, exp))
@@ -243,8 +300,22 @@ end
 function ExpService.SetPlayerExp(player, exp)
     ExpService.PlayerExpData[player.Name] = exp
     ExpService.OnPlayerExpSet:Fire(player.Name, exp)
-
     ExpService.Client.OnExpSet:Fire(player, exp)
+
+    -- Get player with highest exp
+    local highestExp, highestExpPlayer = 0, nil
+    for playerName, exp in pairs(ExpService.PlayerExpData) do
+        if exp > highestExp then
+            highestExp = exp
+            highestExpPlayer = playerName
+        end
+    end
+
+    -- Make sure highest exp player is not the same as the previous highest exp player:
+    if highestExpPlayer and highestExpPlayer ~= ExpService._previousHighestExpPlayer then
+        ExpService._previousHighestExpPlayer = highestExpPlayer
+        ExpService.Client.PlayerWithHighestExp:SetValue(highestExpPlayer)
+    end
 end
 
 function ExpService.GetPlayerExp(player)
@@ -272,4 +343,13 @@ local currentExp = ExpService.GetExp()
 ExpService.OnExpSet:Connect(function(newExp)
     currentExp = newExp
 end)
+
+local playerWithHighestExp = ExpService.PlayerWithHighestExp:GetValue()
+
+ExpService.PlayerWithHighestExp.OnValueUpdate:Connect(function(highestExpPlayer)
+    playerWithHighestExp = highestExpPlayer
+    print(highestExpPlayer)
+end)
+
+print(playerWithHighestExp or "No one currently")
 ```
