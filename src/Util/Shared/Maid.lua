@@ -142,6 +142,7 @@ function Maid:LinkToInstance(instance)
 
 	local mainConnection
 	local manualConnection = ManualConnection.new()
+	self:AddTask(manualConnection)
 
 	local function TrackInstanceConnectionForCleanup()
 		while mainConnection.Connected and not instance.Parent and manualConnection:IsConnected() do
@@ -173,7 +174,7 @@ function Maid:LinkToInstance(instance)
 		end
 	end))
 
-	-- Special case for players as they are destroyed late when they leave:
+	-- Special case for players as they are destroyed late when they leave which won't work out well:
 	if instance:IsA("Player") then
 		self:AddTask(Players.PlayerRemoving:Connect(function(playerRemoved)
 			if instance == playerRemoved and manualConnection:IsConnected() then
@@ -181,8 +182,6 @@ function Maid:LinkToInstance(instance)
 			end
 		end))
 	end
-
-	self:AddTask(manualConnection)
 
 	if not instance.Parent then
 		TrackInstanceConnectionForCleanup()
