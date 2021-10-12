@@ -5,7 +5,7 @@
 --[[
 	Component.SetComponentsFolder(componentsFolder : Folder) --> void []
 	Component.GetFromInstance(instance : Instance) --> table | nil [ComponentObject]
-	Component.GetAll(instance : Instance ?) --> table | nil [ComponentObjects]
+	Component.GetAllFromInstance(instance : Instance | nil) --> table | nil [ComponentObjects]
 	Component.Start() --> void []
 ]]
 
@@ -31,7 +31,12 @@ local LocalConstants = {
 function Component.GetFromInstance(instance)
 	assert(
 		typeof(instance) == "Instance",
-		SharedConstants.ErrorMessages.InvalidArgument:format(1, "Component.GetFromInstance()", "Instance", typeof(instance))
+		SharedConstants.ErrorMessages.InvalidArgument:format(
+			1,
+			"Component.GetFromInstance()",
+			"Instance",
+			typeof(instance)
+		)
 	)
 
 	for _, component in ipairs(Component._components) do
@@ -44,24 +49,23 @@ function Component.GetFromInstance(instance)
 	return nil
 end
 
-function Component.GetAll(instance)
+function Component.GetAllFromInstance(instance)
 	if instance then
 		assert(
 			typeof(instance) == "Instance",
-			SharedConstants.ErrorMessages.InvalidArgument:format(1, "Component.GetAll()", "Instance", typeof(instance))
+			SharedConstants.ErrorMessages.InvalidArgument:format(
+				1,
+				"Component.GetAllFromInstance()",
+				"Instance",
+				typeof(instance)
+			)
 		)
 	end
 
 	local componentObjects = {}
 
 	for _, component in ipairs(Component._components) do
-		if instance then
-			table.insert(componentObjects, component._objects[instance])
-		else
-			for _, object in pairs(component._objects) do
-				table.insert(componentObjects, object)
-			end
-		end
+		table.insert(componentObjects, component._objects[instance])
 	end
 
 	return componentObjects
