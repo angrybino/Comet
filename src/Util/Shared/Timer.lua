@@ -5,7 +5,7 @@
 --[[
 	-- Static methods:
 
-    Timer.new(timer : number, customUpdateSignal : RBXScriptSignal ?) --> Timer []
+    Timer.new(timer : number, customUpdateSignal : RBXScriptSignal | nil) --> Timer []
     Timer.IsTimer(self : any) --> boolean [IsTimer]
 
    	-- Instance members:

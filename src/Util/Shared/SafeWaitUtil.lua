@@ -3,14 +3,14 @@
 -- October 09, 2021
 
 --[[
-	SafeWaitUtil.WaitForChild(instance : Instance, childName : string, timeOut : number ?) 
-    --> Instance ? []
+	SafeWaitUtil.WaitForChild(instance : Instance, childName : string, timeOut : number | nil) 
+    --> Instance | nil []
 
-	SafeWaitUtil.WaitForFirstChildWhichIsA(instance : Instance, class : string, timeOut : number  ?) 
-    --> Instance ? []
+	SafeWaitUtil.WaitForFirstChildWhichIsA(instance : Instance, class : string, timeOut : number | nil) 
+    --> Instance | nil []
 
-	SafeWaitUtil.WaitForFirstChildOfClass(instance : Instance, class : string, timeOut : number  ?) 
-    --> Instance ? []
+	SafeWaitUtil.WaitForFirstChildOfClass(instance : Instance, class : string, timeOut : number | nil) 
+    --> Instance | nil []
 ]]
 
 local SafeWaitUtil = {}

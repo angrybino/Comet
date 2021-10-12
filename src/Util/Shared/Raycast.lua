@@ -5,7 +5,7 @@
 --[[
 	-- Static methods:
 
-    Raycast.new(origin : Vector3, direction : Vector3, params : RaycastParams ?) --> Raycast []
+    Raycast.new(origin : Vector3, direction : Vector3, params : RaycastParams | nil) --> Raycast []
 	Raycast.IsRaycast(self : any) --> boolean [IsRayCast]
 
     -- Instance members:
@@ -24,8 +24,8 @@
     Raycast:Visualize() --> void []
 	Raycast:Unvisualize() --> void []
 	Raycast:SetVisualizerThickness(thickness : number) --> void []
-    Raycast:GetTouchingParts(maxTouchingParts : number ?) --> table [TouchingParts]
-    Raycast:Resize(size : number ?) --> void []
+    Raycast:GetTouchingParts(maxTouchingParts : number | nil) --> table [TouchingParts]
+    Raycast:Resize(size : number | nil) --> void []
     Raycast:Destroy() --> void []
 ]]
 

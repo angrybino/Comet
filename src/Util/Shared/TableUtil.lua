@@ -6,7 +6,7 @@
     TableUtil.DeepCopyTable(tabl : table) --> table [DeepCopiedTable]
     TableUtil.ShallowCopyTable(tabl : table) --> table [ShallowCopiedTable]
     TableUtil.ReconcileTable(tabl : table, templateTable : table) --> table [ReconciledTable]
-    TableUtil.ShuffleTable(tabl : table, randomObject : Random ?) --> table [ShuffledTable]
+    TableUtil.ShuffleTable(tabl : table, randomObject : Random | nil) --> table [ShuffledTable]
     TableUtil.SyncTable(tabl : table, templateSyncTable  : table) --> table [SyncedTable]
     TableUtil.IsTableEmpty(tabl : table) --> boolean [IsTableEmpty]
     TableUtil.Map(tabl : table, callback : function) --> table [MappedTable]

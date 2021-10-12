@@ -17,7 +17,7 @@
 
 	RemoteProperty:GetDefaultValue() --> any [DefaultValue]
     RemoteProperty:Destroy() --> void []
-    RemoteProperty:SetValue(value : any, specificPlayers : table ?) --> void []
+    RemoteProperty:SetValue(value : any, specificPlayers : table | nil) --> void []
     RemoteProperty:GetValue() --> any [value]
 	RemoteProperty:GetPlayerValue(player : Player) --> any [PlayerSpecificValue]
 ]]
