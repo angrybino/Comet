@@ -10,6 +10,8 @@ local RunService = game:GetService("RunService")
 
 local SharedConstants = require(script.Parent.SharedConstants)
 
+local cachedLookups = {}
+
 return function(util)
 	assert(
 		typeof(util) == "string",
@@ -30,6 +32,9 @@ return function(util)
 			end
 
 			local module = finalInstance[util]
+			if cachedLookups[module] then
+				return cachedLookups[module]
+			end
 
 			if RunService:IsServer() then
 				assert(
@@ -43,7 +48,9 @@ return function(util)
 				)
 			end
 
-			return require(module)
+			cachedLookups[module] = require(module)
+
+			return cachedLookups[module]
 		end,
 	}
 end
