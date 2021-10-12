@@ -9,7 +9,7 @@ The [RemoteSignal](https://github.com/angrybino/Comet/blob/master/src/Util/Remot
 RemoteSignal.new() --> RemoteSignal []
 ```
 	
-Creates and returns a `RemoteSignal` object.
+Creates and returns a `RemoteSignal` object which is binded to a remote event.
 
 ### IsRemoteSignal()
 
