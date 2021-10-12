@@ -39,36 +39,39 @@ local LocalConstants = {
 
 local servicesFolder = script.ExposedServices
 
+Client.Get = Get
+Client.Version = SharedConstants.Version
+Client.LocalPlayer = Players.LocalPlayer
+Client.OnStart = Signal.new()
+
 do
 	local function WaitAndThenRegisterForPossibleInfiniteYield(timeout, message, yieldData)
 		task.delay(timeout, function()
-			if yieldData.YieldFinished then
-				return
-			end
+			task.defer(function()
+				if yieldData.YieldFinished then
+					return
+				end
 
-			DebugLog(("Infinite yield possible on %s"):format(message))
+				DebugLog(("Infinite yield possible on %s"):format(message))
+			end)
 		end)
 	end
 
 	local isCometFullyStarted = script.Parent.Server:GetAttribute("IsFullyStarted")
 
 	if not isCometFullyStarted then
-		local cometServersideFullyStartYieldData = { YieldFinished = false }
+		local cometServersideFullyStartYieldData = { YieldFinished = isCometFullyStarted }
 		WaitAndThenRegisterForPossibleInfiniteYield(
 			LocalConstants.MaxYieldIntervalForCometToFullyLoadServerside,
 			"waiting for Comet to fully to start on the server",
 			cometServersideFullyStartYieldData
 		)
 
-		script.Parent.Server:GetAttributeChangedSignal("IsFullyStarted"):Wait()
-		cometServersideFullyStartYieldData.YieldFinished = true
+		cometServersideFullyStartYieldData.YieldFinished = script.Parent.Server
+			:GetAttributeChangedSignal("IsFullyStarted")
+			:Wait()
 	end
 end
-
-Client.Get = Get
-Client.Version = SharedConstants.Version
-Client.LocalPlayer = Players.LocalPlayer
-Client.OnStart = Signal.new()
 
 function Client.GetService(serviceName)
 	assert(

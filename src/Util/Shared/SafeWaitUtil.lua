@@ -27,11 +27,13 @@ local LocalConstants = {
 
 local function WaitAndThenRegisterForPossibleInfiniteYield(callInfo, yieldData)
 	task.delay(LocalConstants.PossibleInfiniteYieldInterval, function()
-		if yieldData.YieldFinished then
-			return
-		end
+		task.defer(function()
+			if yieldData.YieldFinished then
+				return
+			end
 
-		warn(("Infinite yield possible on %s"):format(callInfo))
+			warn(("Infinite yield possible on %s"):format(callInfo))
+		end)
 	end)
 end
 
