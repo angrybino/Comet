@@ -38,21 +38,21 @@ function TableUtil.DeepFreezeTable(tabl)
 	end
 end
 
-function TableUtil.DeepCopyTable(tabl, cache)
+function TableUtil.DeepCopyTable(tabl, _cache)
 	assert(
 		typeof(tabl) == "table",
 		SharedConstants.ErrorMessages.InvalidArgument:format(1, "TableUtil.DeepCopyTable()", "table", typeof(tabl))
 	)
 
-	cache = cache or {
+	_cache = _cache or {
 		[tabl] = true,
 	}
 	local deepCopiedTable = {}
 
 	for key, value in pairs(tabl) do
-		if typeof(value) == "table" and not cache[value] then
-			cache[value] = true
-			deepCopiedTable[key] = TableUtil.DeepCopyTable(value, cache)
+		if typeof(value) == "table" and not _cache[value] then
+			_cache[value] = true
+			deepCopiedTable[key] = TableUtil.DeepCopyTable(value, _cache)
 		end
 
 		if not deepCopiedTable[key] then
@@ -148,7 +148,7 @@ function TableUtil.IsTableEmpty(tabl)
 	return not next(tabl)
 end
 
-function TableUtil.SyncTable(tabl, templateSyncTable, cache)
+function TableUtil.SyncTable(tabl, templateSyncTable, _cache)
 	assert(
 		typeof(tabl) == "table",
 		SharedConstants.ErrorMessages.InvalidArgument:format(1, "TableUtil.SyncTable()", "table", typeof(tabl))
@@ -164,7 +164,7 @@ function TableUtil.SyncTable(tabl, templateSyncTable, cache)
 		)
 	)
 
-	cache = cache or {
+	_cache = _cache or {
 		[tabl] = true,
 	}
 
@@ -179,9 +179,9 @@ function TableUtil.SyncTable(tabl, templateSyncTable, cache)
 			else
 				tabl[key] = templateValue
 			end
-		elseif typeof(value) == "table" and not cache[value] then
-			cache[value] = true
-			tabl[key] = TableUtil.SyncTable(value, templateValue, cache)
+		elseif typeof(value) == "table" and not _cache[value] then
+			_cache[value] = true
+			tabl[key] = TableUtil.SyncTable(value, templateValue, _cache)
 		end
 	end
 
