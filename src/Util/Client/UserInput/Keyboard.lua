@@ -17,6 +17,7 @@ local UserInputService = game:GetService("UserInputService")
 
 local comet = script:FindFirstAncestor("Comet")
 local Signal = require(comet.Util.Shared.Signal)
+local Task = require(comet.Util.Shared.Task)
 
 function Keyboard.Init()
 	Keyboard.OnKeyHold = Signal.new()
@@ -27,7 +28,7 @@ function Keyboard.Init()
 
 		while UserInputService:IsKeyDown(keyCode) do
 			Keyboard.OnKeyHold:Fire(keyCode, isInputProcessed)
-			task.wait()
+			Task.Wait()
 		end
 	end)
 

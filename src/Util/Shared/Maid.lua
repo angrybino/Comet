@@ -147,7 +147,7 @@ function Maid:LinkToInstance(instance)
 
 	local function TrackInstanceConnectionForCleanup()
 		while mainConnection.Connected and not instance.Parent and manualConnection:IsConnected() do
-			task.wait()
+			Task.Wait()
 		end
 
 		if not instance.Parent and manualConnection:IsConnected() then
@@ -157,7 +157,7 @@ function Maid:LinkToInstance(instance)
 
 	mainConnection = self:AddTask(instance:GetPropertyChangedSignal("Parent"):Connect(function()
 		if not instance.Parent then
-			Task.Defer(function()
+			Task.SafeDefer(function()
 				if not manualConnection:IsConnected() then
 					return
 				end
@@ -185,7 +185,7 @@ function Maid:LinkToInstance(instance)
 	end
 
 	if not instance.Parent then
-		Task.Spawn(TrackInstanceConnectionForCleanup)
+		Task.SafeSpawn(TrackInstanceConnectionForCleanup)
 	end
 
 	if IsInstanceDestroyed(instance) then
