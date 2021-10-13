@@ -28,6 +28,7 @@ local Players = game:GetService("Players")
 local Promise = require(Client.Util.Shared.Promise)
 local ClientRemoteSignal = require(Client.Util.Shared.Remote.ClientRemoteSignal)
 local ClientRemoteProperty = require(Client.Util.Shared.Remote.ClientRemoteProperty)
+local Task = require(Client.Util.Shared.Task)
 local SharedConstants = require(script.Parent.SharedConstants)
 local Signal = require(Client.Util.Shared.Signal)
 local DebugLog = require(script.Parent.DebugLog)
@@ -46,8 +47,8 @@ Client.OnStart = Signal.new()
 
 do
 	local function WaitAndThenRegisterForPossibleInfiniteYield(timeout, message, yieldData)
-		task.delay(timeout, function()
-			task.defer(function()
+		Task.SafeDelay(timeout, function()
+			Task.SafeDefer(function()
 				if yieldData.YieldFinished then
 					return
 				end
@@ -169,7 +170,7 @@ end
 function Client._startControllers()
 	for _, requiredController in pairs(Client.Controllers) do
 		if typeof(requiredController.Start) == "function" then
-			task.spawn(requiredController.Start)
+			Task.SafeSpawn(requiredController.Start)
 		end
 	end
 end

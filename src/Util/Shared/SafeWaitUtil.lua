@@ -18,6 +18,7 @@ local SafeWaitUtil = {}
 local Maid = require(script.Parent.Maid)
 local Timer = require(script.Parent.Timer)
 local Signal = require(script.Parent.Signal)
+local Task = require(script.Parent.Task)
 local comet = script:FindFirstAncestor("Comet")
 local SharedConstants = require(comet.SharedConstants)
 
@@ -26,8 +27,8 @@ local LocalConstants = {
 }
 
 local function WaitAndThenRegisterForPossibleInfiniteYield(callInfo, yieldData)
-	task.delay(LocalConstants.PossibleInfiniteYieldInterval, function()
-		task.defer(function()
+	Task.SafeDelay(LocalConstants.PossibleInfiniteYieldInterval, function()
+		Task.SafeDefer(function()
 			if yieldData.YieldFinished then
 				return
 			end
