@@ -68,9 +68,10 @@ do
 			cometServersideFullyStartYieldData
 		)
 
-		cometServersideFullyStartYieldData.YieldFinished = script.Parent.Server
+		script.Parent.Server
 			:GetAttributeChangedSignal("IsFullyStarted")
 			:Wait()
+		cometServersideFullyStartYieldData.YieldFinished = true
 	end
 end
 

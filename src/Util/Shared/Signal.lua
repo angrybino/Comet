@@ -143,7 +143,7 @@ function Signal:Wait()
 	local connection
 	connection = self:Connect(function(...)
 		connection:Disconnect()
-		Task.Spawn(yieldedCoroutine, ...)
+		Task.SafeSpawn(yieldedCoroutine, ...)
 	end)
 
 	return coroutine.yield()

@@ -18,7 +18,7 @@ local Task = {
 local comet = script:FindFirstAncestor("Comet")
 local SharedConstants = require(comet.SharedConstants)
 
-function Task.SafeSpawn(callBackOrThread, tableArgs, _forceNoCheck)
+function Task.SafeSpawn(callBackOrThread, ...)
 	assert(
 		typeof(callBackOrThread) == "thread" or typeof(callBackOrThread) == "function",
 		SharedConstants.ErrorMessages.InvalidArgument:format(
@@ -29,34 +29,19 @@ function Task.SafeSpawn(callBackOrThread, tableArgs, _forceNoCheck)
 		)
 	)
 
-	if tableArgs then
-		assert(
-			typeof(tableArgs) == "table",
-			SharedConstants.ErrorMessages.InvalidArgument:format(
-				2,
-				"Task.SafeSpawn()",
-				"table or void",
-				typeof(tableArgs)
-			)
-		)
-	end
-
-	tableArgs = tableArgs or {}
-
 	if typeof(callBackOrThread) == "thread" and coroutine.status(callBackOrThread) ~= "suspended" then
 		return
 	end
 
-	if not _forceNoCheck then
-		Task._checkAndWaitForEngineResumption(callBackOrThread)
-	end
-
-	task.spawn(callBackOrThread, table.unpack(tableArgs))
+	Task._checkAndWaitForEngineResumption(callBackOrThread)
+	task.spawn(callBackOrThread, ...)
 end
 
 function Task.SafeDelay(timer, callBackOrThread)
-	Task.Wait(timer)
-	Task.SafeSpawn(callBackOrThread)
+	task.spawn(function()
+		Task.Wait(timer)
+		Task.SafeSpawn(callBackOrThread)
+	end)
 end
 
 function Task.Wait(timer)
@@ -88,11 +73,10 @@ function Task.SafeDefer(callBackOrThread, ...)
 	Task._threadsScheduledForResumption[callBackOrThread] = bindable
 
 	task.defer(function()
-		Task.SafeSpawn(callBackOrThread, args, true)
-
+		Task._threadsScheduledForResumption[callBackOrThread] = nil
+		Task.SafeSpawn(callBackOrThread, table.unpack(args))
 		bindable:Fire()
 		bindable:Destroy()
-		Task._threadsScheduledForResumption[callBackOrThread] = nil
 	end)
 end
 

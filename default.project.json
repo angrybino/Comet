@@ -5,6 +5,7 @@
 
     "ReplicatedStorage": {
       "$className": "ReplicatedStorage",
+      "$ignoreUnknownInstances": true,
 
       "Comet": {
         "$path": "src"
