@@ -23,7 +23,6 @@ Maid.__index = Maid
 local Players = game:GetService("Players")
 
 local comet = script:FindFirstAncestor("Comet")
-local Task = require(script.Parent.Task)
 local SharedConstants = require(comet.SharedConstants)
 
 local function IsInstanceDestroyed(instance)
@@ -147,7 +146,7 @@ function Maid:LinkToInstance(instance)
 
 	local function TrackInstanceConnectionForCleanup()
 		while mainConnection.Connected and not instance.Parent and manualConnection:IsConnected() do
-			Task.Wait()
+			task.wait()
 		end
 
 		if not instance.Parent and manualConnection:IsConnected() then
@@ -157,7 +156,7 @@ function Maid:LinkToInstance(instance)
 
 	mainConnection = self:AddTask(instance:GetPropertyChangedSignal("Parent"):Connect(function()
 		if not instance.Parent then
-			Task.SafeDefer(function()
+			task.defer(function()
 				if not manualConnection:IsConnected() then
 					return
 				end
@@ -185,7 +184,7 @@ function Maid:LinkToInstance(instance)
 	end
 
 	if not instance.Parent then
-		Task.SafeSpawn(TrackInstanceConnectionForCleanup)
+		task.spawn(TrackInstanceConnectionForCleanup)
 	end
 
 	if IsInstanceDestroyed(instance) then

@@ -29,7 +29,6 @@ Signal.__index = Signal
 local comet = script:FindFirstAncestor("Comet")
 local SharedConstants = require(comet.SharedConstants)
 local Maid = require(script.Parent.Maid)
-local Task = require(script.Parent.Task)
 
 local LocalConstants = {
 	MinArgumentCount = 1,
@@ -143,7 +142,7 @@ function Signal:Wait()
 	local connection
 	connection = self:Connect(function(...)
 		connection:Disconnect()
-		Task.SafeSpawn(yieldedCoroutine, ...)
+		task.spawn(yieldedCoroutine, ...)
 	end)
 
 	return coroutine.yield()
@@ -176,7 +175,7 @@ function Signal:WaitUntilArgumentsPassed(...)
 		end
 
 		-- Prevent script execution timout incase of any thread concurrency issues:
-		Task.Wait()
+		task.wait()
 	end
 end
 
@@ -190,7 +189,7 @@ function Signal:Fire(...)
 				Signal._freeRunnerThread = coroutine.create(Signal._runEventHandlerInFreeThread)
 			end
 
-			Task.SafeSpawn(Signal._freeRunnerThread, connection.Callback, ...)
+			task.spawn(Signal._freeRunnerThread, connection.Callback, ...)
 		end
 
 		connection = connection.Next
@@ -208,7 +207,7 @@ function Signal:DeferredFire(...)
 				Signal._freeRunnerThread = coroutine.create(Signal._runEventHandlerInFreeThread)
 			end
 
-			Task.SafeDefer(Signal._freeRunnerThread, connection.Callback, ...)
+			task.defer(Signal._freeRunnerThread, connection.Callback, ...)
 		end
 
 		connection = connection.Next

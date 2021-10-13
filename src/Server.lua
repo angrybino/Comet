@@ -26,7 +26,6 @@ local RemoteSignal = require(Server.Util.Shared.Remote.RemoteSignal)
 local SharedConstants = require(script.Parent.SharedConstants)
 local Signal = require(Server.Util.Shared.Signal)
 local RemoteProperty = require(Server.Util.Shared.Remote.RemoteProperty)
-local Task = require(Server.Util.Shared.Task)
 local DebugLog = require(script.Parent.DebugLog)
 local Get = require(script.Parent.Get)
 
@@ -105,7 +104,7 @@ function Server._startServices()
 	-- Start all services:
 	for _, requiredService in pairs(Server.Services) do
 		if typeof(requiredService.Start) == "function" then
-			Task.SafeSpawn(requiredService.Start)
+			task.spawn(requiredService.Start)
 		end
 	end
 end
