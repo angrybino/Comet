@@ -184,7 +184,7 @@ function Maid:LinkToInstance(instance)
 	end
 
 	if not instance.Parent then
-		TrackInstanceConnectionForCleanup()
+		task.spawn(TrackInstanceConnectionForCleanup)
 	end
 
 	if IsInstanceDestroyed(instance) then
