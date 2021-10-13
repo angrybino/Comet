@@ -5,9 +5,9 @@
 --[[
     Complete safe version of the task library and also omits errors without stack traces
 
+	Task.Wait(timer : number | void) --> void []
     Task.SafeSpawn(callBackOrThread : function | thread, tableArgs : table | void) --> void []
     Task.SafeDefer(callBackOrThread : function | thread, tableArgs : table | void) --> void []
-    Task.SafeWait(timer : number | void) --> void []
     Task.SafeDelay(timer : number, callBackOrThread : function | thread) --> void []
 ]]
 
