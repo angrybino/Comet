@@ -182,7 +182,7 @@ function Maid:LinkToInstance(instance)
 			end
 		end))
 	end
-
+ 
 	if not instance.Parent then
 		task.spawn(TrackInstanceConnectionForCleanup)
 	end
